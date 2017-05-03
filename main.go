@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sapcc/hermes/pkg/api"
+	"github.com/sapcc/hermes/pkg/cli"
 	"github.com/spf13/viper"
 )
 
@@ -33,15 +35,29 @@ func main() {
 	flag.Usage = printUsage
 	flag.Parse()
 
-	//load configuration
-	viper.SetConfigFile(*configPath)
-	viper.SetConfigType("toml")
-	err := viper.ReadInConfig()
-	if err != nil { // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	//Don't read config file if the default config file isn't there, as we will just use
+	// config defaults in that case
+	var shouldReadConfig = true
+	if _, err := os.Stat(*configPath); os.IsNotExist(err) {
+		shouldReadConfig = *configPath != flag.Lookup("f").DefValue
+	}
+	// Now we sorted that out, read the config
+	if shouldReadConfig {
+		viper.SetConfigFile(*configPath)
+		viper.SetConfigType("toml")
+		err := viper.ReadInConfig()
+		if err != nil { // Handle errors reading the config file
+			panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		}
 	}
 
-	fmt.Println("Selected driver:", viper.Get("hermes.driver"))
+	// If there are args left over after flag processing, we are a Hermes CLI client
+	if len(flag.Args()) > 0 {
+		cli.Command(flag.Args())
+	} else { // otherwise, we are running a Hermes API server
+		api.Server()
+	}
+	//fmt.Println("Selected driver:", viper.Get("hermes.driver"))
 }
 
 func printUsage() {
