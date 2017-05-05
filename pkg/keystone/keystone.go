@@ -29,9 +29,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-type real struct{}
+func Keystone() Interface {
+	return keystone{}
+}
 
-type keystoneConfig struct {
+type keystone struct {
 	AuthURI           string `mapstructure:"auth_uri"`
 	AuthURL           string `mapstructure:"auth_url"`
 	Username          string
@@ -41,12 +43,12 @@ type keystoneConfig struct {
 	ProjectDomainName string `mapstructure:"project_domain_name"`
 }
 
-func (d real) keystoneClient() (*gophercloud.ServiceClient, error) {
+func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	return nil, nil
 }
 
-func (d real) Client() *gophercloud.ProviderClient {
-	var kc keystoneConfig
+func (d keystone) Client() *gophercloud.ProviderClient {
+	var kc keystone
 
 	err := viper.UnmarshalKey("keystone_authtoken", &kc)
 	if err != nil {
@@ -57,7 +59,7 @@ func (d real) Client() *gophercloud.ProviderClient {
 }
 
 //ListDomains implements the Driver interface.
-func (d real) ListDomains() ([]KeystoneDomain, error) {
+func (d keystone) ListDomains() ([]KeystoneDomain, error) {
 	client, err := d.keystoneClient()
 	if err != nil {
 		return nil, err
@@ -79,7 +81,7 @@ func (d real) ListDomains() ([]KeystoneDomain, error) {
 }
 
 //ListProjects implements the Driver interface.
-func (d real) ListProjects() ([]KeystoneProject, error) {
+func (d keystone) ListProjects() ([]KeystoneProject, error) {
 	client, err := d.keystoneClient()
 	if err != nil {
 		return nil, err
@@ -99,7 +101,7 @@ func (d real) ListProjects() ([]KeystoneProject, error) {
 }
 
 //CheckUserPermission implements the Driver interface.
-func (d real) ValidateToken(token string) (policy.Context, error) {
+func (d keystone) ValidateToken(token string) (policy.Context, error) {
 	client, err := d.keystoneClient()
 	if err != nil {
 		return policy.Context{}, err

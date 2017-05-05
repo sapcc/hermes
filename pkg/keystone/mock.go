@@ -7,6 +7,10 @@ import (
 
 type mock struct{}
 
+func Mock() Interface {
+	return mock{}
+}
+
 func (d mock) keystoneClient() (*gophercloud.ServiceClient, error) {
 	return nil, nil
 }

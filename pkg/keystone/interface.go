@@ -22,6 +22,7 @@ package keystone
 import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
+	"github.com/spf13/viper"
 )
 
 // Driver is an interface that wraps the authentication of the service user and
@@ -50,10 +51,12 @@ type KeystoneProject struct {
 	Name string `json:"name"`
 }
 
-func Real() Interface {
-	return real{}
-}
-
-func Mock() Interface {
-	return mock{}
+func ConfiguredDriver() Interface {
+	switch viper.GetString("hermes.keystone_driver") {
+	case "keystone":
+		return Keystone()
+	case "mock":
+		return Mock()
+	}
+	return nil
 }
