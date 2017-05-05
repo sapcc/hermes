@@ -1,0 +1,17 @@
+{
+  "version": {
+    "status": "CURRENT",
+    "id": "v1",
+    "links": [
+      {
+        "href": "/v1",
+        "rel": "self"
+      },
+      {
+        "href": "https://github.com/sapcc/hermes/tree/master/docs",
+        "rel": "describedby",
+        "type": "text/html"
+      }
+    ]
+  }
+}

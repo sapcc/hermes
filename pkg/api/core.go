@@ -97,7 +97,7 @@ func NewV1Router(keystone keystone.Interface) (http.Handler, VersionData) {
 //ReturnJSON is a convenience function for HTTP handlers returning JSON data.
 //The `code` argument specifies the HTTP response code, usually 200.
 func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
-	bytes, err := json.Marshal(&data)
+	bytes, err := json.MarshalIndent(&data, "", "  ")
 	if err == nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(code)
@@ -131,12 +131,10 @@ func RequireJSON(w http.ResponseWriter, r *http.Request, data interface{}) bool 
 
 //Path constructs a full URL for a given URL path below the /v1/ endpoint.
 func (p *v1Provider) Path(elements ...string) string {
-	//parts := []string{
-	//	strings.TrimSuffix(p.Driver.Cluster().Config.GetString("CatalogURL"), "/"),
-	//	"v1",
-	//}
-	parts := []string{"http://example.com/"}
+	parts := []string{
+		strings.TrimSuffix( /*p.Driver.Cluster().Config.CatalogURL*/ "", "/"),
+		"v1",
+	}
 	parts = append(parts, elements...)
 	return strings.Join(parts, "/")
-
 }
