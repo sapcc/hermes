@@ -30,6 +30,7 @@ import (
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/spf13/viper"
+	"strings"
 )
 
 var configPath *string
@@ -38,9 +39,7 @@ func main() {
 	parseCmdlineFlags()
 
 	hermes.SetDefaultConfig()
-	readConfigFile(configPath)
-
-	fmt.Println("Selected driver:", viper.Get("hermes.storage_driver"))
+	readConfig(configPath)
 
 	// If there are args left over after flag processing, we are a Hermes CLI client
 	if len(flag.Args()) > 0 {
@@ -62,7 +61,7 @@ func parseCmdlineFlags() {
 	flag.Parse()
 }
 
-func readConfigFile(configPath *string) {
+func readConfig(configPath *string) {
 	// Don't read config file if the default config file isn't there,
 	//  as we will just fall back to config defaults in that case
 	var shouldReadConfig = true
@@ -77,6 +76,12 @@ func readConfigFile(configPath *string) {
 		if err != nil { // Handle errors reading the config file
 			panic(fmt.Errorf("Fatal error config file: %s \n", err))
 		}
+	}
+
+	// Setup environment variable overrides for OpenStack authentication
+	os_vars := []string{"username", "password", "auth_url", "user_domain_name", "project_name", "project_domain_name"}
+	for i := range os_vars {
+		viper.BindEnv("keystone_authtoken."+os_vars[i], "OS_"+strings.ToUpper(os_vars[i]))
 	}
 }
 
