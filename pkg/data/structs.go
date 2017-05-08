@@ -7,6 +7,14 @@ type Event struct {
 	Time string `json:"event_time"`
 }
 
+// Event list for returning in the API
+type EventList struct {
+	NextURL string  `json:"next"`
+	PrevURL string  `json:"previous"`
+	Events  []Event `json:"events"`
+	Total   int     `json:"total"`
+}
+
 // EventDetail contains the CADF payload, enhanced with names for IDs
 // TODO - add lots of fields
 type EventDetail struct {
