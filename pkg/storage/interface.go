@@ -29,7 +29,7 @@ import (
 type Interface interface {
 
 	/********** requests to Keystone **********/
-	GetEvents(filter data.Filter) ([]data.Event, error)
+	GetEvents(filter data.Filter) ([]data.Event, int, error)
 	GetEvent(eventId string) (data.EventDetail, error)
 }
 
