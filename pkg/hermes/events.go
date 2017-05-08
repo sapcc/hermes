@@ -24,24 +24,14 @@ import (
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
-// GetEvents returns Event reports for all events (with filtering) or, if eventID is
-// non-nil, the CADF detail for that event only.
-func GetEvents(eventID *string, eventStore storage.Interface, filter *data.Filter) ([]*data.Event, error) {
-
-	events := make(events)
-
-	// TODO - call the backend storage driver to get the data
-	result := make([]*data.Event, len(events))
-
-	return result, nil
+// GetEvents returns a list of matching events (with filtering)
+func GetEvents(eventStore storage.Interface, filter data.Filter) ([]data.Event, int, error) {
+	events, total, error := eventStore.GetEvents(filter)
+	return events, total, error
 }
 
-func makeEventFilter(tableWithEventID string, eventID *string) map[string]interface{} {
-	fields := make(map[string]interface{})
-	if eventID != nil {
-		fields[tableWithEventID+".event_id"] = *eventID
-	}
-	return fields
+// GetEvent returns the CADF detail for event with the specified ID
+func GetEvent(eventID string, eventStore storage.Interface) (data.EventDetail, error) {
+	event, error := eventStore.GetEvent(eventID)
+	return event, error
 }
-
-type events map[string]*data.Event
