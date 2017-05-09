@@ -23,6 +23,8 @@ import (
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
+	"github.com/prometheus/common/log"
+	"fmt"
 )
 
 // GetEvents returns a list of matching events (with filtering)
@@ -51,6 +53,9 @@ func GetEvent(eventID string, eventStore storage.Interface) (data.EventDetail, e
 		switch event.Payload.Target.TypeURI {
 		case "data/security/project":
 			event.Payload.Target.Name, err = keystoneSvc.ProjectName(event.Payload.Target.ID)
+		default:
+			log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.",
+				event.Payload.Target.TypeURI))
 		}
 	}
 	return event, err
