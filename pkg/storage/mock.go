@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"github.com/jinzhu/copier"
 	"github.com/sapcc/hermes/pkg/data"
 )
 
@@ -35,8 +36,8 @@ func (m mock) GetEvents(filter data.Filter) ([]data.Event, int, error) {
 func (m mock) GetEvent(eventId string) (data.EventDetail, error) {
 	var parsedEvent Event
 	json.Unmarshal(mockEvent, &parsedEvent)
-	p := parsedEvent.Payload
-	event := data.EventDetail{ID: p.ID, Type: parsedEvent.EventType, Time: p.EventTime}
+	event := data.EventDetail{}
+	copier.Copy(&event, &parsedEvent)
 	return event, nil
 }
 

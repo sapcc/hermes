@@ -19,6 +19,7 @@ type Event struct {
 		TypeURI      string `json:"typeURI"`
 		Initiator    struct {
 			TypeURI   string `json:"typeURI"`
+			DomainID string `json:"domain_id"`
 			ProjectID string `json:"project_id"`
 			UserID    string `json:"user_id"`
 			Host      struct {

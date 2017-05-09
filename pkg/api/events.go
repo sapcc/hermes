@@ -23,6 +23,7 @@ import (
 	"net/http"
 
 	"github.com/sapcc/hermes/pkg/hermes"
+	"github.com/sapcc/hermes/pkg/data"
 )
 
 //ListEvents handles GET /v1/events.
@@ -31,12 +32,14 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := hermes.GetEvents(nil, nil, nil)
+	events, total, err := hermes.GetEvents(nil, data.Filter{})
 	if ReturnError(w, err) {
 		return
 	}
 
-	ReturnJSON(w, 200, map[string]interface{}{"events": events})
+	eventList := data.EventList{Events: events, Total: total}
+
+	ReturnJSON(w, 200, eventList)
 }
 
 //GetEvent handles GET /v1/events/:event_id.
@@ -45,10 +48,10 @@ func (p *v1Provider) GetEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events, err := hermes.GetEvents(nil, nil, nil)
+	event, err := hermes.GetEvent("",nil)
 	if ReturnError(w, err) {
 		return
 	}
 
-	ReturnJSON(w, 200, map[string]interface{}{"event": events[0]})
+	ReturnJSON(w, 200, event)
 }

@@ -49,9 +49,7 @@ func main() {
 			os.Exit(1)
 		}
 	} else { // otherwise, we are running a Hermes API server
-		keystone := keystone.Mock()
-		storage := storage.Mock()
-		api.Server(keystone, storage)
+		api.Server(keystone.ConfiguredDriver(), storage.ConfiguredDriver())
 	}
 }
 func parseCmdlineFlags() {
