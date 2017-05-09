@@ -26,6 +26,7 @@ import (
 
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/cmd"
+	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
@@ -77,10 +78,10 @@ func readConfig(configPath *string) {
 	}
 
 	// Setup environment variable overrides for OpenStack authentication
-	os_vars := []string{"username", "password", "auth_url", "user_domain_name", "project_name", "project_domain_name"}
-	for i := range os_vars {
-		viper.BindEnv("keystone_authtoken."+os_vars[i], "OS_"+strings.ToUpper(os_vars[i]))
+	for i := range data.OS_vars {
+		viper.BindEnv("keystone_authtoken."+data.OS_vars[i], "OS_"+strings.ToUpper(data.OS_vars[i]))
 	}
+
 }
 
 func printUsage() {

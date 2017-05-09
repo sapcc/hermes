@@ -16,10 +16,12 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/sapcc/hermes/pkg/data"
 	"os"
 
 	"github.com/spf13/cobra"
-	_ "github.com/spf13/viper"
+	"github.com/spf13/viper"
+	"strings"
 )
 
 var cfgFile string
@@ -28,10 +30,10 @@ var cfgFile string
 var RootCmd = &cobra.Command{
 	Use:   "hermes",
 	Short: "Command-line client and API server for OpenStack Audit Data service",
-	Long: `Command-line client and API server for OpenStack Audit Data service.`,
-// Uncomment the following line if your bare application
-// has an action associated with it:
-//	Run: func(cmd *cobra.Command, args []string) { },
+	Long:  `Command-line client and API server for OpenStack Audit Data service.`,
+	// Uncomment the following line if your bare application
+	// has an action associated with it:
+	//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -43,18 +45,32 @@ func Execute() {
 	}
 }
 
-//func init() {
-//	cobra.OnInitialize(initConfig)
-//
-//	// Here you will define your flags and configuration settings.
-//	// Cobra supports Persistent Flags, which, if defined here,
-//	// will be global for your application.
-//
-//	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.hermes.yaml)")
-//	// Cobra also supports local flags, which will only run
-//	// when this action is called directly.
-//	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-//}
+func init() {
+	//cobra.OnInitialize(initConfig)
+
+	// Here you will define your flags and configuration settings.
+	// Cobra supports Persistent Flags, which, if defined here,
+	// will be global for your application.
+
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-auth-url", "", "OpenStack Authentication URL")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-username", "", "OpenStack Username")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-password", "", "OpenStack Password")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-user-domain-name", "", "OpenStack User's domain name")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-project-name", "", "OpenStack Project name to scope to")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-project-domain-name", "", "OpenStack Project's domain name")
+
+	// Setup command-line flags for OpenStack authentication
+	for i := range data.OS_vars {
+		flags := RootCmd.PersistentFlags()
+		lookup := "os-" + strings.Replace(data.OS_vars[i], "_", "-", -1)
+		pflag := flags.Lookup(lookup)
+		viper.BindPFlag("keystone_authtoken."+data.OS_vars[i], pflag)
+	}
+	// Cobra also supports local flags, which will only run
+	// when this action is called directly.
+	//RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
 //
 //// initConfig reads in config file and ENV variables if set.
 //func initConfig() {
