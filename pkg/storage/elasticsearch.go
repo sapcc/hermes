@@ -8,7 +8,7 @@ func ElasticSearch() Interface {
 	return elasticSearch{}
 }
 
-func (m elasticSearch) GetEvents(filter data.Filter) ([]data.Event, int, error) {
+func (m elasticSearch) GetEvents(filter data.Filter) ([]*data.Event, int, error) {
 	return nil, 0, nil
 }
 

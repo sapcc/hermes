@@ -28,9 +28,34 @@ import (
 )
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(eventStore storage.Interface, filter data.Filter) ([]data.Event, int, error) {
-	events, total, error := eventStore.GetEvents(filter)
-	return events, total, error
+func GetEvents(eventStore storage.Interface, filter data.Filter) ([]*data.Event, int, error) {
+	events, total, err := eventStore.GetEvents(filter)
+	// Now add the names for IDs in the events
+	keystoneSvc := keystone.ConfiguredDriver()
+	for _, event := range events {
+		if err == nil && event.Initiator.DomainID != "" {
+			event.Initiator.DomainName, err = keystoneSvc.DomainName(event.Initiator.DomainID)
+		}
+		if err == nil && event.Initiator.ProjectID != "" {
+			event.Initiator.ProjectName, err = keystoneSvc.ProjectName(event.Initiator.ProjectID)
+		}
+		if err == nil && event.Initiator.UserID != "" {
+			event.Initiator.UserName, err = keystoneSvc.UserName(event.Initiator.UserID)
+		}
+
+		// Depending on the type of the target, we need to look up the name in different services
+		if err == nil {
+			switch event.ResourceType {
+			case "data/security/project":
+				event.ResourceName, err = keystoneSvc.ProjectName(event.ResourceId)
+			default:
+				log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.",
+					event.ResourceType))
+			}
+		}
+	}
+
+	return events, total, err
 }
 
 // GetEvent returns the CADF detail for event with the specified ID

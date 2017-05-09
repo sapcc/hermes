@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/jinzhu/copier"
 	"github.com/sapcc/hermes/pkg/data"
+	"strings"
 )
 
 type mock struct{}
@@ -17,17 +18,27 @@ type eventsList struct {
 	events []data.EventDetail
 }
 
-func (m mock) GetEvents(filter data.Filter) ([]data.Event, int, error) {
+func (m mock) GetEvents(filter data.Filter) ([]*data.Event, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 
-	var events []data.Event
+	var events []*data.Event
 
-	for i := range detailedEvents.Events {
-		de := detailedEvents.Events[i]
+	for _, de := range detailedEvents.Events {
 		p := de.Payload
-		ev := data.Event{ID: p.ID, Type: de.EventType, Time: p.EventTime}
-		events = append(events, ev)
+		ev := data.Event{
+			Source: strings.SplitN(de.EventType, ".", 2)[0],
+			ID: p.ID,
+			Type: de.EventType,
+			Time: p.EventTime,
+			ResourceId: de.Payload.Target.ID,
+			ResourceType: de.Payload.Target.TypeURI,
+		}
+		err := copier.Copy(&ev.Initiator, &de.Payload.Initiator)
+		if err != nil {
+			return nil, 0, nil
+		}
+		events = append(events, &ev)
 	}
 
 	return events, detailedEvents.Total, nil
@@ -37,8 +48,8 @@ func (m mock) GetEvent(eventId string) (data.EventDetail, error) {
 	var parsedEvent Event
 	json.Unmarshal(mockEvent, &parsedEvent)
 	event := data.EventDetail{}
-	copier.Copy(&event, &parsedEvent)
-	return event, nil
+	err := copier.Copy(&event, &parsedEvent)
+	return event, err
 }
 
 var mockEvent = []byte(`

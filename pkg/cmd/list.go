@@ -16,37 +16,61 @@ package cmd
 
 import (
 	"fmt"
-
+	"github.com/sapcc/hermes/pkg/data"
+	"github.com/sapcc/hermes/pkg/hermes"
+	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/spf13/cobra"
+	"os"
+	"github.com/olekukonko/tablewriter"
 )
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Lists a project’s or domain's audit events. The project or domain comes from the scope of the authentication parameters.",
+	Long: `Lists a project’s or domain's audit events. The project or domain comes from the scope of the authentication parameters.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("list called")
+Date Filters:
+The value for the time parameter is a comma-separated list of time stamps in ISO 8601 format. The time stamps can be prefixed with any of these comparison operators: gt: (greater-than), gte: (greater-than-or-equal), lt: (less-than), lte: (less-than-or-equal).
+For example, to get a list of events that will expire in January of 2020:
+GET /v1/events?time=gte:2020-01-01T00:00:00,lt:2020-02-01T00:00:00
+
+Sorting:
+The value of the sort parameter is a comma-separated list of sort keys. Supported sort keys include time, source, resource_type, resource_name, and event_type.
+Each sort key may also include a direction. Supported directions are :asc for ascending and :desc for descending. The service will use :asc for every key that does not include a direction.
+For example, to sort the list from most recently created to oldest:
+GET /v1/events?sort=time:desc`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		eventSlice, total, err := hermes.GetEvents(storage.ConfiguredDriver(), data.Filter{})
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Total hits: %d\n", total)
+		headers := []string{"Source", "Event ID", "Event Type", "Event Time", "Resource Name", "Resource Type", "User Name"}
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader(headers)
+		table.SetBorder(true)
+		for _, ev := range eventSlice {
+			dataRow := []string{ev.Source, ev.ID, ev.Type, ev.Time, ev.ResourceName, ev.ResourceType, ev.Initiator.UserName}
+			table.Append(dataRow)
+		}
+		table.Render()
+		return nil
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(listCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCmd.Flags().StringP("source", "s", "", "Selects all events with this source.")
+	listCmd.Flags().StringP("resource_type", "r", "", "Selects all events with this resource type.")
+	listCmd.Flags().StringP("resource_name", "n", "", "Selects all events with this resource name.")
+	listCmd.Flags().StringP("user_name", "u", "", "Selects all events with this user name.")
+	listCmd.Flags().StringP("event_type", "e", "", "Selects all events with this event type.")
+	listCmd.Flags().StringP("time", "t", "", "Date filter to select all events with event_time matching the specified criteria. See above for more detail.")
+	listCmd.Flags().Int32P("offset", "o", 0, "The starting index within the total list of the events that you would like to retrieve..")
+	listCmd.Flags().Int32P("limit", "l", 10, "The maximum number of records to return (up to 100). The default limit is 10.")
+	listCmd.Flags().String("sort", "", "Determines the sorted order of the returned list. See above for more detail.")
 
 }
