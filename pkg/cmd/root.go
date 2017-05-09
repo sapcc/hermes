@@ -60,11 +60,11 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-project-domain-name", "", "OpenStack Project's domain name")
 
 	// Setup command-line flags for OpenStack authentication
-	for i := range data.OS_vars {
+	for _, val := range data.OS_vars {
 		flags := RootCmd.PersistentFlags()
-		lookup := "os-" + strings.Replace(data.OS_vars[i], "_", "-", -1)
+		lookup := "os-" + strings.Replace(val, "_", "-", -1)
 		pflag := flags.Lookup(lookup)
-		viper.BindPFlag("keystone_authtoken."+data.OS_vars[i], pflag)
+		viper.BindPFlag("keystone_authtoken."+val, pflag)
 	}
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

@@ -34,10 +34,10 @@ func Test_GetEvents(t *testing.T) {
 	require.NotNil(t, events)
 	assert.Equal(t, len(events), 3)
 	assert.True(t, total >= len(events))
-	for i := range events {
-		assert.NotEmpty(t, events[i].ID)
-		assert.NotEmpty(t, events[i].Type)
-		assert.NotEmpty(t, events[i].Time)
+	for _, event := range events {
+		assert.NotEmpty(t, event.ID)
+		assert.NotEmpty(t, event.Type)
+		assert.NotEmpty(t, event.Time)
 	}
 	assert.NotEqual(t, events[0].ID, events[1].ID)
 	assert.NotEqual(t, events[0].ID, events[2].ID)
