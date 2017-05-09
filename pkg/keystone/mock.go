@@ -34,3 +34,15 @@ func (d mock) ValidateToken(token string) (policy.Context, error) {
 
 	return policy.Context{}, nil
 }
+
+func (d mock) DomainName(id string) (string, error) {
+	return "monsoon3", nil
+}
+
+func (d mock) ProjectName(id string) (string, error) {
+	return "ccdemo", nil
+}
+
+func (d mock) UserName(id string) (string, error) {
+	return "I056593", nil
+}

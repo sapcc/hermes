@@ -21,6 +21,7 @@ package hermes
 
 import (
 	"github.com/sapcc/hermes/pkg/data"
+	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
@@ -32,6 +33,25 @@ func GetEvents(eventStore storage.Interface, filter data.Filter) ([]data.Event, 
 
 // GetEvent returns the CADF detail for event with the specified ID
 func GetEvent(eventID string, eventStore storage.Interface) (data.EventDetail, error) {
-	event, error := eventStore.GetEvent(eventID)
-	return event, error
+	event, err := eventStore.GetEvent(eventID)
+	// Now add the names for IDs in the event
+	keystoneSvc := keystone.ConfiguredDriver()
+	if err == nil && event.Payload.Initiator.DomainID != "" {
+		event.Payload.Initiator.DomainName, err = keystoneSvc.DomainName(event.Payload.Initiator.DomainID)
+	}
+	if err == nil && event.Payload.Initiator.ProjectID != "" {
+		event.Payload.Initiator.ProjectName, err = keystoneSvc.ProjectName(event.Payload.Initiator.ProjectID)
+	}
+	if err == nil && event.Payload.Initiator.UserID != "" {
+		event.Payload.Initiator.UserName, err = keystoneSvc.UserName(event.Payload.Initiator.UserID)
+	}
+
+	// Depending on the type of the target, we need to look up the name in different services
+	if err == nil {
+		switch event.Payload.Target.TypeURI {
+		case "data/security/project":
+			event.Payload.Target.Name, err = keystoneSvc.ProjectName(event.Payload.Target.ID)
+		}
+	}
+	return event, err
 }

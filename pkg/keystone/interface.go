@@ -37,6 +37,9 @@ type Interface interface {
 	ListDomains() ([]KeystoneDomain, error)
 	ListProjects() ([]KeystoneProject, error)
 	ValidateToken(token string) (policy.Context, error)
+	DomainName(id string) (string, error)
+	ProjectName(id string) (string, error)
+	UserName(id string) (string, error)
 }
 
 //KeystoneDomain describes the basic attributes of a Keystone domain.
@@ -47,6 +50,12 @@ type KeystoneDomain struct {
 
 //KeystoneProject describes the basic attributes of a Keystone project.
 type KeystoneProject struct {
+	UUID string `json:"id"`
+	Name string `json:"name"`
+}
+
+//KeystoneProject describes the basic attributes of a Keystone project.
+type KeystoneUser struct {
 	UUID string `json:"id"`
 	Name string `json:"name"`
 }

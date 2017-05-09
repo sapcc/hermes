@@ -27,14 +27,14 @@ type EventDetail struct {
 		ResourceInfo string `json:"resource_info"`
 		TypeURI      string `json:"typeURI"`
 		Initiator    struct {
-			TypeURI   string `json:"typeURI"`
-			DomainID string `json:"domain_id,omitempty"`
-			DomainName string `json:"domain_name,omitempty"`
-			ProjectID string `json:"project_id,omitempty"`
+			TypeURI     string `json:"typeURI"`
+			DomainID    string `json:"domain_id,omitempty"`
+			DomainName  string `json:"domain_name,omitempty"`
+			ProjectID   string `json:"project_id,omitempty"`
 			ProjectName string `json:"project_name,omitempty"`
-			UserID    string `json:"user_id"`
-			UserName  string `json:"user_name"`
-			Host      struct {
+			UserID      string `json:"user_id"`
+			UserName    string `json:"user_name"`
+			Host        struct {
 				Agent   string `json:"agent"`
 				Address string `json:"address"`
 			} `json:"host"`
@@ -48,14 +48,13 @@ type EventDetail struct {
 		Target    struct {
 			TypeURI string `json:"typeURI"`
 			ID      string `json:"id"`
-			Name    string `json:"name"`
+			Name    string `json:"name,omitempty"`
 		} `json:"target"`
 	} `json:"payload"`
 	MessageID string `json:"message_id"`
 	Priority  string `json:"priority"`
 	Timestamp string `json:"timestamp"`
 }
-
 
 type Filter struct {
 	source       string

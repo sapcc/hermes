@@ -34,13 +34,13 @@ func Keystone() Interface {
 }
 
 type keystone struct {
-	AuthURI           string `mapstructure:"auth_uri"`
-	AuthURL           string `mapstructure:"auth_url"`
-	Username          string
-	Password          string
-	UserDomainName    string `mapstructure:"user_domain_name"`
-	ProjectName       string `mapstructure:"project_name"`
-	ProjectDomainName string `mapstructure:"project_domain_name"`
+	authURI           string `mapstructure:"auth_uri"`
+	authURL           string `mapstructure:"auth_url"`
+	username          string
+	password          string
+	userDomainName    string `mapstructure:"user_domain_name"`
+	projectName       string `mapstructure:"project_name"`
+	projectDomainName string `mapstructure:"project_domain_name"`
 }
 
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
@@ -120,6 +120,63 @@ func (d keystone) ValidateToken(token string) (policy.Context, error) {
 		return policy.Context{}, err
 	}
 	return tokenData.ToContext(), nil
+}
+
+func (d keystone) DomainName(id string) (string, error) {
+	client, err := d.keystoneClient()
+	if err != nil {
+		return "", err
+	}
+
+	var result gophercloud.Result
+	_, err = client.Get(fmt.Sprintf("/v3/domains/%s", id), &result.Body, nil)
+	if err != nil {
+		return "", err
+	}
+
+	var data struct {
+		Domain KeystoneDomain `json:"domain"`
+	}
+	err = result.ExtractInto(&data)
+	return data.Domain.Name, err
+}
+
+func (d keystone) ProjectName(id string) (string, error) {
+	client, err := d.keystoneClient()
+	if err != nil {
+		return "", err
+	}
+
+	var result gophercloud.Result
+	_, err = client.Get(fmt.Sprintf("/v3/projects/%s", id), &result.Body, nil)
+	if err != nil {
+		return "", err
+	}
+
+	var data struct {
+		Project KeystoneProject `json:"project"`
+	}
+	err = result.ExtractInto(&data)
+	return data.Project.Name, err
+}
+
+func (d keystone) UserName(id string) (string, error) {
+	client, err := d.keystoneClient()
+	if err != nil {
+		return "", err
+	}
+
+	var result gophercloud.Result
+	_, err = client.Get(fmt.Sprintf("/v3/users/%s", id), &result.Body, nil)
+	if err != nil {
+		return "", err
+	}
+
+	var data struct {
+		User KeystoneUser `json:"user"`
+	}
+	err = result.ExtractInto(&data)
+	return data.User.Name, err
 }
 
 type keystoneToken struct {
