@@ -23,6 +23,7 @@ import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/spf13/viper"
+	"log"
 )
 
 // Driver is an interface that wraps the authentication of the service user and
@@ -61,11 +62,14 @@ type KeystoneUser struct {
 }
 
 func ConfiguredDriver() Interface {
-	switch viper.GetString("hermes.keystone_driver") {
+	driverName := viper.GetString("hermes.keystone_driver")
+	switch driverName {
 	case "keystone":
 		return Keystone()
 	case "mock":
 		return Mock()
+	default:
+		log.Printf("Couldn't match a keystone driver for configured value \"%s\"", driverName)
+		return nil
 	}
-	return nil
 }

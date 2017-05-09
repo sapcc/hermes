@@ -21,7 +21,7 @@ func Test_GetEvent(t *testing.T) {
 	event, err := GetEvent(eventId, storage.ConfiguredDriver())
 	require.Nil(t, err)
 	require.NotNil(t, event)
-	assert.Equal(t, event.Payload.ID, "d5eed458-6666-58ec-ad06-8d3cf6bafca1")
+	assert.Equal(t, "d5eed458-6666-58ec-ad06-8d3cf6bafca1", event.Payload.ID)
 	assert.NotEmpty(t, event.Payload.EventType)
 	assert.NotEmpty(t, event.Payload.EventTime)
 	assert.NotEmpty(t, event.Payload.Target.Name)

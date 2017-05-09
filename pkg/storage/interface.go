@@ -22,6 +22,7 @@ package storage
 import (
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/spf13/viper"
+	"log"
 )
 
 // Driver is an interface that wraps the underlying event storage mechanism.
@@ -34,11 +35,14 @@ type Interface interface {
 }
 
 func ConfiguredDriver() Interface {
-	switch viper.GetString("hermes.storage_driver") {
+	driverName := viper.GetString("hermes.storage_driver")
+	switch driverName {
 	case "elasticsearch":
 		return ElasticSearch()
 	case "mock":
 		return Mock()
+	default:
+		log.Printf("Couldn't match a storage driver for configured value \"%s\"", driverName)
+		return nil
 	}
-	return nil
 }
