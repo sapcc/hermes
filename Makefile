@@ -28,12 +28,6 @@ comma := ,
 
 check: all static-check build/cover.html FORCE
 	@echo -e "\e[1;32m>> All tests successful.\e[0m"
-prepare-check: FORCE $(patsubst pkg/db/%,pkg/test/%, $(wildcard pkg/db/migrations/*.sql))
-	@# Precompile a module used by the unit tests which takes a long time to compile because of cgo.
-	$(GO) install github.com/sapcc/hermes/vendor/github.com/mattn/go-sqlite3
-pkg/test/migrations/%.sql: pkg/db/migrations/%.sql
-	@# convert Postgres syntax into SQLite syntax where necessary
-	sed 's/BIGSERIAL NOT NULL PRIMARY KEY/INTEGER PRIMARY KEY/' < $< > $@
 static-check: FORCE
 	@if s="$$(gofmt -s -l *.go pkg 2>/dev/null)"                            && test -n "$$s"; then printf ' => %s\n%s\n' gofmt  "$$s"; false; fi
 	@if s="$$(golint . && find pkg -type d -exec golint {} \; 2>/dev/null)" && test -n "$$s"; then printf ' => %s\n%s\n' golint "$$s"; false; fi
@@ -47,8 +41,6 @@ build/cover.html: build/cover.out
 
 install: FORCE all
 	install -D -m 0755 build/hermes "$(DESTDIR)$(PREFIX)/bin/hermes"
-	install -d -m 0755    "$(DESTDIR)$(PREFIX)/share/hermes/migrations"
-	install -D -m 0644 -t "$(DESTDIR)$(PREFIX)/share/hermes/migrations" $(CURDIR)/pkg/db/migrations/*.sql
 
 clean: FORCE
 	rm -f -- build/hermes
