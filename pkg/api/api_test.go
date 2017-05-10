@@ -64,7 +64,7 @@ keystone_driver = "mock"
 	return router
 }
 
-func Test_HermesOperations(t *testing.T) {
+func Test_APIMetadata(t *testing.T) {
 	router := setupTest(t)
 
 	test.APIRequest{
@@ -76,7 +76,26 @@ func Test_HermesOperations(t *testing.T) {
 
 }
 
-//p2s makes a "pointer to string".
-func p2s(val string) *string {
-	return &val
+func Test_APIGetEventDetails(t *testing.T) {
+	router := setupTest(t)
+
+	test.APIRequest{
+		Method:           "GET",
+		Path:             "/v1/events/d5eed458-6666-58ec-ad06-8d3cf6bafca1",
+		ExpectStatusCode: 200,
+		ExpectJSON:       "fixtures/event-details.json",
+	}.Check(t, router)
+
+}
+
+func Test_APIGetEventList(t *testing.T) {
+	router := setupTest(t)
+
+	test.APIRequest{
+		Method:           "GET",
+		Path:             "/v1/events?event_type=identity.project.deleted&offset=10",
+		ExpectStatusCode: 200,
+		ExpectJSON:       "fixtures/event-list.json",
+	}.Check(t, router)
+
 }

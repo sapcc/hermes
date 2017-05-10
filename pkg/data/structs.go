@@ -27,8 +27,8 @@ type Event struct {
 
 // Event list for returning in the API
 type EventList struct {
-	NextURL string  `json:"next"`
-	PrevURL string  `json:"previous"`
+	NextURL string  `json:"next,omitempty"`
+	PrevURL string  `json:"previous,omitempty"`
 	Events  []*Event `json:"events"`
 	Total   int     `json:"total"`
 }
@@ -75,13 +75,13 @@ type EventDetail struct {
 }
 
 type Filter struct {
-	source       string
-	resourceType string
-	resourceName string
-	userName     string
-	eventType    string
-	time         string
-	offset       uint32
-	limit        uint8
-	sort         string
+	Source       string
+	ResourceType string
+	ResourceName string
+	UserName     string
+	EventType    string
+	Time         string
+	Offset       uint64
+	Limit        uint64
+	Sort         string
 }

@@ -28,8 +28,14 @@ import (
 )
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(eventStore storage.Interface, filter data.Filter) ([]*data.Event, int, error) {
-	events, total, err := eventStore.GetEvents(filter)
+func GetEvents(eventStore storage.Interface, filter *data.Filter) ([]*data.Event, int, error) {
+	// As per the documentation, the default limit is 10
+	if filter.Limit == 0 {
+		filter.Limit = 10
+	}
+
+	events, total, err := eventStore.GetEvents(*filter)
+
 	// Now add the names for IDs in the events
 	keystoneSvc := keystone.ConfiguredDriver()
 	for _, event := range events {

@@ -1,0 +1,37 @@
+{
+  "publisher_id": "identity.keystone-2031324599-gujvn",
+  "event_type": "identity.project.deleted",
+  "payload": {
+    "observer": {
+      "typeURI": "service/security",
+      "id": "493f1d6d-af50-5a4b-813b-488ecdfb1010"
+    },
+    "resource_info": "d15f49428034473fb7c018b27218523b",
+    "typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
+    "initiator": {
+      "typeURI": "service/security/account/user",
+      "project_id": "6a030751147a45c0863c3b5bde32c744",
+      "project_name": "ccdemo",
+      "user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
+      "user_name": "I056593",
+      "host": {
+        "agent": "python-keystoneclient",
+        "address": "100.65.0.11"
+      },
+      "id": "4a70d16f08b05d038c1e5ee7a5ee554e"
+    },
+    "eventTime": "2017-05-02T12:02:46.726056+0000",
+    "action": "deleted.project",
+    "eventType": "activity",
+    "id": "d5eed458-6666-58ec-ad06-8d3cf6bafca1",
+    "outcome": "success",
+    "target": {
+      "typeURI": "data/security/project",
+      "id": "d15f49428034473fb7c018b27218523b",
+      "name": "ccdemo"
+    }
+  },
+  "message_id": "5a32c2f3-2996-4f46-819c-6197cf06037e",
+  "priority": "info",
+  "timestamp": "2017-05-02 12:02:46.726619"
+}

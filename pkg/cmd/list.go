@@ -41,7 +41,7 @@ Each sort key may also include a direction. Supported directions are :asc for as
 For example, to sort the list from most recently created to oldest:
 GET /v1/events?sort=time:desc`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		eventSlice, total, err := hermes.GetEvents(storage.ConfiguredDriver(), data.Filter{})
+		eventSlice, total, err := hermes.GetEvents(storage.ConfiguredDriver(), &data.Filter{})
 		if err != nil {
 			return err
 		}

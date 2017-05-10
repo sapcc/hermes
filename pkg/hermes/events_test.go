@@ -29,7 +29,7 @@ func Test_GetEvent(t *testing.T) {
 
 func Test_GetEvents(t *testing.T) {
 	setup()
-	events, total, err := GetEvents(storage.ConfiguredDriver(), data.Filter{})
+	events, total, err := GetEvents(storage.ConfiguredDriver(), &data.Filter{})
 	require.Nil(t, err)
 	require.NotNil(t, events)
 	assert.Equal(t, len(events), 3)
