@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"strings"
 
+	"bytes"
 	"github.com/gorilla/mux"
 	"github.com/sapcc/hermes/pkg/keystone"
 )
@@ -85,11 +86,12 @@ func NewV1Router(keystone keystone.Interface) (http.Handler, VersionData) {
 //ReturnJSON is a convenience function for HTTP handlers returning JSON data.
 //The `code` argument specifies the HTTP response code, usually 200.
 func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
-	bytes, err := json.MarshalIndent(&data, "", "  ")
+	escapedJSON, err := json.MarshalIndent(&data, "", "  ")
+	jsonData := bytes.Replace(escapedJSON, []byte("\\u0026"), []byte("&"), -1)
 	if err == nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(code)
-		w.Write(bytes)
+		w.Write(jsonData)
 	} else {
 		http.Error(w, err.Error(), 500)
 	}
