@@ -35,6 +35,10 @@ func (d mock) ValidateToken(token string) (policy.Context, error) {
 	return policy.Context{}, nil
 }
 
+func (d mock) Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error) {
+	return policy.Context{}, nil
+}
+
 func (d mock) DomainName(id string) (string, error) {
 	return "monsoon3", nil
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/spf13/cobra"
+	"github.com/sapcc/hermes/pkg/cmd/auth"
 )
 
 // getCmd represents the get command
@@ -34,7 +35,12 @@ var getCmd = &cobra.Command{
 			return errors.New("You must specify exactly one event ID.")
 		}
 
-		event, err := hermes.GetEvent(args[0], storage.ConfiguredDriver())
+		token := auth.GetToken()
+		if !token.Require("event:show") {
+			return errors.New("You are not authorised to view event details")
+		}
+
+		event, err := hermes.GetEvent(args[0], &token.Context, storage.ConfiguredDriver())
 		if err != nil {
 			return err
 		}

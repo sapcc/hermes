@@ -18,7 +18,7 @@ type eventsList struct {
 	events []data.EventDetail
 }
 
-func (m mock) GetEvents(filter data.Filter) ([]*data.Event, int, error) {
+func (m mock) GetEvents(filter data.Filter, tenant_id string) ([]*data.Event, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 
@@ -44,7 +44,7 @@ func (m mock) GetEvents(filter data.Filter) ([]*data.Event, int, error) {
 	return events, detailedEvents.Total, nil
 }
 
-func (m mock) GetEvent(eventId string) (data.EventDetail, error) {
+func (m mock) GetEvent(eventId string, tenant_id string) (data.EventDetail, error) {
 	var parsedEvent Event
 	json.Unmarshal(mockEvent, &parsedEvent)
 	event := data.EventDetail{}

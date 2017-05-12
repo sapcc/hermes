@@ -32,6 +32,10 @@ import (
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/spf13/viper"
 	"strings"
+	"github.com/sapcc/hermes/pkg/util"
+	"io/ioutil"
+	"encoding/json"
+	"github.com/databus23/goslo.policy"
 )
 
 var configPath *string
@@ -41,6 +45,7 @@ func main() {
 
 	hermes.SetDefaultConfig()
 	readConfig(configPath)
+  readPolicy()
 
 	// If there are args left over after flag processing, we are a Hermes CLI client
 	if len(flag.Args()) > 0 {
@@ -56,7 +61,10 @@ func main() {
 func parseCmdlineFlags() {
 	// Get config file location
 	configPath = flag.String("f", "hermes.conf", "specifies the location of the TOML-format configuration file")
-	flag.Usage = printUsage
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 }
 
@@ -78,13 +86,30 @@ func readConfig(configPath *string) {
 	}
 
 	// Setup environment variable overrides for OpenStack authentication
-	for i := range data.OS_vars {
-		viper.BindEnv("keystone_authtoken."+data.OS_vars[i], "OS_"+strings.ToUpper(data.OS_vars[i]))
+	for _, os_var_name := range data.OS_vars {
+		viper.BindEnv("keystone."+os_var_name, "OS_"+strings.ToUpper(os_var_name))
 	}
 
 }
 
-func printUsage() {
-	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-	flag.PrintDefaults()
+func readPolicy() {
+	//load the policy file
+	policyEnforcer, err := loadPolicyFile(viper.GetString("hermes.PolicyFilePath"))
+	if err != nil {
+		util.LogFatal(err.Error())
+	}
+	viper.Set("hermes.PolicyEnforcer", policyEnforcer)
+}
+
+func loadPolicyFile(path string) (*policy.Enforcer, error) {
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var rules map[string]string
+	err = json.Unmarshal(bytes, &rules)
+	if err != nil {
+		return nil, err
+	}
+	return policy.NewEnforcer(rules)
 }

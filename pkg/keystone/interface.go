@@ -38,6 +38,7 @@ type Interface interface {
 	ListDomains() ([]KeystoneDomain, error)
 	ListProjects() ([]KeystoneProject, error)
 	ValidateToken(token string) (policy.Context, error)
+	Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error)
 	DomainName(id string) (string, error)
 	ProjectName(id string) (string, error)
 	UserName(id string) (string, error)

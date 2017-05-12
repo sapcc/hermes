@@ -20,21 +20,27 @@
 package hermes
 
 import (
+	"fmt"
+	"github.com/databus23/goslo.policy"
+	"github.com/prometheus/common/log"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
-	"github.com/prometheus/common/log"
-	"fmt"
+	"errors"
 )
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(eventStore storage.Interface, filter *data.Filter) ([]*data.Event, int, error) {
+func GetEvents(filter *data.Filter, context *policy.Context, eventStore storage.Interface) ([]*data.Event, int, error) {
+	if context == nil {
+		return nil, 0, errors.New("GetEvent() called with no policy context")
+	}
+
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
 	}
 
-	events, total, err := eventStore.GetEvents(*filter)
+	events, total, err := eventStore.GetEvents(*filter, getTenantId(context))
 
 	// Now add the names for IDs in the events
 	keystoneSvc := keystone.ConfiguredDriver()
@@ -65,8 +71,11 @@ func GetEvents(eventStore storage.Interface, filter *data.Filter) ([]*data.Event
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, eventStore storage.Interface) (data.EventDetail, error) {
-	event, err := eventStore.GetEvent(eventID)
+func GetEvent(eventID string, context *policy.Context, eventStore storage.Interface) (*data.EventDetail, error) {
+	if context == nil {
+		return nil, errors.New("GetEvent() called with no policy context")
+	}
+	event, err := eventStore.GetEvent(eventID, getTenantId(context))
 	// Now add the names for IDs in the event
 	keystoneSvc := keystone.ConfiguredDriver()
 	if err == nil && event.Payload.Initiator.DomainID != "" {
@@ -89,5 +98,13 @@ func GetEvent(eventID string, eventStore storage.Interface) (data.EventDetail, e
 				event.Payload.Target.TypeURI))
 		}
 	}
-	return event, err
+	return &event, err
+}
+
+func getTenantId(context *policy.Context) string {
+	id, project := context.Auth["project_id"]
+	if project {
+		return id
+	}
+	return context.Auth["domain_id"]
 }

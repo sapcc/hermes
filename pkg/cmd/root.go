@@ -64,7 +64,7 @@ func init() {
 		flags := RootCmd.PersistentFlags()
 		lookup := "os-" + strings.Replace(val, "_", "-", -1)
 		pflag := flags.Lookup(lookup)
-		viper.BindPFlag("keystone_authtoken."+val, pflag)
+		viper.BindPFlag("keystone."+val, pflag)
 	}
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

@@ -32,10 +32,10 @@ import (
 
 //ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
-	// TODO: auth check
-	//if !p.CheckToken(r).Require(w, "event:list") {
-	//	return
-	//}
+	token := p.CheckToken(r)
+	if !p.CheckToken(r).Require(w, "event:list") {
+		return
+	}
 
 	source := r.FormValue("source")
 	resource_type := r.FormValue("resource_type")
@@ -59,7 +59,7 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 		Sort:         sort,
 	}
 
-	events, total, err := hermes.GetEvents(storage.ConfiguredDriver(), &filter)
+	events, total, err := hermes.GetEvents(&filter, &token.context, storage.ConfiguredDriver())
 
 	if ReturnError(w, err) {
 		return
@@ -85,14 +85,14 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 //GetEvent handles GET /v1/events/:event_id.
 func (p *v1Provider) GetEventDetails(w http.ResponseWriter, r *http.Request) {
-	// TODO: auth check
-	//if !p.CheckToken(r).Require(w, "event:show") {
-	//	return
-	//}
+	token := p.CheckToken(r)
+	if !p.CheckToken(r).Require(w, "event:show") {
+		return
+	}
 
 	eventID := mux.Vars(r)["event_id"]
 
-	event, err := hermes.GetEvent(eventID, storage.ConfiguredDriver())
+	event, err := hermes.GetEvent(eventID, &token.context, storage.ConfiguredDriver())
 	if ReturnError(w, err) {
 		return
 	}

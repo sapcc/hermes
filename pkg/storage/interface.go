@@ -30,8 +30,8 @@ import (
 type Interface interface {
 
 	/********** requests to Keystone **********/
-	GetEvents(filter data.Filter) ([]*data.Event, int, error)
-	GetEvent(eventId string) (data.EventDetail, error)
+	GetEvents(filter data.Filter, tenant_id string) ([]*data.Event, int, error)
+	GetEvent(eventId string, tenant_id string) (data.EventDetail, error)
 }
 
 func ConfiguredDriver() Interface {

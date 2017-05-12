@@ -24,6 +24,7 @@ import (
 
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
@@ -34,23 +35,27 @@ func Keystone() Interface {
 }
 
 type keystone struct {
-	authURI           string `mapstructure:"auth_uri"`
-	authURL           string `mapstructure:"auth_url"`
-	username          string
-	password          string
-	userDomainName    string `mapstructure:"user_domain_name"`
-	projectName       string `mapstructure:"project_name"`
-	projectDomainName string `mapstructure:"project_domain_name"`
+	ProviderClient *gophercloud.ProviderClient
 }
 
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
-	return nil, nil
+	if d.ProviderClient == nil {
+		var err error
+		d.ProviderClient, err = openstack.NewClient(viper.GetString("keystone.auth_url"))
+		if err != nil {
+			return nil, fmt.Errorf("cannot initialize OpenStack client: %v", err)
+		}
+	}
+
+	return openstack.NewIdentityV3(d.ProviderClient,
+		gophercloud.EndpointOpts{Availability: gophercloud.AvailabilityPublic},
+	)
 }
 
 func (d keystone) Client() *gophercloud.ProviderClient {
 	var kc keystone
 
-	err := viper.UnmarshalKey("keystone_authtoken", &kc)
+	err := viper.UnmarshalKey("keystone", &kc)
 	if err != nil {
 		fmt.Println("unable to decode into struct, %v", err)
 	}
@@ -113,6 +118,25 @@ func (d keystone) ValidateToken(token string) (policy.Context, error) {
 		return policy.Context{}, response.Err
 	}
 
+	//use a custom token struct instead of tokens.Token which is way incomplete
+	var tokenData keystoneToken
+	err = response.ExtractInto(&tokenData)
+	if err != nil {
+		return policy.Context{}, err
+	}
+	return tokenData.ToContext(), nil
+}
+
+func (d keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error) {
+	client, err := d.keystoneClient()
+	if err != nil {
+		return policy.Context{}, err
+	}
+	response := tokens.Create(client, credentials)
+	if response.Err != nil {
+		//this includes 4xx responses, so after this point, we can be sure that the token is valid
+		return policy.Context{}, response.Err
+	}
 	//use a custom token struct instead of tokens.Token which is way incomplete
 	var tokenData keystoneToken
 	err = response.ExtractInto(&tokenData)
