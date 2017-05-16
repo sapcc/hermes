@@ -45,10 +45,7 @@ var configPath *string
 
 func main() {
 	if os.Getenv("HERMES_INSECURE") == "1" {
-		fmt.Println("Insecure HTTPS mode!")
-		http.DefaultClient.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
+		insecureHttpsSetup()
 	}
 
 	parseCmdlineFlags()
@@ -122,4 +119,15 @@ func loadPolicyFile(path string) (*policy.Enforcer, error) {
 		return nil, err
 	}
 	return policy.NewEnforcer(rules)
+}
+
+func insecureHttpsSetup() {
+	tlsConf := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	fmt.Println("Insecure HTTPS mode!")
+	http.DefaultTransport = &http.Transport{
+		TLSClientConfig: tlsConf,
+		Proxy:           http.ProxyFromEnvironment,
+	}
 }
