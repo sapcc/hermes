@@ -37,6 +37,7 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Figure out the data.Filter to use, based on the request parameters
 	source := r.FormValue("source")
 	resource_type := r.FormValue("resource_type")
 	resource_name := r.FormValue("resource_name")
@@ -67,14 +68,17 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	eventList := data.EventList{Events: events, Total: total}
 
+	// What protocol to use for PrevURL and NextURL?
 	protocol := "http"
 	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
 		protocol = "https"
 	}
+	// Do we need a NextURL?
 	if int(filter.Offset+filter.Limit) < total {
 		r.Form.Set("offset", strconv.FormatUint(filter.Offset+filter.Limit, 10))
 		eventList.NextURL = fmt.Sprintf("%s://%s%s?%s", protocol, r.Host, r.URL.Path, r.Form.Encode())
 	}
+	// Do we need a PrevURL?
 	if int(filter.Offset-filter.Limit) >= 0 {
 		r.Form.Set("offset", strconv.FormatUint(filter.Offset-filter.Limit, 10))
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, r.Host, r.URL.Path, r.Form.Encode())

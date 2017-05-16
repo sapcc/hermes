@@ -43,41 +43,18 @@ func GetEvents(filter *data.Filter, context *policy.Context, eventStore storage.
 	events, total, err := eventStore.GetEvents(*filter, getTenantId(context))
 
 	// Now add the names for IDs in the events
-	keystoneSvc := keystone.ConfiguredDriver()
 	for _, event := range events {
-		if err == nil && len(event.Initiator.DomainID) != 0 {
-			event.Initiator.DomainName, err = keystoneSvc.DomainName(event.Initiator.DomainID)
-			if err != nil {
-				log.Errorf("Error looking up domain name for domain '%s'", event.Initiator.DomainID)
-			}
-		}
-		if err == nil && len(event.Initiator.ProjectID) != 0 {
-			event.Initiator.ProjectName, err = keystoneSvc.ProjectName(event.Initiator.ProjectID)
-			if err != nil {
-				log.Errorf("Error looking up project name for project '%s'", event.Initiator.ProjectID)
-			}
-		}
-		if err == nil && len(event.Initiator.UserID) != 0 {
-			event.Initiator.UserName, err = keystoneSvc.UserName(event.Initiator.UserID)
-			if err != nil {
-				log.Errorf("Error looking up user name for user '%s'", event.Initiator.UserID)
-			}
-		}
+		nameMap := namesForIds(map[string]string{
+			"domain":  event.Initiator.DomainID,
+			"project": event.Initiator.ProjectID,
+			"user":    event.Initiator.UserID,
+			"target":  event.ResourceId,
+		}, event.ResourceType)
 
-		// Depending on the type of the target, we need to look up the name in different services
-		if err == nil {
-			switch event.ResourceType {
-			case "data/security/project":
-				event.ResourceName, err = keystoneSvc.ProjectName(event.ResourceId)
-			default:
-				log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.",
-					event.ResourceType))
-			}
-		}
-
-		if err != nil {
-			break
-		}
+		event.Initiator.DomainName = nameMap["domain"]
+		event.Initiator.ProjectName = nameMap["project"]
+		event.Initiator.UserName = nameMap["user"]
+		event.ResourceName = nameMap["target"]
 	}
 
 	return events, total, err
@@ -89,29 +66,62 @@ func GetEvent(eventID string, context *policy.Context, eventStore storage.Interf
 		return nil, errors.New("GetEvent() called with no policy context")
 	}
 	event, err := eventStore.GetEvent(eventID, getTenantId(context))
+
+	nameMap := namesForIds(map[string]string{
+		"domain":  event.Payload.Initiator.DomainID,
+		"project": event.Payload.Initiator.ProjectID,
+		"user":    event.Payload.Initiator.UserID,
+		"target":  event.Payload.Target.ID,
+	}, event.Payload.Target.TypeURI)
+
+	event.Payload.Initiator.DomainName = nameMap["domain"]
+	event.Payload.Initiator.ProjectName = nameMap["project"]
+	event.Payload.Initiator.UserName = nameMap["user"]
+	event.Payload.Target.Name = nameMap["target"]
+
+	return &event, err
+}
+
+func namesForIds(idMap map[string]string, targetType string) map[string]string {
+	nameMap := map[string]string{}
+	var err error
+
 	// Now add the names for IDs in the event
 	keystoneSvc := keystone.ConfiguredDriver()
-	if err == nil && event.Payload.Initiator.DomainID != "" {
-		event.Payload.Initiator.DomainName, err = keystoneSvc.DomainName(event.Payload.Initiator.DomainID)
+	domainId := idMap["domain"]
+	if domainId != "" {
+		nameMap["domain"], err = keystoneSvc.DomainName(domainId)
+		if err != nil {
+			log.Errorf("Error looking up domain name for domain '%s'", domainId)
+		}
 	}
-	if err == nil && event.Payload.Initiator.ProjectID != "" {
-		event.Payload.Initiator.ProjectName, err = keystoneSvc.ProjectName(event.Payload.Initiator.ProjectID)
+	projectId := idMap["project"]
+	if projectId != "" {
+		nameMap["project"], err = keystoneSvc.ProjectName(projectId)
+		if err != nil {
+			log.Errorf("Error looking up project name for project '%s'", projectId)
+		}
 	}
-	if err == nil && event.Payload.Initiator.UserID != "" {
-		event.Payload.Initiator.UserName, err = keystoneSvc.UserName(event.Payload.Initiator.UserID)
+	userId := idMap["user"]
+	if userId != "" {
+		nameMap["user"], err = keystoneSvc.UserName(userId)
+		if err != nil {
+			log.Errorf("Error looking up user name for user '%s'", userId)
+		}
 	}
 
 	// Depending on the type of the target, we need to look up the name in different services
-	if err == nil {
-		switch event.Payload.Target.TypeURI {
-		case "data/security/project":
-			event.Payload.Target.Name, err = keystoneSvc.ProjectName(event.Payload.Target.ID)
-		default:
-			log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.",
-				event.Payload.Target.TypeURI))
-		}
+	switch targetType {
+	case "data/security/project":
+		nameMap["target"], err = keystoneSvc.ProjectName(idMap["target"])
+	default:
+		log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.", targetType))
 	}
-	return &event, err
+	if err != nil {
+		log.Errorf("Error looking up name for %s '%s'", targetType, userId)
+	}
+
+	return nameMap
 }
 
 func getTenantId(context *policy.Context) string {
