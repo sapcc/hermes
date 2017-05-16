@@ -40,9 +40,22 @@ type keystone struct {
 	TokenRenewalMutex *sync.Mutex
 }
 
+var domainNameCache = map[string]string{}
+var projectNameCache = map[string]string{}
+var userNameCache = map[string]string{}
+
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	if d.TokenRenewalMutex == nil {
 		d.TokenRenewalMutex = &sync.Mutex{}
+	}
+	if domainNameCache == nil {
+		domainNameCache = map[string]string{}
+	}
+	if projectNameCache == nil {
+		projectNameCache = map[string]string{}
+	}
+	if userNameCache == nil {
+		userNameCache = map[string]string{}
 	}
 	if d.ProviderClient == nil {
 		var err error
@@ -156,6 +169,11 @@ func (d keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Con
 }
 
 func (d keystone) DomainName(id string) (string, error) {
+	cachedName, hit := domainNameCache[id]
+	if hit {
+		return cachedName, nil
+	}
+
 	client, err := d.keystoneClient()
 	if err != nil {
 		return "", err
@@ -172,10 +190,18 @@ func (d keystone) DomainName(id string) (string, error) {
 		Domain KeystoneDomain `json:"domain"`
 	}
 	err = result.ExtractInto(&data)
+	if err == nil {
+		domainNameCache[id] = data.Domain.Name
+	}
 	return data.Domain.Name, err
 }
 
 func (d keystone) ProjectName(id string) (string, error) {
+	cachedName, hit := projectNameCache[id]
+	if hit {
+		return cachedName, nil
+	}
+
 	client, err := d.keystoneClient()
 	if err != nil {
 		return "", err
@@ -192,10 +218,18 @@ func (d keystone) ProjectName(id string) (string, error) {
 		Project KeystoneProject `json:"project"`
 	}
 	err = result.ExtractInto(&data)
+	if err == nil {
+		projectNameCache[id] = data.Project.Name
+	}
 	return data.Project.Name, err
 }
 
 func (d keystone) UserName(id string) (string, error) {
+	cachedName, hit := userNameCache[id]
+	if hit {
+		return cachedName, nil
+	}
+
 	client, err := d.keystoneClient()
 	if err != nil {
 		return "", err
@@ -212,6 +246,9 @@ func (d keystone) UserName(id string) (string, error) {
 		User KeystoneUser `json:"user"`
 	}
 	err = result.ExtractInto(&data)
+	if err == nil {
+		userNameCache[id] = data.User.Name
+	}
 	return data.User.Name, err
 }
 
