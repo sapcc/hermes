@@ -36,10 +36,10 @@ func Keystone() Interface {
 }
 
 type keystone struct {
-	ProviderClient    *gophercloud.ProviderClient
 	TokenRenewalMutex *sync.Mutex
 }
 
+var providerClient    *gophercloud.ProviderClient
 var domainNameCache = map[string]string{}
 var projectNameCache = map[string]string{}
 var userNameCache = map[string]string{}
@@ -57,9 +57,9 @@ func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	if userNameCache == nil {
 		userNameCache = map[string]string{}
 	}
-	if d.ProviderClient == nil {
+	if providerClient == nil {
 		var err error
-		d.ProviderClient, err = openstack.NewClient(viper.GetString("keystone.auth_url"))
+		providerClient, err = openstack.NewClient(viper.GetString("keystone.auth_url"))
 		if err != nil {
 			return nil, fmt.Errorf("cannot initialize OpenStack client: %v", err)
 		}
@@ -69,7 +69,7 @@ func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 		}
 	}
 
-	return openstack.NewIdentityV3(d.ProviderClient,
+	return openstack.NewIdentityV3(providerClient,
 		gophercloud.EndpointOpts{Availability: gophercloud.AvailabilityPublic},
 	)
 }
@@ -127,7 +127,6 @@ func (d keystone) ListProjects() ([]KeystoneProject, error) {
 	return data.Projects, err
 }
 
-//CheckUserPermission implements the Driver interface.
 func (d keystone) ValidateToken(token string) (policy.Context, error) {
 	client, err := d.keystoneClient()
 	if err != nil {
@@ -306,7 +305,7 @@ func (t *keystoneToken) ToContext() policy.Context {
 	return c
 }
 
-//RefreshToken fetches a new Keystone token for this cluster. It is also used
+//RefreshToken fetches a new Keystone token. It is also used
 //to fetch the initial token on startup.
 func (d keystone) RefreshToken() error {
 	//NOTE: This function is very similar to v3auth() in
@@ -319,11 +318,11 @@ func (d keystone) RefreshToken() error {
 	defer d.TokenRenewalMutex.Unlock()
 	util.LogDebug("renewing Keystone token...")
 
-	d.ProviderClient.TokenID = ""
+	providerClient.TokenID = ""
 
 	//TODO: crashes with RegionName != ""
 	eo := gophercloud.EndpointOpts{Region: ""}
-	keystone, err := openstack.NewIdentityV3(d.ProviderClient, eo)
+	keystone, err := openstack.NewIdentityV3(providerClient, eo)
 	if err != nil {
 		return fmt.Errorf("cannot initialize Keystone client: %v", err)
 	}
@@ -339,9 +338,9 @@ func (d keystone) RefreshToken() error {
 		return fmt.Errorf("cannot read service catalog: %v", err)
 	}
 
-	d.ProviderClient.TokenID = token.ID
-	d.ProviderClient.ReauthFunc = d.RefreshToken //TODO: exponential backoff necessary or already provided by gophercloud?
-	d.ProviderClient.EndpointLocator = func(opts gophercloud.EndpointOpts) (string, error) {
+	providerClient.TokenID = token.ID
+	providerClient.ReauthFunc = d.RefreshToken //TODO: exponential backoff necessary or already provided by gophercloud?
+	providerClient.EndpointLocator = func(opts gophercloud.EndpointOpts) (string, error) {
 		return openstack.V3EndpointURL(catalog, opts)
 	}
 
