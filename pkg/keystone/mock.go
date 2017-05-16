@@ -3,6 +3,7 @@ package keystone
 import (
 	"github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
+	"github.com/spf13/viper"
 )
 
 type mock struct{}
@@ -44,9 +45,20 @@ func (d mock) DomainName(id string) (string, error) {
 }
 
 func (d mock) ProjectName(id string) (string, error) {
-	return "ccdemo", nil
+	return "ceilometer-cadf-delete-me", nil
 }
 
 func (d mock) UserName(id string) (string, error) {
 	return "I056593", nil
+}
+
+func (d mock) AuthOptions() *gophercloud.AuthOptions {
+	return &gophercloud.AuthOptions{
+		IdentityEndpoint: viper.GetString("keystone.auth_url"),
+		Username:         viper.GetString("keystone.username"),
+		Password:         viper.GetString("keystone.password"),
+		DomainName:       viper.GetString("keystone.user_domain_name"),
+		// Note: gophercloud only allows for user & project in the same domain
+		TenantName: viper.GetString("keystone.project_name"),
+	}
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
+	"sync"
 )
 
 func Keystone() Interface {
@@ -35,15 +36,23 @@ func Keystone() Interface {
 }
 
 type keystone struct {
-	ProviderClient *gophercloud.ProviderClient
+	ProviderClient    *gophercloud.ProviderClient
+	TokenRenewalMutex *sync.Mutex
 }
 
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
+	if d.TokenRenewalMutex == nil {
+		d.TokenRenewalMutex = &sync.Mutex{}
+	}
 	if d.ProviderClient == nil {
 		var err error
 		d.ProviderClient, err = openstack.NewClient(viper.GetString("keystone.auth_url"))
 		if err != nil {
 			return nil, fmt.Errorf("cannot initialize OpenStack client: %v", err)
+		}
+		err = d.RefreshToken()
+		if err != nil {
+			return nil, fmt.Errorf("cannot fetch initial Keystone token: %v", err)
 		}
 	}
 
@@ -153,7 +162,8 @@ func (d keystone) DomainName(id string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	_, err = client.Get(fmt.Sprintf("/v3/domains/%s", id), &result.Body, nil)
+	url := client.ServiceURL(fmt.Sprintf("domains/%s", id))
+	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -172,7 +182,8 @@ func (d keystone) ProjectName(id string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	_, err = client.Get(fmt.Sprintf("/v3/projects/%s", id), &result.Body, nil)
+	url := client.ServiceURL(fmt.Sprintf("projects/%s", id))
+	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -191,7 +202,8 @@ func (d keystone) UserName(id string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	_, err = client.Get(fmt.Sprintf("/v3/users/%s", id), &result.Body, nil)
+	url := client.ServiceURL(fmt.Sprintf("users/%s", id))
+	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -255,4 +267,57 @@ func (t *keystoneToken) ToContext() policy.Context {
 	}
 
 	return c
+}
+
+//RefreshToken fetches a new Keystone token for this cluster. It is also used
+//to fetch the initial token on startup.
+func (d keystone) RefreshToken() error {
+	//NOTE: This function is very similar to v3auth() in
+	//gophercloud/openstack/client.go, but with a few differences:
+	//
+	//1. thread-safe token renewal
+	//2. proper support for cross-domain scoping
+
+	d.TokenRenewalMutex.Lock()
+	defer d.TokenRenewalMutex.Unlock()
+	util.LogDebug("renewing Keystone token...")
+
+	d.ProviderClient.TokenID = ""
+
+	//TODO: crashes with RegionName != ""
+	eo := gophercloud.EndpointOpts{Region: ""}
+	keystone, err := openstack.NewIdentityV3(d.ProviderClient, eo)
+	if err != nil {
+		return fmt.Errorf("cannot initialize Keystone client: %v", err)
+	}
+	keystone.Endpoint = viper.GetString("keystone.auth_url")
+
+	result := tokens.Create(keystone, d.AuthOptions())
+	token, err := result.ExtractToken()
+	if err != nil {
+		return fmt.Errorf("cannot read token: %v", err)
+	}
+	catalog, err := result.ExtractServiceCatalog()
+	if err != nil {
+		return fmt.Errorf("cannot read service catalog: %v", err)
+	}
+
+	d.ProviderClient.TokenID = token.ID
+	d.ProviderClient.ReauthFunc = d.RefreshToken //TODO: exponential backoff necessary or already provided by gophercloud?
+	d.ProviderClient.EndpointLocator = func(opts gophercloud.EndpointOpts) (string, error) {
+		return openstack.V3EndpointURL(catalog, opts)
+	}
+
+	return nil
+}
+
+func (d keystone) AuthOptions() *gophercloud.AuthOptions {
+	return &gophercloud.AuthOptions{
+		IdentityEndpoint: viper.GetString("keystone.auth_url"),
+		Username:         viper.GetString("keystone.username"),
+		Password:         viper.GetString("keystone.password"),
+		DomainName:       viper.GetString("keystone.user_domain_name"),
+		// Note: gophercloud only allows for user & project in the same domain
+		TenantName: viper.GetString("keystone.project_name"),
+	}
 }

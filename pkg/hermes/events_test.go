@@ -3,6 +3,7 @@ package hermes
 import (
 	"testing"
 
+	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/spf13/viper"
@@ -18,7 +19,7 @@ func setup() {
 func Test_GetEvent(t *testing.T) {
 	setup()
 	eventId := "d5eed458-6666-58ec-ad06-8d3cf6bafca1"
-	event, err := GetEvent(eventId, storage.ConfiguredDriver())
+	event, err := GetEvent(eventId, &policy.Context{}, storage.ConfiguredDriver())
 	require.Nil(t, err)
 	require.NotNil(t, event)
 	assert.Equal(t, "d5eed458-6666-58ec-ad06-8d3cf6bafca1", event.Payload.ID)
@@ -29,7 +30,7 @@ func Test_GetEvent(t *testing.T) {
 
 func Test_GetEvents(t *testing.T) {
 	setup()
-	events, total, err := GetEvents(storage.ConfiguredDriver(), &data.Filter{})
+	events, total, err := GetEvents(&data.Filter{}, &policy.Context{}, storage.ConfiguredDriver())
 	require.Nil(t, err)
 	require.NotNil(t, events)
 	assert.Equal(t, len(events), 3)

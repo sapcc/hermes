@@ -20,13 +20,13 @@
 package hermes
 
 import (
+	"errors"
 	"fmt"
 	"github.com/databus23/goslo.policy"
 	"github.com/prometheus/common/log"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
-	"errors"
 )
 
 // GetEvents returns a list of matching events (with filtering)
@@ -45,14 +45,23 @@ func GetEvents(filter *data.Filter, context *policy.Context, eventStore storage.
 	// Now add the names for IDs in the events
 	keystoneSvc := keystone.ConfiguredDriver()
 	for _, event := range events {
-		if err == nil && event.Initiator.DomainID != "" {
+		if err == nil && len(event.Initiator.DomainID) != 0 {
 			event.Initiator.DomainName, err = keystoneSvc.DomainName(event.Initiator.DomainID)
+			if err != nil {
+				log.Errorf("Error looking up domain name for domain '%s'", event.Initiator.DomainID)
+			}
 		}
-		if err == nil && event.Initiator.ProjectID != "" {
+		if err == nil && len(event.Initiator.ProjectID) != 0 {
 			event.Initiator.ProjectName, err = keystoneSvc.ProjectName(event.Initiator.ProjectID)
+			if err != nil {
+				log.Errorf("Error looking up project name for project '%s'", event.Initiator.ProjectID)
+			}
 		}
-		if err == nil && event.Initiator.UserID != "" {
+		if err == nil && len(event.Initiator.UserID) != 0 {
 			event.Initiator.UserName, err = keystoneSvc.UserName(event.Initiator.UserID)
+			if err != nil {
+				log.Errorf("Error looking up user name for user '%s'", event.Initiator.UserID)
+			}
 		}
 
 		// Depending on the type of the target, we need to look up the name in different services
@@ -64,6 +73,10 @@ func GetEvents(filter *data.Filter, context *policy.Context, eventStore storage.
 				log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.",
 					event.ResourceType))
 			}
+		}
+
+		if err != nil {
+			break
 		}
 	}
 

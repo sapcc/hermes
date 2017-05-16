@@ -26,6 +26,11 @@ import (
 	policy "github.com/databus23/goslo.policy"
 	_ "github.com/gorilla/mux"
 	_ "github.com/spf13/viper"
+	"github.com/spf13/viper"
+	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/gorilla/mux"
+	"os"
+	"log"
 )
 
 //Token represents a user's token, as passed through the X-Auth-Token header of
@@ -45,12 +50,10 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 		return &Token{err: errors.New("X-Auth-Token header missing")}
 	}
 
-	//t := &Token{enforcer: viper.GetString("API.PolicyEnforcer")}
-	//t.context, t.err = p.Driver.ValidateToken(str)
-	//t.context.Request = mux.Vars(r)
-	//return t
-
-	return &Token{}
+	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
+	t.context, t.err = keystone.ConfiguredDriver().ValidateToken(str)
+	t.context.Request = mux.Vars(r)
+	return t
 }
 
 //Require checks if the given token has the given permission according to the
@@ -62,6 +65,9 @@ func (t *Token) Require(w http.ResponseWriter, rule string) bool {
 		return false
 	}
 
+	if os.Getenv("DEBUG") == "1" {
+		t.context.Logger = log.Printf //or any other function with the same signature
+	}
 	if !t.enforcer.Enforce(rule, t.context) {
 		http.Error(w, "Unauthorized", 401)
 		return false

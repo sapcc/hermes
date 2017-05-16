@@ -33,7 +33,7 @@ import (
 //ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 	token := p.CheckToken(r)
-	if !p.CheckToken(r).Require(w, "event:list") {
+	if !token.Require(w, "event:list") {
 		return
 	}
 

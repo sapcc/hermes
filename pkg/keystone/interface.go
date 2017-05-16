@@ -34,6 +34,7 @@ type Interface interface {
 	//clients can be derived. For mock drivers, this returns nil, so test code
 	//should be prepared to handle a nil Client() where appropriate.
 	Client() *gophercloud.ProviderClient
+	AuthOptions() *gophercloud.AuthOptions
 	/********** requests to Keystone **********/
 	ListDomains() ([]KeystoneDomain, error)
 	ListProjects() ([]KeystoneProject, error)

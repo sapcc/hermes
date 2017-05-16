@@ -24,10 +24,13 @@ import (
 	"net/http"
 	"testing"
 
+	"encoding/json"
+	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/test"
 	"github.com/spf13/viper"
+	"io/ioutil"
 )
 
 type object map[string]interface{}
@@ -44,19 +47,20 @@ keystone_driver = "mock"
 	viper.ReadConfig(bytes.NewBuffer(testConfigFile))
 
 	//load test policy (where everything is allowed)
-	//policyBytes, err := ioutil.ReadFile("../test/policy.json")
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//policyRules := make(map[string]string)
-	//err = json.Unmarshal(policyBytes, &policyRules)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//config.API.PolicyEnforcer, err = policy.NewEnforcer(policyRules)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
+	policyBytes, err := ioutil.ReadFile("../test/policy.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	policyRules := make(map[string]string)
+	err = json.Unmarshal(policyBytes, &policyRules)
+	if err != nil {
+		t.Fatal(err)
+	}
+	policyEnforcer, err := policy.NewEnforcer(policyRules)
+	if err != nil {
+		t.Fatal(err)
+	}
+	viper.Set("hermes.PolicyEnforcer", policyEnforcer)
 
 	//create test driver with the domains and projects from start-data.sql
 	keystone := keystone.ConfiguredDriver()

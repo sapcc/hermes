@@ -22,30 +22,40 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 
+	"crypto/tls"
+	"encoding/json"
+	"io/ioutil"
+	"strings"
+
+	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/cmd"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
-	"github.com/spf13/viper"
-	"strings"
 	"github.com/sapcc/hermes/pkg/util"
-	"io/ioutil"
-	"encoding/json"
-	"github.com/databus23/goslo.policy"
+	"github.com/spf13/viper"
 )
 
 var configPath *string
 
 func main() {
+	if os.Getenv("HERMES_INSECURE") == "1" {
+		fmt.Println("Insecure HTTPS mode!")
+		http.DefaultClient.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+
 	parseCmdlineFlags()
 
 	hermes.SetDefaultConfig()
 	readConfig(configPath)
-  readPolicy()
+	readPolicy()
 
 	// If there are args left over after flag processing, we are a Hermes CLI client
 	if len(flag.Args()) > 0 {

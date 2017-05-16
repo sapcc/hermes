@@ -21,9 +21,10 @@ package auth
 
 import (
 	policy "github.com/databus23/goslo.policy"
-	"github.com/gophercloud/gophercloud"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/spf13/viper"
+	"os"
+	"log"
 )
 
 //Token represents a user's token, as returned from an authentication request
@@ -39,16 +40,9 @@ type Token struct {
 func GetToken() *Token {
 	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
 
-	credentials := gophercloud.AuthOptions{
-		IdentityEndpoint: viper.GetString("keystone.auth_url"),
-		Username:         viper.GetString("keystone.username"),
-		Password:         viper.GetString("keystone.password"),
-		DomainName:       viper.GetString("keystone.user_domain_name"),
-		// Note: gophercloud only allows for user & project in the same domain
-		TenantName: viper.GetString("keystone.project_name"),
-	}
+	credentials := keystone.ConfiguredDriver().AuthOptions()
 
-	t.Context, t.err = keystone.ConfiguredDriver().Authenticate(&credentials)
+	t.Context, t.err = keystone.ConfiguredDriver().Authenticate(credentials)
 	return t
 }
 
@@ -58,6 +52,10 @@ func GetToken() *Token {
 func (t *Token) Require(rule string) bool {
 	if t.err != nil {
 		return false
+	}
+
+	if os.Getenv("DEBUG") == "1" {
+		t.Context.Logger = log.Printf //or any other function with the same signature
 	}
 
 	if !t.enforcer.Enforce(rule, t.Context) {

@@ -27,11 +27,11 @@ func (m mock) GetEvents(filter data.Filter, tenant_id string) ([]*data.Event, in
 	for _, de := range detailedEvents.Events {
 		p := de.Payload
 		ev := data.Event{
-			Source: strings.SplitN(de.EventType, ".", 2)[0],
-			ID: p.ID,
-			Type: de.EventType,
-			Time: p.EventTime,
-			ResourceId: de.Payload.Target.ID,
+			Source:       strings.SplitN(de.EventType, ".", 2)[0],
+			ID:           p.ID,
+			Type:         de.EventType,
+			Time:         p.EventTime,
+			ResourceId:   de.Payload.Target.ID,
 			ResourceType: de.Payload.Target.TypeURI,
 		}
 		err := copier.Copy(&ev.Initiator, &de.Payload.Initiator)
@@ -61,7 +61,7 @@ var mockEvent = []byte(`
 			"typeURI": "service/security",
 			"id": "493f1d6d-af50-5a4b-813b-488ecdfb1010"
 		},
-		"resource_info": "d15f49428034473fb7c018b27218523b",
+		"resource_info": "b3b70c8271a845709f9a03030e705da7",
 		"typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
 		"initiator": {
 			"typeURI": "service/security/account/user",
@@ -80,7 +80,7 @@ var mockEvent = []byte(`
 		"outcome": "success",
 		"target": {
 			"typeURI": "data/security/project",
-			"id": "d15f49428034473fb7c018b27218523b"
+			"id": "b3b70c8271a845709f9a03030e705da7"
 		}
 	},
 	"message_id": "5a32c2f3-2996-4f46-819c-6197cf06037e",
@@ -100,11 +100,11 @@ var mockEvents = []byte(`
 					"typeURI": "service/security",
 					"id": "493f1d6d-af50-5a4b-813b-488ecdfb1010"
 				},
-				"resource_info": "d15f49428034473fb7c018b27218523b",
+				"resource_info": "b3b70c8271a845709f9a03030e705da7",
 				"typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
 				"initiator": {
 					"typeURI": "service/security/account/user",
-					"project_id": "6a030751147a45c0863c3b5bde32c744",
+					"project_id": "ae63ddf2076d4342a56eb049e37a7621",
 					"user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
 					"host": {
 						"agent": "python-keystoneclient",
@@ -119,7 +119,7 @@ var mockEvents = []byte(`
 				"outcome": "success",
 				"target": {
 					"typeURI": "data/security/project",
-					"id": "d15f49428034473fb7c018b27218523b"
+					"id": "b3b70c8271a845709f9a03030e705da7"
 				}
 			},
 			"message_id": "5a32c2f3-2996-4f46-819c-6197cf06037e",
@@ -133,11 +133,11 @@ var mockEvents = []byte(`
 					"typeURI": "service/security",
 					"id": "a66f7b00-b52d-51a1-b370-4e129bd534e2"
 				},
-				"resource_info": "0e855e4373dc4e03a6c15d0c4c11b7f9",
+				"resource_info": "b3b70c8271a845709f9a03030e705da7",
 				"typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
 				"initiator": {
 					"typeURI": "service/security/account/user",
-					"project_id": "6a030751147a45c0863c3b5bde32c744",
+					"project_id": "ae63ddf2076d4342a56eb049e37a7621",
 					"user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
 					"host": {
 						"agent": "python-keystoneclient",
@@ -152,7 +152,7 @@ var mockEvents = []byte(`
 				"outcome": "success",
 				"target": {
 					"typeURI": "data/security/project",
-					"id": "0e855e4373dc4e03a6c15d0c4c11b7f9"
+					"id": "b3b70c8271a845709f9a03030e705da7"
 				}
 			},
 			"message_id": "c3c61a95-54f9-44d0-9986-9571258646cd",
@@ -166,11 +166,11 @@ var mockEvents = []byte(`
 					"typeURI": "service/security",
 					"id": "15276db2-9b34-528c-b72a-7eca6995bf58"
 				},
-				"resource_info": "337e83f3cf4a45faa7e17ca84aae6535",
+				"resource_info": "b3b70c8271a845709f9a03030e705da7",
 				"typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
 				"initiator": {
 					"typeURI": "service/security/account/user",
-					"project_id": "6a030751147a45c0863c3b5bde32c744",
+					"project_id": "ae63ddf2076d4342a56eb049e37a7621",
 					"user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
 					"host": {
 						"agent": "python-keystoneclient",
@@ -185,7 +185,7 @@ var mockEvents = []byte(`
 				"outcome": "success",
 				"target": {
 					"typeURI": "data/security/project",
-					"id": "337e83f3cf4a45faa7e17ca84aae6535"
+					"id": "b3b70c8271a845709f9a03030e705da7"
 				}
 			},
 			"message_id": "0cd52307-f09f-453f-bf1b-027b2f907e94",
