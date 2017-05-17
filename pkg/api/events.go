@@ -38,30 +38,22 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Figure out the data.Filter to use, based on the request parameters
-	source := r.FormValue("source")
-	resource_type := r.FormValue("resource_type")
-	resource_name := r.FormValue("resource_name")
-	user_name := r.FormValue("user_name")
-	event_type := r.FormValue("event_type")
-	time := r.FormValue("time")
 	offset, _ := strconv.ParseUint(r.FormValue("offset"), 10, 32)
 	limit, _ := strconv.ParseUint(r.FormValue("limit"), 10, 8)
-	sort := r.FormValue("sort")
 
 	filter := data.Filter{
-		Source:       source,
-		ResourceType: resource_type,
-		ResourceName: resource_name,
-		UserName:     user_name,
-		EventType:    event_type,
-		Time:         time,
+		Source:       r.FormValue("source"),
+		ResourceType: r.FormValue("resource_type"),
+		ResourceName: r.FormValue("resource_name"),
+		UserName:     r.FormValue("user_name"),
+		EventType:    r.FormValue("event_type"),
+		Time:         r.FormValue("time"),
 		Offset:       offset,
 		Limit:        limit,
-		Sort:         sort,
+		Sort:         r.FormValue("sort"),
 	}
 
 	events, total, err := hermes.GetEvents(&filter, &token.context, storage.ConfiguredDriver())
-
 	if ReturnError(w, err) {
 		return
 	}
