@@ -113,6 +113,8 @@ func namesForIds(keystoneDriver keystone.Interface, idMap map[string]string, tar
 	switch targetType {
 	case "data/security/project":
 		nameMap["target"], err = keystoneDriver.ProjectName(idMap["target"])
+	case "service/security/account/user":
+		nameMap["target"], err = keystoneDriver.UserName(idMap["target"])
 	default:
 		log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.", targetType))
 	}
