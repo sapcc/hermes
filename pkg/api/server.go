@@ -28,6 +28,8 @@ func Server(keystone keystone.Interface, storage storage.Interface) error {
 		ReturnJSON(w, 300, allVersions)
 	})
 
+	http.Handle("/", mainRouter)
+
 	//start HTTP server
 	util.LogInfo("listening on " + viper.GetString("API.ListenAddress"))
 	return http.ListenAndServe(viper.GetString("API.ListenAddress"), nil)
