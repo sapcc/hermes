@@ -15,28 +15,29 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var cfgFile, projectBase, userLicense string // are used for flags
+var (
+	// Used for flags.
+	cfgFile, projectBase, userLicense string
 
-var rootCmd = &cobra.Command{
-	Use:   "cobra",
-	Short: "A generator for Cobra based Applications",
-	Long: `Cobra is a CLI library for Go that empowers applications.
+	rootCmd = &cobra.Command{
+		Use:   "cobra",
+		Short: "A generator for Cobra based Applications",
+		Long: `Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-}
+	}
+)
 
 // Execute executes the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		er(err)
 	}
 }
 
@@ -67,8 +68,7 @@ func initViper() {
 		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(home)
-			os.Exit(1)
+			er(err)
 		}
 
 		// Search config in home directory with name ".cobra" (without extension).
