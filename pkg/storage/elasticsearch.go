@@ -32,7 +32,7 @@ func (es *elasticSearch) init() {
 	var err error
 	var url = viper.GetString("elasticsearch.url")
 	log.Printf("Using ElasticSearch URL: %s", url)
-	es.client, err = elastic.NewClient()
+	es.client, err = elastic.NewClient(elastic.SetURL(url))
 	if err != nil {
 		panic(err)
 	}
