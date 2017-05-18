@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jinzhu/copier"
+	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 	elastic "gopkg.in/olivere/elastic.v5"
 	"log"
@@ -41,6 +42,8 @@ func (es *elasticSearch) init() {
 func (es elasticSearch) GetEvents(filter data.Filter, tenant_id string) ([]*data.Event, int, error) {
 	index := fmt.Sprintf("audit-%s-*", tenant_id)
 
+	util.LogDebug("Looking for events in index %s", index)
+
 	// Search with a term query
 	query := elastic.NewMatchAllQuery()
 	search := es.client.Search().
@@ -57,6 +60,9 @@ func (es elasticSearch) GetEvents(filter data.Filter, tenant_id string) ([]*data
 		// Handle error
 		panic(err)
 	}
+
+	util.LogDebug("Got %d hits", searchResult.TotalHits())
+
 	//Construct data.Event array from search results
 	var events []*data.Event
 	for _, hit := range searchResult.Hits.Hits {
@@ -73,7 +79,7 @@ func (es elasticSearch) GetEvents(filter data.Filter, tenant_id string) ([]*data
 		}
 		err = copier.Copy(&ev.Initiator, &de.Payload.Initiator)
 		if err != nil {
-			return nil, 0, nil
+			return nil, 0, err
 		}
 		events = append(events, &ev)
 	}

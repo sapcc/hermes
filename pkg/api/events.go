@@ -26,11 +26,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/hermes"
+	"github.com/sapcc/hermes/pkg/util"
 	"strconv"
 )
 
 //ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
+	util.LogDebug("* api.ListEvents: Check token")
 	token := p.CheckToken(r)
 	if !token.Require(w, "event:list") {
 		return
@@ -40,6 +42,7 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 	offset, _ := strconv.ParseUint(r.FormValue("offset"), 10, 32)
 	limit, _ := strconv.ParseUint(r.FormValue("limit"), 10, 8)
 
+	util.LogDebug("api.ListEvents: Create filter")
 	filter := data.Filter{
 		Source:       r.FormValue("source"),
 		ResourceType: r.FormValue("resource_type"),
@@ -52,8 +55,10 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 		Sort:         r.FormValue("sort"),
 	}
 
+	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
 	events, total, err := hermes.GetEvents(&filter, &token.context, p.keystone, p.storage)
 	if ReturnError(w, err) {
+		util.LogError("api.ListEvents: error %s", err)
 		return
 	}
 

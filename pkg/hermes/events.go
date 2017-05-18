@@ -25,6 +25,7 @@ import (
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
+	"github.com/sapcc/hermes/pkg/util"
 	"log"
 )
 
@@ -39,7 +40,9 @@ func GetEvents(filter *data.Filter, context *policy.Context, keystoneDriver keys
 		filter.Limit = 10
 	}
 
-	events, total, err := eventStore.GetEvents(*filter, getTenantId(context))
+	tenantId := getTenantId(context)
+	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
+	events, total, err := eventStore.GetEvents(*filter, tenantId)
 
 	// Now add the names for IDs in the events
 	for _, event := range events {
