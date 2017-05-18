@@ -39,23 +39,23 @@ type keystone struct {
 	TokenRenewalMutex *sync.Mutex
 }
 
-var providerClient    *gophercloud.ProviderClient
-var domainNameCache = map[string]string{}
-var projectNameCache = map[string]string{}
-var userNameCache = map[string]string{}
+var providerClient *gophercloud.ProviderClient
+var domainNameCache *map[string]string
+var projectNameCache *map[string]string
+var userNameCache *map[string]string
 
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	if d.TokenRenewalMutex == nil {
 		d.TokenRenewalMutex = &sync.Mutex{}
 	}
 	if domainNameCache == nil {
-		domainNameCache = map[string]string{}
+		domainNameCache = &map[string]string{}
 	}
 	if projectNameCache == nil {
-		projectNameCache = map[string]string{}
+		projectNameCache = &map[string]string{}
 	}
 	if userNameCache == nil {
-		userNameCache = map[string]string{}
+		userNameCache = &map[string]string{}
 	}
 	if providerClient == nil {
 		var err error
@@ -168,7 +168,7 @@ func (d keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Con
 }
 
 func (d keystone) DomainName(id string) (string, error) {
-	cachedName, hit := domainNameCache[id]
+	cachedName, hit := (*domainNameCache)[id]
 	if hit {
 		return cachedName, nil
 	}
@@ -190,13 +190,13 @@ func (d keystone) DomainName(id string) (string, error) {
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
-		domainNameCache[id] = data.Domain.Name
+		(*domainNameCache)[id] = data.Domain.Name
 	}
 	return data.Domain.Name, err
 }
 
 func (d keystone) ProjectName(id string) (string, error) {
-	cachedName, hit := projectNameCache[id]
+	cachedName, hit := (*projectNameCache)[id]
 	if hit {
 		return cachedName, nil
 	}
@@ -218,13 +218,13 @@ func (d keystone) ProjectName(id string) (string, error) {
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
-		projectNameCache[id] = data.Project.Name
+		(*projectNameCache)[id] = data.Project.Name
 	}
 	return data.Project.Name, err
 }
 
 func (d keystone) UserName(id string) (string, error) {
-	cachedName, hit := userNameCache[id]
+	cachedName, hit := (*userNameCache)[id]
 	if hit {
 		return cachedName, nil
 	}
@@ -246,7 +246,7 @@ func (d keystone) UserName(id string) (string, error) {
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
-		userNameCache[id] = data.User.Name
+		(*userNameCache)[id] = data.User.Name
 	}
 	return data.User.Name, err
 }
@@ -305,7 +305,7 @@ func (t *keystoneToken) ToContext() policy.Context {
 	return c
 }
 
-//RefreshToken fetches a new Keystone token. It is also used
+//RefreshToken fetches a new Keystone auth token. It is also used
 //to fetch the initial token on startup.
 func (d keystone) RefreshToken() error {
 	//NOTE: This function is very similar to v3auth() in
@@ -314,9 +314,10 @@ func (d keystone) RefreshToken() error {
 	//1. thread-safe token renewal
 	//2. proper support for cross-domain scoping
 
+	util.LogDebug("renewing Keystone token...")
+
 	d.TokenRenewalMutex.Lock()
 	defer d.TokenRenewalMutex.Unlock()
-	util.LogDebug("renewing Keystone token...")
 
 	providerClient.TokenID = ""
 
@@ -326,7 +327,11 @@ func (d keystone) RefreshToken() error {
 	if err != nil {
 		return fmt.Errorf("cannot initialize Keystone client: %v", err)
 	}
-	keystone.Endpoint = viper.GetString("keystone.auth_url")
+	//if keystone.Endpoint == "" {
+	//	keystone.Endpoint = viper.GetString("keystone.auth_url")
+	//}
+
+	util.LogDebug("Keystone URL: %s", keystone.Endpoint)
 
 	result := tokens.Create(keystone, d.AuthOptions())
 	token, err := result.ExtractToken()
