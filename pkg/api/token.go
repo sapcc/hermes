@@ -27,7 +27,6 @@ import (
 	_ "github.com/gorilla/mux"
 	_ "github.com/spf13/viper"
 	"github.com/spf13/viper"
-	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/gorilla/mux"
 	"os"
 	"log"
@@ -41,7 +40,7 @@ type Token struct {
 	err      error
 }
 
-//CheckToken checks the validity of the request's X-Auth-Token in Keystone, and
+//CheckToken checks the validity of the request's X-Auth-Token in keystone, and
 //returns a Token instance for checking authorization. Any errors that occur
 //during this function are deferred until Require() is called.
 func (p *v1Provider) CheckToken(r *http.Request) *Token {
@@ -51,7 +50,7 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 	}
 
 	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
-	t.context, t.err = keystone.ConfiguredDriver().ValidateToken(str)
+	t.context, t.err = p.keystone.ValidateToken(str)
 	t.context.Request = mux.Vars(r)
 	return t
 }

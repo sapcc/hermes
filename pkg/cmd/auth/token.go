@@ -37,12 +37,12 @@ type Token struct {
 // GetToken authenticates using the configured credentials in Keystone, and
 // returns a Token instance for checking authorization. Any errors that occur
 // during this function are deferred until Require() is called.
-func GetToken() *Token {
+func GetToken(keystoneDriver keystone.Interface) *Token {
 	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
 
-	credentials := keystone.ConfiguredDriver().AuthOptions()
+	credentials := keystoneDriver.AuthOptions()
 
-	t.Context, t.err = keystone.ConfiguredDriver().Authenticate(credentials)
+	t.Context, t.err = keystoneDriver.Authenticate(credentials)
 	return t
 }
 

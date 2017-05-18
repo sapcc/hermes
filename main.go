@@ -22,10 +22,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
 	"os"
 
-	"crypto/tls"
 	"encoding/json"
 	"io/ioutil"
 	"strings"
@@ -34,37 +32,37 @@ import (
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/cmd"
 	"github.com/sapcc/hermes/pkg/data"
-	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
+	"log"
 )
 
 var configPath *string
 
 func main() {
-	if os.Getenv("HERMES_INSECURE") == "1" {
-		insecureHttpsSetup()
-	}
-
 	parseCmdlineFlags()
 
-	hermes.SetDefaultConfig()
+	setDefaultConfig()
 	readConfig(configPath)
+	keystoneDriver := configuredKeystoneDriver()
+	storageDriver := configuredStorageDriver()
 	readPolicy()
 
 	// If there are args left over after flag processing, we are a Hermes CLI client
 	if len(flag.Args()) > 0 {
 		cmd.RootCmd.SetArgs(flag.Args())
+		cmd.SetDrivers(keystoneDriver, storageDriver)
 		if err := cmd.RootCmd.Execute(); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	} else { // otherwise, we are running a Hermes API server
-		api.Server(keystone.ConfiguredDriver(), storage.ConfiguredDriver())
+		api.Server(keystoneDriver, storageDriver)
 	}
 }
+
 func parseCmdlineFlags() {
 	// Get config file location
 	configPath = flag.String("f", "hermes.conf", "specifies the location of the TOML-format configuration file")
@@ -73,6 +71,13 @@ func parseCmdlineFlags() {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+}
+
+func setDefaultConfig() {
+	viper.SetDefault("hermes.keystone_driver", "keystone")
+	viper.SetDefault("hermes.storage_driver", "elasticsearch")
+	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
+	viper.SetDefault("elasticsearch.url", "localhost:9200")
 }
 
 func readConfig(configPath *string) {
@@ -99,6 +104,32 @@ func readConfig(configPath *string) {
 
 }
 
+func configuredKeystoneDriver() keystone.Interface {
+	driverName := viper.GetString("hermes.keystone_driver")
+	switch driverName {
+	case "keystone":
+		return keystone.Keystone()
+	case "mock":
+		return keystone.Mock()
+	default:
+		log.Printf("Couldn't match a keystone driver for configured value \"%s\"", driverName)
+		return nil
+	}
+}
+
+func configuredStorageDriver() storage.Interface {
+	driverName := viper.GetString("hermes.storage_driver")
+	switch driverName {
+	case "elasticsearch":
+		return storage.ElasticSearch()
+	case "mock":
+		return storage.Mock()
+	default:
+		log.Printf("Couldn't match a storage driver for configured value \"%s\"", driverName)
+		return nil
+	}
+}
+
 func readPolicy() {
 	//load the policy file
 	policyEnforcer, err := loadPolicyFile(viper.GetString("hermes.PolicyFilePath"))
@@ -119,15 +150,4 @@ func loadPolicyFile(path string) (*policy.Enforcer, error) {
 		return nil, err
 	}
 	return policy.NewEnforcer(rules)
-}
-
-func insecureHttpsSetup() {
-	tlsConf := &tls.Config{
-		InsecureSkipVerify: true,
-	}
-	fmt.Println("Insecure HTTPS mode!")
-	http.DefaultTransport = &http.Transport{
-		TLSClientConfig: tlsConf,
-		Proxy:           http.ProxyFromEnvironment,
-	}
 }

@@ -6,20 +6,14 @@ import (
 	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/storage"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/sapcc/hermes/pkg/keystone"
 )
 
-func setup() {
-	viper.Set("hermes.keystone_driver", "mock")
-	viper.Set("hermes.storage_driver", "mock")
-}
-
 func Test_GetEvent(t *testing.T) {
-	setup()
 	eventId := "d5eed458-6666-58ec-ad06-8d3cf6bafca1"
-	event, err := GetEvent(eventId, &policy.Context{}, storage.ConfiguredDriver())
+	event, err := GetEvent(eventId, &policy.Context{}, keystone.Mock(), storage.Mock())
 	require.Nil(t, err)
 	require.NotNil(t, event)
 	assert.Equal(t, "d5eed458-6666-58ec-ad06-8d3cf6bafca1", event.Payload.ID)
@@ -29,8 +23,7 @@ func Test_GetEvent(t *testing.T) {
 }
 
 func Test_GetEvents(t *testing.T) {
-	setup()
-	events, total, err := GetEvents(&data.Filter{}, &policy.Context{}, storage.ConfiguredDriver())
+	events, total, err := GetEvents(&data.Filter{}, &policy.Context{}, keystone.Mock(), storage.Mock())
 	require.Nil(t, err)
 	require.NotNil(t, events)
 	assert.Equal(t, len(events), 3)

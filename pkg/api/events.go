@@ -26,7 +26,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/hermes"
-	"github.com/sapcc/hermes/pkg/storage"
 	"strconv"
 )
 
@@ -53,7 +52,7 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 		Sort:         r.FormValue("sort"),
 	}
 
-	events, total, err := hermes.GetEvents(&filter, &token.context, storage.ConfiguredDriver())
+	events, total, err := hermes.GetEvents(&filter, &token.context, p.keystone, p.storage)
 	if ReturnError(w, err) {
 		return
 	}
@@ -88,7 +87,7 @@ func (p *v1Provider) GetEventDetails(w http.ResponseWriter, r *http.Request) {
 
 	eventID := mux.Vars(r)["event_id"]
 
-	event, err := hermes.GetEvent(eventID, &token.context, storage.ConfiguredDriver())
+	event, err := hermes.GetEvent(eventID, &token.context, p.keystone, p.storage)
 	if ReturnError(w, err) {
 		return
 	}

@@ -27,40 +27,43 @@ import (
 	"bytes"
 	"github.com/gorilla/mux"
 	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/storage"
 )
 
-//VersionData is used by version advertisement handlers.
-type VersionData struct {
+//versionData is used by version advertisement handlers.
+type versionData struct {
 	Status string            `json:"status"`
 	ID     string            `json:"id"`
-	Links  []VersionLinkData `json:"links"`
+	Links  []versionLinkData `json:"links"`
 }
 
-//VersionLinkData is used by version advertisement handlers, as part of the
-//VersionData struct.
-type VersionLinkData struct {
+//versionLinkData is used by version advertisement handlers, as part of the
+//versionData struct.
+type versionLinkData struct {
 	URL      string `json:"href"`
 	Relation string `json:"rel"`
 	Type     string `json:"type,omitempty"`
 }
 
 type v1Provider struct {
-	Keystone    keystone.Interface
-	VersionData VersionData
+	keystone    keystone.Interface
+	storage     storage.Interface
+	versionData versionData
 }
 
 //NewV1Router creates a http.Handler that serves the Limes v1 API.
-//It also returns the VersionData for this API version which is needed for the
+//It also returns the versionData for this API version which is needed for the
 //version advertisement on "GET /".
-func NewV1Router(keystone keystone.Interface) (http.Handler, VersionData) {
+func NewV1Router(keystone keystone.Interface, storage storage.Interface) (http.Handler, versionData) {
 	r := mux.NewRouter()
 	p := &v1Provider{
-		Keystone: keystone,
+		keystone: keystone,
+		storage:  storage,
 	}
-	p.VersionData = VersionData{
+	p.versionData = versionData{
 		Status: "CURRENT",
 		ID:     "v1",
-		Links: []VersionLinkData{
+		Links: []versionLinkData{
 			{
 				Relation: "self",
 				URL:      p.Path(),
@@ -74,13 +77,13 @@ func NewV1Router(keystone keystone.Interface) (http.Handler, VersionData) {
 	}
 
 	r.Methods("GET").Path("/v1/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ReturnJSON(w, 200, map[string]interface{}{"version": p.VersionData})
+		ReturnJSON(w, 200, map[string]interface{}{"version": p.versionData})
 	})
 
 	r.Methods("GET").Path("/v1/events").HandlerFunc(p.ListEvents)
 	r.Methods("GET").Path("/v1/events/{event_id}").HandlerFunc(p.GetEventDetails)
 
-	return r, p.VersionData
+	return r, p.versionData
 }
 
 //ReturnJSON is a convenience function for HTTP handlers returning JSON data.

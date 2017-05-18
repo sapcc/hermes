@@ -20,14 +20,13 @@
 package api
 
 import (
-	"bytes"
 	"net/http"
 	"testing"
 
 	"encoding/json"
 	"github.com/databus23/goslo.policy"
-	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -36,16 +35,6 @@ import (
 type object map[string]interface{}
 
 func setupTest(t *testing.T) http.Handler {
-	// Initialise config for testing
-	hermes.SetDefaultConfig()
-	viper.SetConfigType("toml")
-	var testConfigFile = []byte(`
-[hermes]
-storage_driver = "mock"
-keystone_driver = "mock"
-`)
-	viper.ReadConfig(bytes.NewBuffer(testConfigFile))
-
 	//load test policy (where everything is allowed)
 	policyBytes, err := ioutil.ReadFile("../test/policy.json")
 	if err != nil {
@@ -63,8 +52,9 @@ keystone_driver = "mock"
 	viper.Set("hermes.PolicyEnforcer", policyEnforcer)
 
 	//create test driver with the domains and projects from start-data.sql
-	keystone := keystone.ConfiguredDriver()
-	router, _ := NewV1Router(keystone)
+	keystone := keystone.Mock()
+	storage := storage.Mock()
+	router, _ := NewV1Router(keystone, storage)
 	return router
 }
 

@@ -19,14 +19,14 @@ func Server(keystone keystone.Interface, storage storage.Interface) error {
 
 	//hook up the v1 API (this code is structured so that a newer API version can
 	//be added easily later)
-	v1Router, v1VersionData := NewV1Router(keystone)
+	v1Router, v1VersionData := NewV1Router(keystone, storage)
 	mainRouter.PathPrefix("/v1/").Handler(v1Router)
 
 	//add the version advertisement that lists all available API versions
 	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		allVersions := struct {
-			Versions []VersionData `json:"versions"`
-		}{[]VersionData{v1VersionData}}
+			Versions []versionData `json:"versions"`
+		}{[]versionData{v1VersionData}}
 		ReturnJSON(w, 300, allVersions)
 	})
 

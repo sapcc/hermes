@@ -13,11 +13,6 @@ func Mock() Interface {
 	return mock{}
 }
 
-type eventsList struct {
-	total  int
-	events []data.EventDetail
-}
-
 func (m mock) GetEvents(filter data.Filter, tenant_id string) ([]*data.Event, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)

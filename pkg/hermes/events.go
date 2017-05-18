@@ -30,7 +30,7 @@ import (
 )
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *data.Filter, context *policy.Context, eventStore storage.Interface) ([]*data.Event, int, error) {
+func GetEvents(filter *data.Filter, context *policy.Context, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*data.Event, int, error) {
 	if context == nil {
 		return nil, 0, errors.New("GetEvent() called with no policy context")
 	}
@@ -44,7 +44,7 @@ func GetEvents(filter *data.Filter, context *policy.Context, eventStore storage.
 
 	// Now add the names for IDs in the events
 	for _, event := range events {
-		nameMap := namesForIds(map[string]string{
+		nameMap := namesForIds(keystoneDriver, map[string]string{
 			"domain":  event.Initiator.DomainID,
 			"project": event.Initiator.ProjectID,
 			"user":    event.Initiator.UserID,
@@ -61,13 +61,13 @@ func GetEvents(filter *data.Filter, context *policy.Context, eventStore storage.
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, context *policy.Context, eventStore storage.Interface) (*data.EventDetail, error) {
+func GetEvent(eventID string, context *policy.Context, keystoneDriver keystone.Interface, eventStore storage.Interface) (*data.EventDetail, error) {
 	if context == nil {
 		return nil, errors.New("GetEvent() called with no policy context")
 	}
 	event, err := eventStore.GetEvent(eventID, getTenantId(context))
 
-	nameMap := namesForIds(map[string]string{
+	nameMap := namesForIds(keystoneDriver, map[string]string{
 		"domain":  event.Payload.Initiator.DomainID,
 		"project": event.Payload.Initiator.ProjectID,
 		"user":    event.Payload.Initiator.UserID,
@@ -82,29 +82,28 @@ func GetEvent(eventID string, context *policy.Context, eventStore storage.Interf
 	return &event, err
 }
 
-func namesForIds(idMap map[string]string, targetType string) map[string]string {
+func namesForIds(keystoneDriver keystone.Interface, idMap map[string]string, targetType string) map[string]string {
 	nameMap := map[string]string{}
 	var err error
 
 	// Now add the names for IDs in the event
-	keystoneSvc := keystone.ConfiguredDriver()
 	domainId := idMap["domain"]
 	if domainId != "" {
-		nameMap["domain"], err = keystoneSvc.DomainName(domainId)
+		nameMap["domain"], err = keystoneDriver.DomainName(domainId)
 		if err != nil {
 			log.Errorf("Error looking up domain name for domain '%s'", domainId)
 		}
 	}
 	projectId := idMap["project"]
 	if projectId != "" {
-		nameMap["project"], err = keystoneSvc.ProjectName(projectId)
+		nameMap["project"], err = keystoneDriver.ProjectName(projectId)
 		if err != nil {
 			log.Errorf("Error looking up project name for project '%s'", projectId)
 		}
 	}
 	userId := idMap["user"]
 	if userId != "" {
-		nameMap["user"], err = keystoneSvc.UserName(userId)
+		nameMap["user"], err = keystoneDriver.UserName(userId)
 		if err != nil {
 			log.Errorf("Error looking up user name for user '%s'", userId)
 		}
@@ -113,7 +112,7 @@ func namesForIds(idMap map[string]string, targetType string) map[string]string {
 	// Depending on the type of the target, we need to look up the name in different services
 	switch targetType {
 	case "data/security/project":
-		nameMap["target"], err = keystoneSvc.ProjectName(idMap["target"])
+		nameMap["target"], err = keystoneDriver.ProjectName(idMap["target"])
 	default:
 		log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.", targetType))
 	}

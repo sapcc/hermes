@@ -22,6 +22,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"strings"
+	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/storage"
 )
 
 var cfgFile string
@@ -43,6 +45,14 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
+}
+
+var keystoneDriver keystone.Interface
+var storageDriver storage.Interface
+
+func SetDrivers(keystoneParam keystone.Interface, storageParam storage.Interface) {
+	keystoneDriver = keystoneParam
+	storageDriver = storageParam
 }
 
 func init() {

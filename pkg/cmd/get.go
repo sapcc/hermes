@@ -20,7 +20,6 @@ import (
 
 	"encoding/json"
 	"github.com/sapcc/hermes/pkg/hermes"
-	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/spf13/cobra"
 	"github.com/sapcc/hermes/pkg/cmd/auth"
 )
@@ -35,12 +34,12 @@ var getCmd = &cobra.Command{
 			return errors.New("You must specify exactly one event ID.")
 		}
 
-		token := auth.GetToken()
+		token := auth.GetToken(keystoneDriver)
 		if !token.Require("event:show") {
 			return errors.New("You are not authorised to view event details")
 		}
 
-		event, err := hermes.GetEvent(args[0], &token.Context, storage.ConfiguredDriver())
+		event, err := hermes.GetEvent(args[0], &token.Context, keystoneDriver, storageDriver)
 		if err != nil {
 			return err
 		}

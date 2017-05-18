@@ -21,7 +21,6 @@ import (
 	"github.com/sapcc/hermes/pkg/cmd/auth"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/hermes"
-	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -43,12 +42,12 @@ Each sort key may also include a direction. Supported directions are :asc for as
 For example, to sort the list from most recently created to oldest:
 GET /v1/events?sort=time:desc`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		token := auth.GetToken()
+		token := auth.GetToken(keystoneDriver)
 		if !token.Require("event:list") {
 			return errors.New("You are not authorised to list events")
 		}
 
-		eventSlice, total, err := hermes.GetEvents(&data.Filter{}, &token.Context, storage.ConfiguredDriver())
+		eventSlice, total, err := hermes.GetEvents(&data.Filter{}, &token.Context, keystoneDriver, storageDriver)
 		if err != nil {
 			return err
 		}
