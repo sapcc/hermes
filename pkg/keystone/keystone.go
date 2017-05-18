@@ -327,9 +327,6 @@ func (d keystone) RefreshToken() error {
 	if err != nil {
 		return fmt.Errorf("cannot initialize Keystone client: %v", err)
 	}
-	//if keystone.Endpoint == "" {
-	//	keystone.Endpoint = viper.GetString("keystone.auth_url")
-	//}
 
 	util.LogDebug("Keystone URL: %s", keystone.Endpoint)
 

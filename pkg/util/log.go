@@ -25,7 +25,7 @@ import (
 	"strings"
 )
 
-var isDebug = os.Getenv("hermes_DEBUG") == "1"
+var isDebug = os.Getenv("HERMES_DEBUG") == "1"
 
 func init() {
 	log.SetOutput(os.Stdout)
