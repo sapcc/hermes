@@ -5,8 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
@@ -29,10 +27,6 @@ func Server(keystone keystone.Interface, storage storage.Interface) error {
 		}{[]versionData{v1VersionData}}
 		ReturnJSON(w, 300, allVersions)
 	})
-
-	//add Prometheus instrumentation
-	http.Handle("/metrics", promhttp.Handler())
-	http.HandleFunc("/", prometheus.InstrumentHandler("hermes-serve", mainRouter))
 
 	//start HTTP server
 	util.LogInfo("listening on " + viper.GetString("API.ListenAddress"))

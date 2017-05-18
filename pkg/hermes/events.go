@@ -21,12 +21,11 @@ package hermes
 
 import (
 	"errors"
-	"fmt"
 	"github.com/databus23/goslo.policy"
-	"github.com/prometheus/common/log"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
+	"log"
 )
 
 // GetEvents returns a list of matching events (with filtering)
@@ -91,21 +90,21 @@ func namesForIds(keystoneDriver keystone.Interface, idMap map[string]string, tar
 	if domainId != "" {
 		nameMap["domain"], err = keystoneDriver.DomainName(domainId)
 		if err != nil {
-			log.Errorf("Error looking up domain name for domain '%s'", domainId)
+			log.Printf("Error looking up domain name for domain '%s'", domainId)
 		}
 	}
 	projectId := idMap["project"]
 	if projectId != "" {
 		nameMap["project"], err = keystoneDriver.ProjectName(projectId)
 		if err != nil {
-			log.Errorf("Error looking up project name for project '%s'", projectId)
+			log.Printf("Error looking up project name for project '%s'", projectId)
 		}
 	}
 	userId := idMap["user"]
 	if userId != "" {
 		nameMap["user"], err = keystoneDriver.UserName(userId)
 		if err != nil {
-			log.Errorf("Error looking up user name for user '%s'", userId)
+			log.Printf("Error looking up user name for user '%s'", userId)
 		}
 	}
 
@@ -116,10 +115,10 @@ func namesForIds(keystoneDriver keystone.Interface, idMap map[string]string, tar
 	case "service/security/account/user":
 		nameMap["target"], err = keystoneDriver.UserName(idMap["target"])
 	default:
-		log.Warn(fmt.Sprintf("Unhandled payload type \"%s\", cannot look up name.", targetType))
+		log.Printf("Unhandled payload type \"%s\", cannot look up name.", targetType)
 	}
 	if err != nil {
-		log.Errorf("Error looking up name for %s '%s'", targetType, userId)
+		log.Printf("Error looking up name for %s '%s'", targetType, userId)
 	}
 
 	return nameMap
