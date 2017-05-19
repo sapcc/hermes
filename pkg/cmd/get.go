@@ -39,11 +39,14 @@ var getCmd = &cobra.Command{
 			return errors.New("You are not authorised to view event details")
 		}
 
-		event, err := hermes.GetEvent(args[0], &token.Context, keystoneDriver, storageDriver)
+		eventId := args[0]
+		event, err := hermes.GetEvent(eventId, token.TenantId(), keystoneDriver, storageDriver)
 		if err != nil {
 			return err
 		}
-
+		if event == nil {
+			return errors.New(fmt.Sprintf("Event %s could not be found in tenant %s", eventId, token.TenantId()))
+		}
 		json, err := json.MarshalIndent(event, "", "  ")
 		if err != nil {
 			return err

@@ -47,7 +47,7 @@ GET /v1/events?sort=time:desc`,
 			return errors.New("You are not authorised to list events")
 		}
 
-		eventSlice, total, err := hermes.GetEvents(&data.Filter{}, &token.Context, keystoneDriver, storageDriver)
+		eventSlice, total, err := hermes.GetEvents(&data.Filter{}, token.TenantId(), keystoneDriver, storageDriver)
 		if err != nil {
 			return err
 		}

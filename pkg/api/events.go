@@ -28,6 +28,7 @@ import (
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/util"
 	"strconv"
+	"github.com/pkg/errors"
 )
 
 //ListEvents handles GET /v1/events.
@@ -56,7 +57,11 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
-	events, total, err := hermes.GetEvents(&filter, &token.context, p.keystone, p.storage)
+	tenantId, err := getTenantId(r, w)
+	if err != nil {
+		return
+	}
+	events, total, err := hermes.GetEvents(&filter, tenantId, p.keystone, p.storage)
 	if ReturnError(w, err) {
 		util.LogError("api.ListEvents: error %s", err)
 		return
@@ -86,16 +91,43 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 //GetEvent handles GET /v1/events/:event_id.
 func (p *v1Provider) GetEventDetails(w http.ResponseWriter, r *http.Request) {
 	token := p.CheckToken(r)
-	if !p.CheckToken(r).Require(w, "event:show") {
+	if !token.Require(w, "event:show") {
+		return
+	}
+	eventID := mux.Vars(r)["event_id"]
+	tenantId, err := getTenantId(r, w)
+	if err != nil {
 		return
 	}
 
-	eventID := mux.Vars(r)["event_id"]
+	event, err := hermes.GetEvent(eventID, tenantId, p.keystone, p.storage)
 
-	event, err := hermes.GetEvent(eventID, &token.context, p.keystone, p.storage)
 	if ReturnError(w, err) {
 		return
 	}
-
+	if event == nil {
+		err := errors.New(fmt.Sprintf("Event %s could not be found in tenant %s", eventID, tenantId))
+		http.Error(w, err.Error(), 404)
+		return
+	}
 	ReturnJSON(w, 200, event)
+}
+
+func getTenantId(r *http.Request, w http.ResponseWriter) (string, error) {
+	projectId := r.FormValue("project_id")
+	domainId := r.FormValue("domain_id")
+	var tenantId string
+	if projectId != "" {
+		tenantId = projectId
+	}
+	if domainId != "" {
+		if projectId != "" {
+			err := errors.New("domain_id and project_id cannot both be specified")
+			http.Error(w, err.Error(), 400)
+			return "", err
+		} else {
+			tenantId = domainId
+		}
+	}
+	return tenantId, nil
 }

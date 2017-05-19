@@ -23,8 +23,8 @@ import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/spf13/viper"
-	"os"
 	"log"
+	"os"
 )
 
 //Token represents a user's token, as returned from an authentication request
@@ -67,4 +67,12 @@ func (t *Token) Require(rule string) bool {
 //Check is like Require, but does not write error responses.
 func (t *Token) Check(rule string) bool {
 	return t.err == nil && t.enforcer.Enforce(rule, t.Context)
+}
+
+func (t *Token) TenantId() string {
+	id, project := t.Context.Auth["project_id"]
+	if project {
+		return id
+	}
+	return t.Context.Auth["domain_id"]
 }

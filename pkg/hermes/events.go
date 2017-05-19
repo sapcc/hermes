@@ -20,8 +20,6 @@
 package hermes
 
 import (
-	"errors"
-	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
@@ -30,17 +28,12 @@ import (
 )
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *data.Filter, context *policy.Context, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*data.Event, int, error) {
-	if context == nil {
-		return nil, 0, errors.New("GetEvent() called with no policy context")
-	}
-
+func GetEvents(filter *data.Filter, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*data.Event, int, error) {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
 	}
 
-	tenantId := getTenantId(context)
 	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
 	events, total, err := eventStore.GetEvents(*filter, tenantId)
 
@@ -63,25 +56,23 @@ func GetEvents(filter *data.Filter, context *policy.Context, keystoneDriver keys
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, context *policy.Context, keystoneDriver keystone.Interface, eventStore storage.Interface) (*data.EventDetail, error) {
-	if context == nil {
-		return nil, errors.New("GetEvent() called with no policy context")
+func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) (*data.EventDetail, error) {
+	event, err := eventStore.GetEvent(eventID, tenantId)
+
+	if event != nil {
+		nameMap := namesForIds(keystoneDriver, map[string]string{
+			"domain":  event.Payload.Initiator.DomainID,
+			"project": event.Payload.Initiator.ProjectID,
+			"user":    event.Payload.Initiator.UserID,
+			"target":  event.Payload.Target.ID,
+		}, event.Payload.Target.TypeURI)
+
+		event.Payload.Initiator.DomainName = nameMap["domain"]
+		event.Payload.Initiator.ProjectName = nameMap["project"]
+		event.Payload.Initiator.UserName = nameMap["user"]
+		event.Payload.Target.Name = nameMap["target"]
 	}
-	event, err := eventStore.GetEvent(eventID, getTenantId(context))
-
-	nameMap := namesForIds(keystoneDriver, map[string]string{
-		"domain":  event.Payload.Initiator.DomainID,
-		"project": event.Payload.Initiator.ProjectID,
-		"user":    event.Payload.Initiator.UserID,
-		"target":  event.Payload.Target.ID,
-	}, event.Payload.Target.TypeURI)
-
-	event.Payload.Initiator.DomainName = nameMap["domain"]
-	event.Payload.Initiator.ProjectName = nameMap["project"]
-	event.Payload.Initiator.UserName = nameMap["user"]
-	event.Payload.Target.Name = nameMap["target"]
-
-	return &event, err
+	return event, err
 }
 
 func namesForIds(keystoneDriver keystone.Interface, idMap map[string]string, targetType string) map[string]string {
@@ -125,12 +116,4 @@ func namesForIds(keystoneDriver keystone.Interface, idMap map[string]string, tar
 	}
 
 	return nameMap
-}
-
-func getTenantId(context *policy.Context) string {
-	id, project := context.Auth["project_id"]
-	if project {
-		return id
-	}
-	return context.Auth["domain_id"]
 }

@@ -39,12 +39,12 @@ func (m mock) GetEvents(filter data.Filter, tenant_id string) ([]*data.Event, in
 	return events, detailedEvents.Total, nil
 }
 
-func (m mock) GetEvent(eventId string, tenant_id string) (data.EventDetail, error) {
+func (m mock) GetEvent(eventId string, tenant_id string) (*data.EventDetail, error) {
 	var parsedEvent Event
 	json.Unmarshal(mockEvent, &parsedEvent)
 	event := data.EventDetail{}
 	err := copier.Copy(&event, &parsedEvent)
-	return event, err
+	return &event, err
 }
 
 var mockEvent = []byte(`
