@@ -67,27 +67,39 @@ type Filter struct {
 
 // GetEvents returns a list of matching events (with filtering)
 func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*ListEvent, int, error) {
+	storageFilter := storageFilter(filter, keystoneDriver)
+
+	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
+	eventDetails, total, err := eventStore.GetEvents(&storageFilter, tenantId)
+	if err != nil {
+		return nil, 0, err
+	}
+  events, err := eventsList(eventDetails, keystoneDriver)
+	if err != nil {
+		return nil, 0, err
+	}
+	return events, total, err
+}
+
+func storageFilter(filter *Filter, keystoneDriver keystone.Interface) storage.Filter {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
 	}
-
 	storageFilter := storage.Filter{
 		Source:       filter.Source,
 		ResourceType: filter.ResourceType,
 		EventType:    filter.EventType,
-		Time:         filter.Time, // This will probably get more complicated...
+		Time:         filter.Time, // TODO: This will probably get more complicated...
 		Offset:       filter.Offset,
 		Limit:        filter.Limit,
-		Sort:         filter.Sort, // This will probably get more complicated...
+		Sort:         filter.Sort, // TODO: This will probably get more complicated...
 	}
-
 	// Translate hermes.Filter to storage.Filter by filling in IDs for names
 	if filter.ResourceName != "" {
 		// TODO: make sure there is a resource type, then look up the corresponding name
 		//storageFilter.ResourceId = resourceId
 	}
-
 	if filter.UserName != "" {
 		userId, err := keystoneDriver.UserId(filter.UserName)
 		if err != nil {
@@ -95,11 +107,11 @@ func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Interfac
 		}
 		storageFilter.UserId = userId
 	}
+	return storageFilter
+}
 
-	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
-	eventDetails, total, err := eventStore.GetEvents(&storageFilter, tenantId)
-
-	// Construct ListEvents and add the names for IDs in the events
+// Construct ListEvents and add the names for IDs in the events
+func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Interface) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		p := storageEvent.Payload
@@ -111,9 +123,9 @@ func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Interfac
 			ResourceId:   storageEvent.Payload.Target.ID,
 			ResourceType: storageEvent.Payload.Target.TypeURI,
 		}
-		err = copier.Copy(&event.Initiator, &storageEvent.Payload.Initiator)
+		err := copier.Copy(&event.Initiator, &storageEvent.Payload.Initiator)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
 
 		nameMap := namesForIds(keystoneDriver, map[string]string{
@@ -130,8 +142,7 @@ func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Interfac
 
 		events = append(events, &event)
 	}
-
-	return events, total, err
+	return events, nil
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
