@@ -1,6 +1,5 @@
 package storage
 
-import "github.com/sapcc/hermes/pkg/data"
 import (
 	"context"
 	"encoding/json"
@@ -36,12 +35,33 @@ func (es *elasticSearch) init() {
 	}
 }
 
-func (es elasticSearch) GetEvents(filter data.Filter, tenant_id string) ([]*EventDetail, int, error) {
+func (es elasticSearch) GetEvents(filter *Filter, tenant_id string) ([]*EventDetail, int, error) {
 	index := indexName(tenant_id)
 	util.LogDebug("Looking for events in index %s", index)
 
-	// Search with a term query
-	query := elastic.NewMatchAllQuery() // TODO: add filtering
+	query := elastic.NewBoolQuery()
+	if filter.Source != "" {
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("publisher_id", filter.Source))
+	}
+	if filter.ResourceType != "" {
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("payload.target.typeURI", filter.ResourceType))
+	}
+	if filter.ResourceId != "" {
+		query = query.Filter(elastic.NewTermQuery("payload.target.id.raw", filter.ResourceId))
+	}
+	if filter.UserId != "" {
+		query = query.Filter(elastic.NewTermQuery("payload.initiator.user_id.raw", filter.UserId))
+	}
+	if filter.EventType != "" {
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("event_type", filter.EventType))
+	}
+	if filter.Time != "" {
+		// TODO: it's complicated
+	}
+	if filter.Sort != "" {
+		// TODO: it's complicated
+	}
+
 	search := es.client.Search().
 		Index(index).
 		Query(query).

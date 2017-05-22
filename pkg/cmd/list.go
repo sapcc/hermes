@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"github.com/sapcc/hermes/pkg/cmd/auth"
-	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/spf13/cobra"
 	"os"
@@ -47,7 +46,7 @@ GET /v1/events?sort=time:desc`,
 			return errors.New("You are not authorised to list events")
 		}
 
-		eventSlice, total, err := hermes.GetEvents(&data.Filter{}, token.TenantId(), keystoneDriver, storageDriver)
+		eventSlice, total, err := hermes.GetEvents(&hermes.Filter{}, token.TenantId(), keystoneDriver, storageDriver)
 		if err != nil {
 			return err
 		}

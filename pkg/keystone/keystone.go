@@ -26,6 +26,7 @@ import (
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
+	"github.com/pkg/errors"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 	"sync"
@@ -43,6 +44,7 @@ var providerClient *gophercloud.ProviderClient
 var domainNameCache *map[string]string
 var projectNameCache *map[string]string
 var userNameCache *map[string]string
+var userIdCache *map[string]string
 
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	if d.TokenRenewalMutex == nil {
@@ -56,6 +58,9 @@ func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	}
 	if userNameCache == nil {
 		userNameCache = &map[string]string{}
+	}
+	if userIdCache == nil {
+		userIdCache = &map[string]string{}
 	}
 	if providerClient == nil {
 		var err error
@@ -247,8 +252,48 @@ func (d keystone) UserName(id string) (string, error) {
 	err = result.ExtractInto(&data)
 	if err == nil {
 		(*userNameCache)[id] = data.User.Name
+		(*userIdCache)[data.User.Name] = id
 	}
 	return data.User.Name, err
+}
+
+func (d keystone) UserId(name string) (string, error) {
+	cachedId, hit := (*userIdCache)[name]
+	if hit {
+		return cachedId, nil
+	}
+
+	client, err := d.keystoneClient()
+	if err != nil {
+		return "", err
+	}
+
+	var result gophercloud.Result
+	url := client.ServiceURL(fmt.Sprintf("users?name=%s", name))
+	_, err = client.Get(url, &result.Body, nil)
+	if err != nil {
+		return "", err
+	}
+
+	var data struct {
+		User []KeystoneUser `json:"user"`
+	}
+	err = result.ExtractInto(&data)
+	userId := ""
+	if err == nil {
+		switch len(data.User) {
+		case 0:
+			err = errors.Errorf("No user found with name %s", name)
+		case 1:
+			userId = data.User[0].UUID
+		default:
+			util.LogWarning("Multiple users found with name %s - returning the first one", name)
+			userId = data.User[0].UUID
+		}
+		(*userIdCache)[name] = userId
+		(*userNameCache)[userId] = name
+	}
+	return userId, err
 }
 
 type keystoneToken struct {

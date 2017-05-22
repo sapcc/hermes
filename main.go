@@ -31,7 +31,6 @@ import (
 	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/cmd"
-	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
@@ -98,7 +97,7 @@ func readConfig(configPath *string) {
 	}
 
 	// Setup environment variable overrides for OpenStack authentication
-	for _, os_var_name := range data.OS_vars {
+	for _, os_var_name := range cmd.OS_vars {
 		viper.BindEnv("keystone."+os_var_name, "OS_"+strings.ToUpper(os_var_name))
 	}
 

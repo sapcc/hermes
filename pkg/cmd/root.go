@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/sapcc/hermes/pkg/data"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -55,6 +54,9 @@ func SetDrivers(keystoneParam keystone.Interface, storageParam storage.Interface
 	storageDriver = storageParam
 }
 
+// When adding a value here, also add a "RootCmd.PersistentFlags().StringVar" line in cmd/root.go's init()
+var OS_vars = []string{"username", "password", "auth_url", "user_domain_name", "project_name", "project_domain_name"}
+
 func init() {
 	//cobra.OnInitialize(initConfig)
 
@@ -70,7 +72,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-project-domain-name", "", "OpenStack Project's domain name")
 
 	// Setup command-line flags for OpenStack authentication
-	for _, val := range data.OS_vars {
+	for _, val := range OS_vars {
 		flags := RootCmd.PersistentFlags()
 		lookup := "os-" + strings.Replace(val, "_", "-", -1)
 		pflag := flags.Lookup(lookup)

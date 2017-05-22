@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"github.com/sapcc/hermes/pkg/data"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -16,7 +15,7 @@ func Test_MockStorage_EventDetail(t *testing.T) {
 }
 
 func Test_MockStorage_Events(t *testing.T) {
-	eventsList, total, error := Mock().GetEvents(data.Filter{}, "b3b70c8271a845709f9a03030e705da7")
+	eventsList, total, error := Mock().GetEvents(Filter{}, "b3b70c8271a845709f9a03030e705da7")
 
 	assert.Nil(t, error)
 	assert.Equal(t, total, 24)

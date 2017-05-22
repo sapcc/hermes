@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/util"
 	"strconv"
@@ -52,7 +51,7 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 	limit, _ := strconv.ParseUint(r.FormValue("limit"), 10, 8)
 
 	util.LogDebug("api.ListEvents: Create filter")
-	filter := data.Filter{
+	filter := hermes.Filter{
 		Source:       r.FormValue("source"),
 		ResourceType: r.FormValue("resource_type"),
 		ResourceName: r.FormValue("resource_name"),

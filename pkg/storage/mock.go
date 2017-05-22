@@ -2,7 +2,6 @@ package storage
 
 import (
 	"encoding/json"
-	"github.com/sapcc/hermes/pkg/data"
 )
 
 type mock struct{}
@@ -11,7 +10,7 @@ func Mock() Interface {
 	return mock{}
 }
 
-func (m mock) GetEvents(filter data.Filter, tenant_id string) ([]*EventDetail, int, error) {
+func (m mock) GetEvents(filter *Filter, tenant_id string) ([]*EventDetail, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 

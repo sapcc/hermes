@@ -19,23 +19,31 @@
 
 package storage
 
-import (
-	"github.com/sapcc/hermes/pkg/data"
-)
-
 // Driver is an interface that wraps the underlying event storage mechanism.
 // Because it is an interface, the real implementation can be mocked away in unit tests.
 type Interface interface {
 
 	/********** requests to Keystone **********/
-	GetEvents(filter data.Filter, tenant_id string) ([]*EventDetail, int, error)
+	GetEvents(filter *Filter, tenant_id string) ([]*EventDetail, int, error)
 	GetEvent(eventId string, tenant_id string) (*EventDetail, error)
+}
+
+type Filter struct {
+	Source       string
+	ResourceType string
+	ResourceId   string
+	UserId       string
+	EventType    string
+	Time         string
+	Offset       uint64
+	Limit        uint64
+	Sort         string
 }
 
 // Thanks to the tool at https://mholt.github.io/json-to-go/
 
 type eventListWithTotal struct {
-	Total  int     `json:"total"`
+	Total  int           `json:"total"`
 	Events []EventDetail `json:"events"`
 }
 

@@ -20,13 +20,12 @@
 package hermes
 
 import (
-	"github.com/sapcc/hermes/pkg/data"
+	"github.com/jinzhu/copier"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"log"
 	"strings"
-	"github.com/jinzhu/copier"
 )
 
 // ListEvent contains high-level data about an event, intended as a list item
@@ -54,17 +53,53 @@ type ListEvent struct {
 	} `json:"initiator"`
 }
 
+type Filter struct {
+	Source       string
+	ResourceType string
+	ResourceName string
+	UserName     string
+	EventType    string
+	Time         string
+	Offset       uint64
+	Limit        uint64
+	Sort         string
+}
+
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *data.Filter, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*ListEvent, int, error) {
+func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*ListEvent, int, error) {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
 	}
 
-	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
-	eventDetails, total, err := eventStore.GetEvents(*filter, tenantId)
+	storageFilter := storage.Filter{
+		Source:       filter.Source,
+		ResourceType: filter.ResourceType,
+		EventType:    filter.EventType,
+		Time:         filter.Time, // This will probably get more complicated...
+		Offset:       filter.Offset,
+		Limit:        filter.Limit,
+		Sort:         filter.Sort, // This will probably get more complicated...
+	}
 
-	// Construct "list events" and  add the names for IDs in the events
+	// Translate hermes.Filter to storage.Filter by filling in IDs for names
+	if filter.ResourceName != "" {
+		// TODO: make sure there is a resource type, then look up the corresponding name
+		//storageFilter.ResourceId = resourceId
+	}
+
+	if filter.UserName != "" {
+		userId, err := keystoneDriver.UserId(filter.UserName)
+		if err != nil {
+			util.LogError("Could not find user ID for name %s", filter.UserName)
+		}
+		storageFilter.UserId = userId
+	}
+
+	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
+	eventDetails, total, err := eventStore.GetEvents(&storageFilter, tenantId)
+
+	// Construct ListEvents and add the names for IDs in the events
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		p := storageEvent.Payload

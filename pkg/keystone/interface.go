@@ -41,6 +41,7 @@ type Interface interface {
 	DomainName(id string) (string, error)
 	ProjectName(id string) (string, error)
 	UserName(id string) (string, error)
+	UserId(name string) (string, error)
 }
 
 //KeystoneDomain describes the basic attributes of a Keystone domain.
