@@ -25,20 +25,62 @@ import (
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"log"
+	"strings"
+	"github.com/jinzhu/copier"
 )
 
+// ListEvent contains high-level data about an event, intended as a list item
+type ListEvent struct {
+	Source       string `json:"source"`
+	ID           string `json:"event_id"`
+	Type         string `json:"event_type"`
+	Time         string `json:"event_time"`
+	ResourceName string `json:"resource_name"`
+	ResourceId   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+	Initiator    struct {
+		TypeURI     string `json:"typeURI"`
+		DomainID    string `json:"domain_id,omitempty"`
+		DomainName  string `json:"domain_name,omitempty"`
+		ProjectID   string `json:"project_id,omitempty"`
+		ProjectName string `json:"project_name,omitempty"`
+		UserID      string `json:"user_id"`
+		UserName    string `json:"user_name"`
+		Host        struct {
+			Agent   string `json:"agent"`
+			Address string `json:"address"`
+		} `json:"host"`
+		ID string `json:"id"`
+	} `json:"initiator"`
+}
+
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *data.Filter, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*data.Event, int, error) {
+func GetEvents(filter *data.Filter, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*ListEvent, int, error) {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
 	}
 
 	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
-	events, total, err := eventStore.GetEvents(*filter, tenantId)
+	eventDetails, total, err := eventStore.GetEvents(*filter, tenantId)
 
-	// Now add the names for IDs in the events
-	for _, event := range events {
+	// Construct "list events" and  add the names for IDs in the events
+	var events []*ListEvent
+	for _, storageEvent := range eventDetails {
+		p := storageEvent.Payload
+		event := ListEvent{
+			Source:       strings.SplitN(storageEvent.EventType, ".", 2)[0],
+			ID:           p.ID,
+			Type:         storageEvent.EventType,
+			Time:         p.EventTime,
+			ResourceId:   storageEvent.Payload.Target.ID,
+			ResourceType: storageEvent.Payload.Target.TypeURI,
+		}
+		err = copier.Copy(&event.Initiator, &storageEvent.Payload.Initiator)
+		if err != nil {
+			return nil, 0, err
+		}
+
 		nameMap := namesForIds(keystoneDriver, map[string]string{
 			"domain":  event.Initiator.DomainID,
 			"project": event.Initiator.ProjectID,
@@ -50,13 +92,15 @@ func GetEvents(filter *data.Filter, tenantId string, keystoneDriver keystone.Int
 		event.Initiator.ProjectName = nameMap["project"]
 		event.Initiator.UserName = nameMap["user"]
 		event.ResourceName = nameMap["target"]
+
+		events = append(events, &event)
 	}
 
 	return events, total, err
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) (*data.EventDetail, error) {
+func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) (*storage.EventDetail, error) {
 	event, err := eventStore.GetEvent(eventID, tenantId)
 
 	if event != nil {

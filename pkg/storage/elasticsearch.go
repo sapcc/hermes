@@ -5,11 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jinzhu/copier"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 	elastic "gopkg.in/olivere/elastic.v5"
-	"strings"
 )
 
 type elasticSearch struct {
@@ -38,7 +36,7 @@ func (es *elasticSearch) init() {
 	}
 }
 
-func (es elasticSearch) GetEvents(filter data.Filter, tenant_id string) ([]*data.Event, int, error) {
+func (es elasticSearch) GetEvents(filter data.Filter, tenant_id string) ([]*EventDetail, int, error) {
 	index := indexName(tenant_id)
 	util.LogDebug("Looking for events in index %s", index)
 
@@ -57,32 +55,22 @@ func (es elasticSearch) GetEvents(filter data.Filter, tenant_id string) ([]*data
 
 	util.LogDebug("Got %d hits", searchResult.TotalHits())
 
-	//Construct data.Event array from search results
-	var events []*data.Event
+	//Construct EventDetail array from search results
+	var events []*EventDetail
 	for _, hit := range searchResult.Hits.Hits {
-		var de data.EventDetail
+		var de EventDetail
 		err := json.Unmarshal(*hit.Source, &de)
-		p := de.Payload
-		ev := data.Event{
-			Source:       strings.SplitN(de.EventType, ".", 2)[0],
-			ID:           p.ID,
-			Type:         de.EventType,
-			Time:         p.EventTime,
-			ResourceId:   de.Payload.Target.ID,
-			ResourceType: de.Payload.Target.TypeURI,
-		}
-		err = copier.Copy(&ev.Initiator, &de.Payload.Initiator)
 		if err != nil {
 			return nil, 0, err
 		}
-		events = append(events, &ev)
+		events = append(events, &de)
 	}
 	total := searchResult.TotalHits()
 
 	return events, int(total), nil
 }
 
-func (es elasticSearch) GetEvent(eventId string, tenant_id string) (*data.EventDetail, error) {
+func (es elasticSearch) GetEvent(eventId string, tenant_id string) (*EventDetail, error) {
 	index := indexName(tenant_id)
 	util.LogDebug("Looking for event %s in index %s", eventId, index)
 
@@ -99,7 +87,7 @@ func (es elasticSearch) GetEvent(eventId string, tenant_id string) (*data.EventD
 
 	if total > 0 {
 		hit := searchResult.Hits.Hits[0]
-		var de data.EventDetail
+		var de EventDetail
 		err := json.Unmarshal(*hit.Source, &de)
 		return &de, err
 	} else {

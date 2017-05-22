@@ -2,9 +2,7 @@ package storage
 
 import (
 	"encoding/json"
-	"github.com/jinzhu/copier"
 	"github.com/sapcc/hermes/pkg/data"
-	"strings"
 )
 
 type mock struct{}
@@ -13,38 +11,23 @@ func Mock() Interface {
 	return mock{}
 }
 
-func (m mock) GetEvents(filter data.Filter, tenant_id string) ([]*data.Event, int, error) {
+func (m mock) GetEvents(filter data.Filter, tenant_id string) ([]*EventDetail, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 
-	var events []*data.Event
+	var events []*EventDetail
 
-	for _, de := range detailedEvents.Events {
-		p := de.Payload
-		ev := data.Event{
-			Source:       strings.SplitN(de.EventType, ".", 2)[0],
-			ID:           p.ID,
-			Type:         de.EventType,
-			Time:         p.EventTime,
-			ResourceId:   de.Payload.Target.ID,
-			ResourceType: de.Payload.Target.TypeURI,
-		}
-		err := copier.Copy(&ev.Initiator, &de.Payload.Initiator)
-		if err != nil {
-			return nil, 0, nil
-		}
-		events = append(events, &ev)
+	for i, _ := range detailedEvents.Events {
+		events = append(events, &detailedEvents.Events[i])
 	}
 
 	return events, detailedEvents.Total, nil
 }
 
-func (m mock) GetEvent(eventId string, tenant_id string) (*data.EventDetail, error) {
-	var parsedEvent Event
-	json.Unmarshal(mockEvent, &parsedEvent)
-	event := data.EventDetail{}
-	err := copier.Copy(&event, &parsedEvent)
-	return &event, err
+func (m mock) GetEvent(eventId string, tenant_id string) (*EventDetail, error) {
+	var parsedEvent EventDetail
+	err := json.Unmarshal(mockEvent, &parsedEvent)
+	return &parsedEvent, err
 }
 
 var mockEvent = []byte(`

@@ -24,12 +24,20 @@ import (
 
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	"github.com/sapcc/hermes/pkg/data"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/util"
 	"strconv"
-	"github.com/pkg/errors"
 )
+
+// ListEvent list for returning in the API
+type EventList struct {
+	NextURL string              `json:"next,omitempty"`
+	PrevURL string              `json:"previous,omitempty"`
+	Events  []*hermes.ListEvent `json:"events"`
+	Total   int                 `json:"total"`
+}
 
 //ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +75,7 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventList := data.EventList{Events: events, Total: total}
+	eventList := EventList{Events: events, Total: total}
 
 	// What protocol to use for PrevURL and NextURL?
 	protocol := "http"

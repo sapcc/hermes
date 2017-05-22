@@ -21,7 +21,7 @@ func Test_MockStorage_Events(t *testing.T) {
 	assert.Nil(t, error)
 	assert.Equal(t, total, 24)
 	assert.Equal(t, len(eventsList), 3)
-	assert.Equal(t, "identity.project.deleted", eventsList[0].Type)
-	assert.Equal(t, "095056c9-4cbb-5200-af70-0977dbcf5000", eventsList[1].ID)
-	assert.Equal(t, "2017-05-02T11:45:44.755215+0000", eventsList[2].Time)
+	assert.Equal(t, "identity.project.deleted", eventsList[0].EventType)
+	assert.Equal(t, "095056c9-4cbb-5200-af70-0977dbcf5000", eventsList[1].Payload.ID)
+	assert.Equal(t, "2017-05-02T11:45:44.755215+0000", eventsList[2].Payload.EventTime)
 }
