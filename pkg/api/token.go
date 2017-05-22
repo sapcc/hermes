@@ -24,8 +24,6 @@ import (
 	"net/http"
 
 	policy "github.com/databus23/goslo.policy"
-	_ "github.com/gorilla/mux"
-	_ "github.com/spf13/viper"
 	"github.com/spf13/viper"
 	"github.com/gorilla/mux"
 	"os"
@@ -68,13 +66,8 @@ func (t *Token) Require(w http.ResponseWriter, rule string) bool {
 		t.context.Logger = log.Printf //or any other function with the same signature
 	}
 	if !t.enforcer.Enforce(rule, t.context) {
-		http.Error(w, "Unauthorized", 401)
+		http.Error(w, "Unauthorized", 403)
 		return false
 	}
 	return true
-}
-
-//Check is like Require, but does not write error responses.
-func (t *Token) Check(rule string) bool {
-	return t.err == nil && t.enforcer.Enforce(rule, t.context)
 }
