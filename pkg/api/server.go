@@ -11,7 +11,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Server(keystone keystone.Interface, storage storage.Interface) error {
+// Set up and start the API server, hooking it up to the API router
+func Server(keystone keystone.Driver, storage storage.Driver) error {
 	fmt.Println("API")
 	mainRouter := mux.NewRouter()
 

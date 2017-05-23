@@ -24,10 +24,10 @@ import (
 	"net/http"
 
 	policy "github.com/databus23/goslo.policy"
-	"github.com/spf13/viper"
 	"github.com/gorilla/mux"
-	"os"
+	"github.com/spf13/viper"
 	"log"
+	"os"
 )
 
 //Token represents a user's token, as passed through the X-Auth-Token header of

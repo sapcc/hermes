@@ -19,9 +19,9 @@ import (
 	"fmt"
 
 	"encoding/json"
+	"github.com/sapcc/hermes/pkg/cmd/auth"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/spf13/cobra"
-	"github.com/sapcc/hermes/pkg/cmd/auth"
 )
 
 // getCmd represents the get command
@@ -45,7 +45,7 @@ var getCmd = &cobra.Command{
 			return err
 		}
 		if event == nil {
-			return errors.New(fmt.Sprintf("Event %s could not be found in tenant %s", eventId, token.TenantId()))
+			return fmt.Errorf("Event %s could not be found in tenant %s", eventId, token.TenantId())
 		}
 		json, err := json.MarshalIndent(event, "", "  ")
 		if err != nil {

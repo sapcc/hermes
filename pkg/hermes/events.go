@@ -53,6 +53,7 @@ type ListEvent struct {
 	} `json:"initiator"`
 }
 
+// Filter maps to the filtering/paging/sorting allowed by the API
 type Filter struct {
 	Source       string
 	ResourceType string
@@ -66,7 +67,7 @@ type Filter struct {
 }
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) ([]*ListEvent, int, error) {
+func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Driver, eventStore storage.Driver) ([]*ListEvent, int, error) {
 	storageFilter := storageFilter(filter, keystoneDriver)
 
 	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
@@ -74,14 +75,14 @@ func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Interfac
 	if err != nil {
 		return nil, 0, err
 	}
-  events, err := eventsList(eventDetails, keystoneDriver)
+	events, err := eventsList(eventDetails, keystoneDriver)
 	if err != nil {
 		return nil, 0, err
 	}
 	return events, total, err
 }
 
-func storageFilter(filter *Filter, keystoneDriver keystone.Interface) storage.Filter {
+func storageFilter(filter *Filter, keystoneDriver keystone.Driver) storage.Filter {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
@@ -113,7 +114,7 @@ func storageFilter(filter *Filter, keystoneDriver keystone.Interface) storage.Fi
 }
 
 // Construct ListEvents and add the names for IDs in the events
-func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Interface) ([]*ListEvent, error) {
+func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Driver) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		p := storageEvent.Payload
@@ -148,7 +149,7 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Int
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Interface, eventStore storage.Interface) (*storage.EventDetail, error) {
+func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Driver, eventStore storage.Driver) (*storage.EventDetail, error) {
 	event, err := eventStore.GetEvent(eventID, tenantId)
 
 	if event != nil {
@@ -167,7 +168,7 @@ func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Interface
 	return event, err
 }
 
-func namesForIds(keystoneDriver keystone.Interface, idMap map[string]string, targetType string) map[string]string {
+func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, targetType string) map[string]string {
 	nameMap := map[string]string{}
 	var err error
 

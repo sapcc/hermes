@@ -37,7 +37,7 @@ type Token struct {
 // GetToken authenticates using the configured credentials in Keystone, and
 // returns a Token instance for checking authorization. Any errors that occur
 // during this function are deferred until Require() is called.
-func GetToken(keystoneDriver keystone.Interface) *Token {
+func GetToken(keystoneDriver keystone.Driver) *Token {
 	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
 
 	credentials := keystoneDriver.AuthOptions()
@@ -69,6 +69,7 @@ func (t *Token) Check(rule string) bool {
 	return t.err == nil && t.enforcer.Enforce(rule, t.Context)
 }
 
+// TenantId is the project_id if used, otherwise the domain_id (which may be empty)
 func (t *Token) TenantId() string {
 	id, project := t.Context.Auth["project_id"]
 	if project {

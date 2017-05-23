@@ -32,7 +32,8 @@ import (
 	"sync"
 )
 
-func Keystone() Interface {
+// Real keystone implementation
+func Keystone() Driver {
 	return keystone{}
 }
 
@@ -84,7 +85,7 @@ func (d keystone) Client() *gophercloud.ProviderClient {
 
 	err := viper.UnmarshalKey("keystone", &kc)
 	if err != nil {
-		fmt.Println("unable to decode into struct, %v", err)
+		fmt.Printf("unable to decode into struct, %v", err)
 	}
 
 	return nil

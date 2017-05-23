@@ -97,13 +97,13 @@ func readConfig(configPath *string) {
 	}
 
 	// Setup environment variable overrides for OpenStack authentication
-	for _, os_var_name := range cmd.OS_vars {
-		viper.BindEnv("keystone."+os_var_name, "OS_"+strings.ToUpper(os_var_name))
+	for _, osVarName := range cmd.osVars {
+		viper.BindEnv("keystone."+osVarName, "OS_"+strings.ToUpper(osVarName))
 	}
 
 }
 
-func configuredKeystoneDriver() keystone.Interface {
+func configuredKeystoneDriver() keystone.Driver {
 	driverName := viper.GetString("hermes.keystone_driver")
 	switch driverName {
 	case "keystone":
@@ -116,7 +116,7 @@ func configuredKeystoneDriver() keystone.Interface {
 	}
 }
 
-func configuredStorageDriver() storage.Interface {
+func configuredStorageDriver() storage.Driver {
 	driverName := viper.GetString("hermes.storage_driver")
 	switch driverName {
 	case "elasticsearch":

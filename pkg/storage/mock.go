@@ -6,24 +6,25 @@ import (
 
 type mock struct{}
 
-func Mock() Interface {
+// Mock elasticsearch driver with static data
+func Mock() Driver {
 	return mock{}
 }
 
-func (m mock) GetEvents(filter *Filter, tenant_id string) ([]*EventDetail, int, error) {
+func (m mock) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 
 	var events []*EventDetail
 
-	for i, _ := range detailedEvents.Events {
+	for i := range detailedEvents.Events {
 		events = append(events, &detailedEvents.Events[i])
 	}
 
 	return events, detailedEvents.Total, nil
 }
 
-func (m mock) GetEvent(eventId string, tenant_id string) (*EventDetail, error) {
+func (m mock) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
 	var parsedEvent EventDetail
 	err := json.Unmarshal(mockEvent, &parsedEvent)
 	return &parsedEvent, err

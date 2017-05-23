@@ -21,13 +21,14 @@ package storage
 
 // Driver is an interface that wraps the underlying event storage mechanism.
 // Because it is an interface, the real implementation can be mocked away in unit tests.
-type Interface interface {
+type Driver interface {
 
 	/********** requests to ElasticSearch **********/
-	GetEvents(filter *Filter, tenant_id string) ([]*EventDetail, int, error)
-	GetEvent(eventId string, tenant_id string) (*EventDetail, error)
+	GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error)
+	GetEvent(eventId string, tenantId string) (*EventDetail, error)
 }
 
+// This Filter is similar to hermes.Filter, but using IDs instead of names
 type Filter struct {
 	Source       string
 	ResourceType string

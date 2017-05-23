@@ -46,15 +46,15 @@ type versionLinkData struct {
 }
 
 type v1Provider struct {
-	keystone    keystone.Interface
-	storage     storage.Interface
+	keystone    keystone.Driver
+	storage     storage.Driver
 	versionData versionData
 }
 
 //NewV1Router creates a http.Handler that serves the Hermes v1 API.
 //It also returns the versionData for this API version which is needed for the
 //version advertisement on "GET /".
-func NewV1Router(keystone keystone.Interface, storage storage.Interface) (http.Handler, versionData) {
+func NewV1Router(keystone keystone.Driver, storage storage.Driver) (http.Handler, versionData) {
 	r := mux.NewRouter()
 	p := &v1Provider{
 		keystone: keystone,

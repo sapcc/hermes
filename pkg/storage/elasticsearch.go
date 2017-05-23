@@ -15,7 +15,8 @@ type elasticSearch struct {
 
 var es elasticSearch
 
-func ElasticSearch() Interface {
+// Initialise and return the ES driver
+func ElasticSearch() Driver {
 	if es.client == nil {
 		es.init()
 	}
@@ -35,8 +36,8 @@ func (es *elasticSearch) init() {
 	}
 }
 
-func (es elasticSearch) GetEvents(filter *Filter, tenant_id string) ([]*EventDetail, int, error) {
-	index := indexName(tenant_id)
+func (es elasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
+	index := indexName(tenantId)
 	util.LogDebug("Looking for events in index %s", index)
 
 	query := elastic.NewBoolQuery()
@@ -90,8 +91,8 @@ func (es elasticSearch) GetEvents(filter *Filter, tenant_id string) ([]*EventDet
 	return events, int(total), nil
 }
 
-func (es elasticSearch) GetEvent(eventId string, tenant_id string) (*EventDetail, error) {
-	index := indexName(tenant_id)
+func (es elasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
+	index := indexName(tenantId)
 	util.LogDebug("Looking for event %s in index %s", eventId, index)
 
 	query := elastic.NewTermQuery("payload.id.raw", eventId)
@@ -110,16 +111,14 @@ func (es elasticSearch) GetEvent(eventId string, tenant_id string) (*EventDetail
 		var de EventDetail
 		err := json.Unmarshal(*hit.Source, &de)
 		return &de, err
-	} else {
-		return nil, nil
 	}
-
+	return nil, nil
 }
 
-func indexName(tenant_id string) string {
+func indexName(tenantId string) string {
 	index := "audit-*"
-	if tenant_id != "" {
-		index = fmt.Sprintf("audit-%s-*", tenant_id)
+	if tenantId != "" {
+		index = fmt.Sprintf("audit-%s-*", tenantId)
 	}
 	return index
 }

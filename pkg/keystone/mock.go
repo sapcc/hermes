@@ -8,7 +8,8 @@ import (
 
 type mock struct{}
 
-func Mock() Interface {
+// Mock keystone implementation
+func Mock() Driver {
 	return mock{}
 }
 

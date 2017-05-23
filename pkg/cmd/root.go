@@ -18,11 +18,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"strings"
-	"github.com/sapcc/hermes/pkg/keystone"
-	"github.com/sapcc/hermes/pkg/storage"
 )
 
 var cfgFile string
@@ -46,16 +46,17 @@ func Execute() {
 	}
 }
 
-var keystoneDriver keystone.Interface
-var storageDriver storage.Interface
+var keystoneDriver keystone.Driver
+var storageDriver storage.Driver
 
-func SetDrivers(keystoneParam keystone.Interface, storageParam storage.Interface) {
+// Specify which keystone & storage driver to use
+func SetDrivers(keystoneParam keystone.Driver, storageParam storage.Driver) {
 	keystoneDriver = keystoneParam
 	storageDriver = storageParam
 }
 
 // When adding a value here, also add a "RootCmd.PersistentFlags().StringVar" line in cmd/root.go's init()
-var OS_vars = []string{"username", "password", "auth_url", "user_domain_name", "project_name", "project_domain_name"}
+var OSVars = []string{"username", "password", "auth_url", "user_domain_name", "project_name", "project_domain_name"}
 
 func init() {
 	//cobra.OnInitialize(initConfig)
@@ -72,7 +73,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "os-project-domain-name", "", "OpenStack Project's domain name")
 
 	// Setup command-line flags for OpenStack authentication
-	for _, val := range OS_vars {
+	for _, val := range OSVars {
 		flags := RootCmd.PersistentFlags()
 		lookup := "os-" + strings.Replace(val, "_", "-", -1)
 		pflag := flags.Lookup(lookup)

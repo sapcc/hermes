@@ -30,7 +30,7 @@ import (
 	"strconv"
 )
 
-// ListEvent list for returning in the API
+// EventList is the model for JSON returned by the ListEvents API call
 type EventList struct {
 	NextURL string              `json:"next,omitempty"`
 	PrevURL string              `json:"previous,omitempty"`
@@ -113,7 +113,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	if event == nil {
-		err := errors.New(fmt.Sprintf("Event %s could not be found in tenant %s", eventID, tenantId))
+		err := fmt.Errorf("Event %s could not be found in tenant %s", eventID, tenantId)
 		http.Error(res, err.Error(), 404)
 		return
 	}
@@ -132,9 +132,8 @@ func getTenantId(r *http.Request, w http.ResponseWriter) (string, error) {
 			err := errors.New("domain_id and project_id cannot both be specified")
 			http.Error(w, err.Error(), 400)
 			return "", err
-		} else {
-			tenantId = domainId
 		}
+		tenantId = domainId
 	}
 	return tenantId, nil
 }

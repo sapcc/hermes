@@ -27,7 +27,7 @@ import (
 // Driver is an interface that wraps the authentication of the service user and
 // token checking of API users. Because it is an interface, the real implementation
 // can be mocked away in unit tests.
-type Interface interface {
+type Driver interface {
 	//Return the main gophercloud client from which the respective service
 	//clients can be derived. For mock drivers, this returns nil, so test code
 	//should be prepared to handle a nil Client() where appropriate.
@@ -44,19 +44,19 @@ type Interface interface {
 	UserId(name string) (string, error)
 }
 
-//KeystoneDomain describes the basic attributes of a Keystone domain.
+//KeystoneDomain describes just the name and id of a Keystone domain.
 type KeystoneDomain struct {
 	UUID string `json:"id"`
 	Name string `json:"name"`
 }
 
-//KeystoneProject describes the basic attributes of a Keystone project.
+//KeystoneProject describes just the name and id of a Keystone project.
 type KeystoneProject struct {
 	UUID string `json:"id"`
 	Name string `json:"name"`
 }
 
-//KeystoneProject describes the basic attributes of a Keystone project.
+//KeystoneUser describes just the name and id of a Keystone user.
 type KeystoneUser struct {
 	UUID string `json:"id"`
 	Name string `json:"name"`
