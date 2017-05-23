@@ -86,6 +86,8 @@ func storageFilter(filter *Filter, keystoneDriver keystone.Interface) storage.Fi
 	if filter.Limit == 0 {
 		filter.Limit = 10
 	}
+	// TODO: Check storage driver for max limit
+
 	storageFilter := storage.Filter{
 		Source:       filter.Source,
 		ResourceType: filter.ResourceType,

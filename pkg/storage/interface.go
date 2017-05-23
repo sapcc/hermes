@@ -23,7 +23,7 @@ package storage
 // Because it is an interface, the real implementation can be mocked away in unit tests.
 type Interface interface {
 
-	/********** requests to Keystone **********/
+	/********** requests to ElasticSearch **********/
 	GetEvents(filter *Filter, tenant_id string) ([]*EventDetail, int, error)
 	GetEvent(eventId string, tenant_id string) (*EventDetail, error)
 }

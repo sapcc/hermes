@@ -51,7 +51,7 @@ type v1Provider struct {
 	versionData versionData
 }
 
-//NewV1Router creates a http.Handler that serves the Limes v1 API.
+//NewV1Router creates a http.Handler that serves the Hermes v1 API.
 //It also returns the versionData for this API version which is needed for the
 //version advertisement on "GET /".
 func NewV1Router(keystone keystone.Interface, storage storage.Interface) (http.Handler, versionData) {
@@ -76,8 +76,8 @@ func NewV1Router(keystone keystone.Interface, storage storage.Interface) (http.H
 		},
 	}
 
-	r.Methods("GET").Path("/v1/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ReturnJSON(w, 200, map[string]interface{}{"version": p.versionData})
+	r.Methods("GET").Path("/v1/").HandlerFunc(func(res http.ResponseWriter, _ *http.Request) {
+		ReturnJSON(res, 200, map[string]interface{}{"version": p.versionData})
 	})
 
 	r.Methods("GET").Path("/v1/events").HandlerFunc(p.ListEvents)

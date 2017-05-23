@@ -39,37 +39,37 @@ type EventList struct {
 }
 
 //ListEvents handles GET /v1/events.
-func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
+func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	util.LogDebug("* api.ListEvents: Check token")
-	token := p.CheckToken(r)
-	if !token.Require(w, "event:list") {
+	token := p.CheckToken(req)
+	if !token.Require(res, "event:list") {
 		return
 	}
 
 	// Figure out the data.Filter to use, based on the request parameters
-	offset, _ := strconv.ParseUint(r.FormValue("offset"), 10, 32)
-	limit, _ := strconv.ParseUint(r.FormValue("limit"), 10, 8)
+	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32)
+	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 8)
 
 	util.LogDebug("api.ListEvents: Create filter")
 	filter := hermes.Filter{
-		Source:       r.FormValue("source"),
-		ResourceType: r.FormValue("resource_type"),
-		ResourceName: r.FormValue("resource_name"),
-		UserName:     r.FormValue("user_name"),
-		EventType:    r.FormValue("event_type"),
-		Time:         r.FormValue("time"),
+		Source:       req.FormValue("source"),
+		ResourceType: req.FormValue("resource_type"),
+		ResourceName: req.FormValue("resource_name"),
+		UserName:     req.FormValue("user_name"),
+		EventType:    req.FormValue("event_type"),
+		Time:         req.FormValue("time"),
 		Offset:       offset,
 		Limit:        limit,
-		Sort:         r.FormValue("sort"),
+		Sort:         req.FormValue("sort"),
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
-	tenantId, err := getTenantId(r, w)
+	tenantId, err := getTenantId(req, res)
 	if err != nil {
 		return
 	}
 	events, total, err := hermes.GetEvents(&filter, tenantId, p.keystone, p.storage)
-	if ReturnError(w, err) {
+	if ReturnError(res, err) {
 		util.LogError("api.ListEvents: error %s", err)
 		return
 	}
@@ -78,46 +78,46 @@ func (p *v1Provider) ListEvents(w http.ResponseWriter, r *http.Request) {
 
 	// What protocol to use for PrevURL and NextURL?
 	protocol := "http"
-	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+	if req.TLS != nil || req.Header.Get("X-Forwarded-Proto") == "https" {
 		protocol = "https"
 	}
 	// Do we need a NextURL?
 	if int(filter.Offset+filter.Limit) < total {
-		r.Form.Set("offset", strconv.FormatUint(filter.Offset+filter.Limit, 10))
-		eventList.NextURL = fmt.Sprintf("%s://%s%s?%s", protocol, r.Host, r.URL.Path, r.Form.Encode())
+		req.Form.Set("offset", strconv.FormatUint(filter.Offset+filter.Limit, 10))
+		eventList.NextURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 	// Do we need a PrevURL?
 	if int(filter.Offset-filter.Limit) >= 0 {
-		r.Form.Set("offset", strconv.FormatUint(filter.Offset-filter.Limit, 10))
-		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, r.Host, r.URL.Path, r.Form.Encode())
+		req.Form.Set("offset", strconv.FormatUint(filter.Offset-filter.Limit, 10))
+		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
-	ReturnJSON(w, 200, eventList)
+	ReturnJSON(res, 200, eventList)
 }
 
 //GetEvent handles GET /v1/events/:event_id.
-func (p *v1Provider) GetEventDetails(w http.ResponseWriter, r *http.Request) {
-	token := p.CheckToken(r)
-	if !token.Require(w, "event:show") {
+func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request) {
+	token := p.CheckToken(req)
+	if !token.Require(res, "event:show") {
 		return
 	}
-	eventID := mux.Vars(r)["event_id"]
-	tenantId, err := getTenantId(r, w)
+	eventID := mux.Vars(req)["event_id"]
+	tenantId, err := getTenantId(req, res)
 	if err != nil {
 		return
 	}
 
 	event, err := hermes.GetEvent(eventID, tenantId, p.keystone, p.storage)
 
-	if ReturnError(w, err) {
+	if ReturnError(res, err) {
 		return
 	}
 	if event == nil {
 		err := errors.New(fmt.Sprintf("Event %s could not be found in tenant %s", eventID, tenantId))
-		http.Error(w, err.Error(), 404)
+		http.Error(res, err.Error(), 404)
 		return
 	}
-	ReturnJSON(w, 200, event)
+	ReturnJSON(res, 200, event)
 }
 
 func getTenantId(r *http.Request, w http.ResponseWriter) (string, error) {
