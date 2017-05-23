@@ -30,6 +30,10 @@ func (m mock) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
 	return &parsedEvent, err
 }
 
+func (m mock) MaxLimit() (uint) {
+	return 100
+}
+
 var mockEvent = []byte(`
 {
 	"publisher_id": "identity.keystone-2031324599-gujvn",

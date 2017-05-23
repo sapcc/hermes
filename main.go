@@ -77,6 +77,9 @@ func setDefaultConfig() {
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
 	viper.SetDefault("elasticsearch.url", "localhost:9200")
+	// index.max_result_window defaults to 10000, as per
+	// https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html
+	viper.SetDefault("elasticsearch.max_result_window", "10000")
 }
 
 func readConfig(configPath *string) {
@@ -97,7 +100,7 @@ func readConfig(configPath *string) {
 	}
 
 	// Setup environment variable overrides for OpenStack authentication
-	for _, osVarName := range cmd.osVars {
+	for _, osVarName := range cmd.OSVars {
 		viper.BindEnv("keystone."+osVarName, "OS_"+strings.ToUpper(osVarName))
 	}
 

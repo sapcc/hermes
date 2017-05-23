@@ -26,6 +26,7 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 	"log"
 	"strings"
+	"fmt"
 )
 
 // ListEvent contains high-level data about an event, intended as a list item
@@ -61,17 +62,19 @@ type Filter struct {
 	UserName     string
 	EventType    string
 	Time         string
-	Offset       uint64
-	Limit        uint64
+	Offset       uint
+	Limit        uint
 	Sort         string
 }
 
 // GetEvents returns a list of matching events (with filtering)
 func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Driver, eventStore storage.Driver) ([]*ListEvent, int, error) {
-	storageFilter := storageFilter(filter, keystoneDriver)
-
+	storageFilter, err := storageFilter(filter, keystoneDriver, eventStore)
+	if err != nil {
+		return nil, 0, err
+	}
 	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
-	eventDetails, total, err := eventStore.GetEvents(&storageFilter, tenantId)
+	eventDetails, total, err := eventStore.GetEvents(storageFilter, tenantId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -82,12 +85,16 @@ func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Driver, 
 	return events, total, err
 }
 
-func storageFilter(filter *Filter, keystoneDriver keystone.Driver) storage.Filter {
+func storageFilter(filter *Filter, keystoneDriver keystone.Driver, eventStore storage.Driver) (*storage.Filter, error) {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
 	}
-	// TODO: Check storage driver for max limit
+
+	if filter.Offset+filter.Limit > eventStore.MaxLimit() {
+		return nil, fmt.Errorf("offset %d plus limit %d exceeds the maximum of %d",
+			filter.Offset, filter.Limit, eventStore.MaxLimit())
+	}
 
 	storageFilter := storage.Filter{
 		Source:       filter.Source,
@@ -110,7 +117,7 @@ func storageFilter(filter *Filter, keystoneDriver keystone.Driver) storage.Filte
 		}
 		storageFilter.UserId = userId
 	}
-	return storageFilter
+	return &storageFilter, nil
 }
 
 // Construct ListEvents and add the names for IDs in the events

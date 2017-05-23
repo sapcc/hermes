@@ -115,6 +115,10 @@ func (es elasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 	return nil, nil
 }
 
+func (es elasticSearch) MaxLimit() (uint) {
+	return uint(viper.GetInt("elasticsearch.max_result_window"))
+}
+
 func indexName(tenantId string) string {
 	index := "audit-*"
 	if tenantId != "" {

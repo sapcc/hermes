@@ -26,6 +26,7 @@ type Driver interface {
 	/********** requests to ElasticSearch **********/
 	GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error)
 	GetEvent(eventId string, tenantId string) (*EventDetail, error)
+	MaxLimit() (uint)
 }
 
 // This Filter is similar to hermes.Filter, but using IDs instead of names
@@ -36,8 +37,8 @@ type Filter struct {
 	UserId       string
 	EventType    string
 	Time         string
-	Offset       uint64
-	Limit        uint64
+	Offset       uint
+	Limit        uint
 	Sort         string
 }
 

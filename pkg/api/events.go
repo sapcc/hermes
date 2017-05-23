@@ -48,7 +48,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 	// Figure out the data.Filter to use, based on the request parameters
 	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32)
-	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 8)
+	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
 
 	util.LogDebug("api.ListEvents: Create filter")
 	filter := hermes.Filter{
@@ -58,8 +58,8 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		UserName:     req.FormValue("user_name"),
 		EventType:    req.FormValue("event_type"),
 		Time:         req.FormValue("time"),
-		Offset:       offset,
-		Limit:        limit,
+		Offset:       uint(offset),
+		Limit:        uint(limit),
 		Sort:         req.FormValue("sort"),
 	}
 
@@ -83,12 +83,12 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 	// Do we need a NextURL?
 	if int(filter.Offset+filter.Limit) < total {
-		req.Form.Set("offset", strconv.FormatUint(filter.Offset+filter.Limit, 10))
+		req.Form.Set("offset", strconv.FormatUint(uint64(filter.Offset+filter.Limit), 10))
 		eventList.NextURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 	// Do we need a PrevURL?
 	if int(filter.Offset-filter.Limit) >= 0 {
-		req.Form.Set("offset", strconv.FormatUint(filter.Offset-filter.Limit, 10))
+		req.Form.Set("offset", strconv.FormatUint(uint64(filter.Offset-filter.Limit), 10))
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
