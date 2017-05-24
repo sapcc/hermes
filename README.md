@@ -62,9 +62,9 @@ The value for the `time` parameter is a comma-separated list of time stamps in I
 `gt:` (greater-than), `gte:` (greater-than-or-equal), `lt:` (less-than), `lte:` 
 (less-than-or-equal).
 
-For example, to get a list of events that will expire in January of 2020:
+For example, to get a list of events from May of 2017:
 ```
-GET /v1/events?time=gte:2020-01-01T00:00:00,lt:2020-02-01T00:00:00
+GET /v1/events?time=gte:2017-05-01T00:00:00,lt:2017-06-01T00:00:00
 ```
 
 **Sorting:**
