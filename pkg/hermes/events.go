@@ -139,14 +139,14 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Dri
 		}
 
 		nameMap := namesForIds(keystoneDriver, map[string]string{
-			"domain":  event.Initiator.DomainID,
-			"project": event.Initiator.ProjectID,
+			"user_domain":  event.Initiator.DomainID,
+			"user_project": event.Initiator.ProjectID,
 			"user":    event.Initiator.UserID,
 			"target":  event.ResourceId,
 		}, event.ResourceType)
 
-		event.Initiator.DomainName = nameMap["domain"]
-		event.Initiator.ProjectName = nameMap["project"]
+		event.Initiator.DomainName = nameMap["user_domain"]
+		event.Initiator.ProjectName = nameMap["user_project"]
 		event.Initiator.UserName = nameMap["user"]
 		event.ResourceName = nameMap["target"]
 
@@ -211,7 +211,7 @@ func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, target
 	if groupId != "" {
 		nameMap["group"], err = keystoneDriver.GroupName(groupId)
 		if err != nil {
-			log.Printf("Error looking up user name for user '%s'", groupId)
+			log.Printf("Error looking up user name for group '%s'", groupId)
 		}
 	}
 	projectId := idMap["project"]
@@ -234,12 +234,13 @@ func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, target
 	case "data/security/project":
 		nameMap["target"], err = keystoneDriver.ProjectName(idMap["target"])
 	case "service/security/account/user":
-		nameMap["target"], err = keystoneDriver.UserName(idMap["target"])
+	// doesn't work for users - a UUID is used for some reason, which can't be looked up
+	//	nameMap["target"], err = keystoneDriver.UserName(idMap["target"])
 	default:
 		log.Printf("Unhandled payload type \"%s\", cannot look up name.", targetType)
 	}
 	if err != nil {
-		log.Printf("Error looking up name for %s '%s'", targetType, userId)
+		log.Printf("Error looking up name for %s '%s'", targetType, idMap["target"])
 	}
 
 	return nameMap
