@@ -46,6 +46,8 @@ var domainNameCache *map[string]string
 var projectNameCache *map[string]string
 var userNameCache *map[string]string
 var userIdCache *map[string]string
+var roleNameCache *map[string]string
+var groupNameCache *map[string]string
 
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	if d.TokenRenewalMutex == nil {
@@ -62,6 +64,12 @@ func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	}
 	if userIdCache == nil {
 		userIdCache = &map[string]string{}
+	}
+	if roleNameCache == nil {
+		roleNameCache = &map[string]string{}
+	}
+	if groupNameCache == nil {
+		groupNameCache = &map[string]string{}
 	}
 	if providerClient == nil {
 		var err error
@@ -91,48 +99,6 @@ func (d keystone) Client() *gophercloud.ProviderClient {
 	return nil
 }
 
-//ListDomains implements the Driver interface.
-func (d keystone) ListDomains() ([]KeystoneDomain, error) {
-	client, err := d.keystoneClient()
-	if err != nil {
-		return nil, err
-	}
-
-	//gophercloud does not support domain listing yet - do it manually
-	url := client.ServiceURL("domains")
-	var result gophercloud.Result
-	_, err = client.Get(url, &result.Body, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var data struct {
-		Domains []KeystoneDomain `json:"domains"`
-	}
-	err = result.ExtractInto(&data)
-	return data.Domains, err
-}
-
-//ListProjects implements the Driver interface.
-func (d keystone) ListProjects() ([]KeystoneProject, error) {
-	client, err := d.keystoneClient()
-	if err != nil {
-		return nil, err
-	}
-
-	var result gophercloud.Result
-	_, err = client.Get("/v3/auth/projects", &result.Body, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var data struct {
-		Projects []KeystoneProject `json:"projects"`
-	}
-	err = result.ExtractInto(&data)
-	return data.Projects, err
-}
-
 func (d keystone) ValidateToken(token string) (policy.Context, error) {
 	client, err := d.keystoneClient()
 	if err != nil {
@@ -151,7 +117,29 @@ func (d keystone) ValidateToken(token string) (policy.Context, error) {
 	if err != nil {
 		return policy.Context{}, err
 	}
+	d.updateCache(&tokenData)
 	return tokenData.ToContext(), nil
+}
+
+func (d keystone) updateCache(token *keystoneToken) {
+	if token.DomainScope.ID != "" && token.DomainScope.Name != "" {
+		(*domainNameCache)[token.DomainScope.ID] = token.DomainScope.Name
+	}
+	if token.ProjectScope.Domain.ID != "" && token.ProjectScope.Domain.Name != "" {
+		(*domainNameCache)[token.ProjectScope.Domain.ID] = token.ProjectScope.Domain.Name
+	}
+	if token.ProjectScope.ID != "" && token.ProjectScope.Name != "" {
+		(*projectNameCache)[token.ProjectScope.ID] = token.ProjectScope.Name
+	}
+	if token.User.ID != "" && token.User.Name != "" {
+		(*userNameCache)[token.User.ID] = token.User.Name
+		(*userIdCache)[token.User.Name] = token.User.ID
+	}
+	for _, role := range token.Roles {
+		if role.ID != "" && role.Name != "" {
+			(*roleNameCache)[role.ID] = role.Name
+		}
+	}
 }
 
 func (d keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error) {
@@ -192,7 +180,7 @@ func (d keystone) DomainName(id string) (string, error) {
 	}
 
 	var data struct {
-		Domain KeystoneDomain `json:"domain"`
+		Domain KeystoneNameId `json:"domain"`
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
@@ -220,7 +208,7 @@ func (d keystone) ProjectName(id string) (string, error) {
 	}
 
 	var data struct {
-		Project KeystoneProject `json:"project"`
+		Project KeystoneNameId `json:"project"`
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
@@ -248,7 +236,7 @@ func (d keystone) UserName(id string) (string, error) {
 	}
 
 	var data struct {
-		User KeystoneUser `json:"user"`
+		User KeystoneNameId `json:"user"`
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
@@ -277,7 +265,7 @@ func (d keystone) UserId(name string) (string, error) {
 	}
 
 	var data struct {
-		User []KeystoneUser `json:"user"`
+		User []KeystoneNameId `json:"user"`
 	}
 	err = result.ExtractInto(&data)
 	userId := ""
@@ -295,6 +283,62 @@ func (d keystone) UserId(name string) (string, error) {
 		(*userNameCache)[userId] = name
 	}
 	return userId, err
+}
+
+func (d keystone) RoleName(id string) (string, error) {
+	cachedName, hit := (*roleNameCache)[id]
+	if hit {
+		return cachedName, nil
+	}
+
+	client, err := d.keystoneClient()
+	if err != nil {
+		return "", err
+	}
+
+	var result gophercloud.Result
+	url := client.ServiceURL(fmt.Sprintf("roles/%s", id))
+	_, err = client.Get(url, &result.Body, nil)
+	if err != nil {
+		return "", err
+	}
+
+	var data struct {
+		Role KeystoneNameId `json:"role"`
+	}
+	err = result.ExtractInto(&data)
+	if err == nil {
+		(*roleNameCache)[id] = data.Role.Name
+	}
+	return data.Role.Name, err
+}
+
+func (d keystone) GroupName(id string) (string, error) {
+	cachedName, hit := (*groupNameCache)[id]
+	if hit {
+		return cachedName, nil
+	}
+
+	client, err := d.keystoneClient()
+	if err != nil {
+		return "", err
+	}
+
+	var result gophercloud.Result
+	url := client.ServiceURL(fmt.Sprintf("groups/%s", id))
+	_, err = client.Get(url, &result.Body, nil)
+	if err != nil {
+		return "", err
+	}
+
+	var data struct {
+		Group KeystoneNameId `json:"group"`
+	}
+	err = result.ExtractInto(&data)
+	if err == nil {
+		(*groupNameCache)[id] = data.Group.Name
+	}
+	return data.Group.Name, err
 }
 
 type keystoneToken struct {

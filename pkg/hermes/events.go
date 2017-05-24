@@ -20,13 +20,13 @@
 package hermes
 
 import (
+	"fmt"
 	"github.com/jinzhu/copier"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"log"
 	"strings"
-	"fmt"
 )
 
 // ListEvent contains high-level data about an event, intended as a list item
@@ -161,16 +161,22 @@ func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Driver, e
 
 	if event != nil {
 		nameMap := namesForIds(keystoneDriver, map[string]string{
-			"domain":  event.Payload.Initiator.DomainID,
-			"project": event.Payload.Initiator.ProjectID,
-			"user":    event.Payload.Initiator.UserID,
-			"target":  event.Payload.Target.ID,
+			"user_domain":  event.Payload.Initiator.DomainID,
+			"user_project": event.Payload.Initiator.ProjectID,
+			"user":         event.Payload.Initiator.UserID,
+			"target":       event.Payload.Target.ID,
+			"project":      event.Payload.Project,
+			"group":        event.Payload.Group,
+			"role":         event.Payload.Role,
 		}, event.Payload.Target.TypeURI)
 
-		event.Payload.Initiator.DomainName = nameMap["domain"]
-		event.Payload.Initiator.ProjectName = nameMap["project"]
+		event.Payload.Initiator.DomainName = nameMap["user_domain"]
+		event.Payload.Initiator.ProjectName = nameMap["user_project"]
 		event.Payload.Initiator.UserName = nameMap["user"]
 		event.Payload.Target.Name = nameMap["target"]
+		event.Payload.ProjectName = nameMap["project"]
+		event.Payload.GroupName = nameMap["group"]
+		event.Payload.RoleName = nameMap["role"]
 	}
 	return event, err
 }
@@ -180,11 +186,32 @@ func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, target
 	var err error
 
 	// Now add the names for IDs in the event
-	domainId := idMap["domain"]
-	if domainId != "" {
-		nameMap["domain"], err = keystoneDriver.DomainName(domainId)
+	userDomainId := idMap["user_domain"]
+	if userDomainId != "" {
+		nameMap["user_domain"], err = keystoneDriver.DomainName(userDomainId)
 		if err != nil {
-			log.Printf("Error looking up domain name for domain '%s'", domainId)
+			log.Printf("Error looking up domain name for domain '%s'", userDomainId)
+		}
+	}
+	userProjectId := idMap["user_project"]
+	if userProjectId != "" {
+		nameMap["user_project"], err = keystoneDriver.ProjectName(userProjectId)
+		if err != nil {
+			log.Printf("Error looking up project name for project '%s'", userProjectId)
+		}
+	}
+	userId := idMap["user"]
+	if userId != "" {
+		nameMap["user"], err = keystoneDriver.UserName(userId)
+		if err != nil {
+			log.Printf("Error looking up user name for user '%s'", userId)
+		}
+	}
+	groupId := idMap["group"]
+	if groupId != "" {
+		nameMap["group"], err = keystoneDriver.GroupName(groupId)
+		if err != nil {
+			log.Printf("Error looking up user name for user '%s'", groupId)
 		}
 	}
 	projectId := idMap["project"]
@@ -194,11 +221,11 @@ func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, target
 			log.Printf("Error looking up project name for project '%s'", projectId)
 		}
 	}
-	userId := idMap["user"]
-	if userId != "" {
-		nameMap["user"], err = keystoneDriver.UserName(userId)
+	roleId := idMap["role"]
+	if roleId != "" {
+		nameMap["role"], err = keystoneDriver.RoleName(roleId)
 		if err != nil {
-			log.Printf("Error looking up user name for user '%s'", userId)
+			log.Printf("Error looking up user name for role '%s'", roleId)
 		}
 	}
 

@@ -26,7 +26,7 @@ type Driver interface {
 	/********** requests to ElasticSearch **********/
 	GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error)
 	GetEvent(eventId string, tenantId string) (*EventDetail, error)
-	MaxLimit() (uint)
+	MaxLimit() uint
 }
 
 // This Filter is similar to hermes.Filter, but using IDs instead of names
@@ -74,15 +74,18 @@ type EventDetail struct {
 			} `json:"host"`
 			ID string `json:"id"`
 		} `json:"initiator"`
-		EventTime string `json:"eventTime"`
-		Action    string `json:"action"`
-		EventType string `json:"eventType"`
-		ID        string `json:"id"`
-		Outcome   string `json:"outcome"`
-		Role      string `json:"role,omitempty"`
-		Project   string `json:"project,omitempty"`
-		Group     string `json:"group,omitempty"`
-		Target    struct {
+		EventTime   string `json:"eventTime"`
+		Action      string `json:"action"`
+		EventType   string `json:"eventType"`
+		ID          string `json:"id"`
+		Outcome     string `json:"outcome"`
+		Role        string `json:"role,omitempty"`
+		RoleName    string `json:"role_name,omitempty"`
+		Project     string `json:"project,omitempty"`
+		ProjectName string `json:"project_name,omitempty"`
+		Group       string `json:"group,omitempty"`
+		GroupName   string `json:"group_name,omitempty"`
+		Target      struct {
 			TypeURI string `json:"typeURI"`
 			ID      string `json:"id"`
 			Name    string `json:"name,omitempty"`

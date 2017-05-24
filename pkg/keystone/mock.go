@@ -21,17 +21,6 @@ func (d mock) Client() *gophercloud.ProviderClient {
 	return nil
 }
 
-//ListDomains implements the Driver interface.
-func (d mock) ListDomains() ([]KeystoneDomain, error) {
-	return nil, nil
-}
-
-//ListProjects implements the Driver interface.
-func (d mock) ListProjects() ([]KeystoneProject, error) {
-	return nil, nil
-}
-
-//CheckUserPermission implements the Driver interface.
 func (d mock) ValidateToken(token string) (policy.Context, error) {
 
 	return policy.Context{}, nil
@@ -55,6 +44,14 @@ func (d mock) UserName(id string) (string, error) {
 
 func (d mock) UserId(name string) (string, error) {
 	return "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812", nil
+}
+
+func (d mock) RoleName(id string) (string, error) {
+	return "audit_viewer", nil
+}
+
+func (d mock) GroupName(id string) (string, error) {
+	return "admins", nil
 }
 
 func (d mock) AuthOptions() *gophercloud.AuthOptions {

@@ -34,30 +34,18 @@ type Driver interface {
 	Client() *gophercloud.ProviderClient
 	AuthOptions() *gophercloud.AuthOptions
 	/********** requests to Keystone **********/
-	ListDomains() ([]KeystoneDomain, error)
-	ListProjects() ([]KeystoneProject, error)
 	ValidateToken(token string) (policy.Context, error)
 	Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error)
 	DomainName(id string) (string, error)
 	ProjectName(id string) (string, error)
 	UserName(id string) (string, error)
 	UserId(name string) (string, error)
+	RoleName(id string) (string, error)
+	GroupName(id string) (string, error)
 }
 
-//KeystoneDomain describes just the name and id of a Keystone domain.
-type KeystoneDomain struct {
-	UUID string `json:"id"`
-	Name string `json:"name"`
-}
-
-//KeystoneProject describes just the name and id of a Keystone project.
-type KeystoneProject struct {
-	UUID string `json:"id"`
-	Name string `json:"name"`
-}
-
-//KeystoneUser describes just the name and id of a Keystone user.
-type KeystoneUser struct {
+//KeystoneNameId describes just the name and id of a Keystone object.
+type KeystoneNameId struct {
 	UUID string `json:"id"`
 	Name string `json:"name"`
 }
