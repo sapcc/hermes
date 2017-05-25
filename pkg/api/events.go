@@ -28,6 +28,8 @@ import (
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/util"
 	"strconv"
+	"strings"
+	"time"
 )
 
 // EventList is the model for JSON returned by the ListEvents API call
@@ -47,8 +49,53 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// Figure out the data.Filter to use, based on the request parameters
+
+	// First off, parse the integers for offset & limit
 	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32)
 	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+
+	// Next, parse the elements of the time range filter
+	timeRange := make(map[string] string)
+	validOperators := map[string] bool{"lt": true, "lte": true, "gt": true, "gte": true}
+	timeParam := req.FormValue("time")
+	if timeParam != "" {
+		for _, timeElement := range strings.Split(timeParam, ",") {
+			keyVal := strings.SplitN(timeElement, ":", 2)
+			operator := keyVal[0]
+			if !validOperators[operator] {
+				err := errors.New(fmt.Sprintf("Time operator %s is not valid. Must be lt, lte, gt or gte.", operator))
+				http.Error(res, err.Error(), 400)
+				return
+			}
+			_, exists := timeRange[operator]
+			if exists {
+				err := errors.New(fmt.Sprintf("Time operator %s can only occur once", operator))
+				http.Error(res, err.Error(), 400)
+				return
+			}
+			if len(keyVal) != 2 {
+				err := errors.New(fmt.Sprintf("Time operator %s missing :<timestamp>", operator))
+				http.Error(res, err.Error(), 400)
+				return
+			}
+			validTimeFormats := []string{time.RFC3339, "2006-01-02T15:04:05-0700", "2006-01-02T15:04:05"}
+			var isValidTimeFormat bool
+			timeStr := keyVal[1]
+			for _, timeFormat := range validTimeFormats {
+				_, err := time.Parse(timeFormat, timeStr)
+				if err != nil {
+					isValidTimeFormat = true
+					break
+				}
+			}
+			if !isValidTimeFormat {
+				err := errors.New(fmt.Sprintf("Invalid time format: %s", timeStr))
+				http.Error(res, err.Error(), 400)
+				return
+			}
+			timeRange[operator] = timeStr
+		}
+	}
 
 	util.LogDebug("api.ListEvents: Create filter")
 	filter := hermes.Filter{
@@ -57,7 +104,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		ResourceName: req.FormValue("resource_name"),
 		UserName:     req.FormValue("user_name"),
 		EventType:    req.FormValue("event_type"),
-		Time:         req.FormValue("time"),
+		Time:         timeRange,
 		Offset:       uint(offset),
 		Limit:        uint(limit),
 		Sort:         req.FormValue("sort"),

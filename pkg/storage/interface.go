@@ -36,7 +36,7 @@ type Filter struct {
 	ResourceId   string
 	UserId       string
 	EventType    string
-	Time         string
+	Time         map[string] string
 	Offset       uint
 	Limit        uint
 	Sort         string

@@ -56,9 +56,22 @@ func (es elasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 	if filter.EventType != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("event_type", filter.EventType))
 	}
-	if filter.Time != "" {
-		// TODO: it's complicated
+	if filter.Time != nil && len(filter.Time) > 0 {
+		for key, value := range filter.Time {
+			timeField := "payload.eventTime"
+			switch key {
+			case "lt":
+				query = query.Filter(elastic.NewRangeQuery(timeField).Lt(value))
+			case "lte":
+				query = query.Filter(elastic.NewRangeQuery(timeField).Lte(value))
+			case "gt":
+				query = query.Filter(elastic.NewRangeQuery(timeField).Gt(value))
+			case "gte":
+				query = query.Filter(elastic.NewRangeQuery(timeField).Gte(value))
+			}
+		}
 	}
+
 	if filter.Sort != "" {
 		// TODO: it's complicated
 	}
@@ -115,7 +128,7 @@ func (es elasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 	return nil, nil
 }
 
-func (es elasticSearch) MaxLimit() (uint) {
+func (es elasticSearch) MaxLimit() uint {
 	return uint(viper.GetInt("elasticsearch.max_result_window"))
 }
 
