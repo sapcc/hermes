@@ -41,35 +41,40 @@ type keystone struct {
 	TokenRenewalMutex *sync.Mutex
 }
 
+type cache struct {
+	sync.RWMutex
+	m map[string]string
+}
+
 var providerClient *gophercloud.ProviderClient
-var domainNameCache *map[string]string
-var projectNameCache *map[string]string
-var userNameCache *map[string]string
-var userIdCache *map[string]string
-var roleNameCache *map[string]string
-var groupNameCache *map[string]string
+var domainNameCache *cache
+var projectNameCache *cache
+var userNameCache *cache
+var userIdCache *cache
+var roleNameCache *cache
+var groupNameCache *cache
 
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	if d.TokenRenewalMutex == nil {
 		d.TokenRenewalMutex = &sync.Mutex{}
 	}
 	if domainNameCache == nil {
-		domainNameCache = &map[string]string{}
+		domainNameCache = &cache{m: make(map[string]string)}
 	}
 	if projectNameCache == nil {
-		projectNameCache = &map[string]string{}
+		projectNameCache = &cache{m: make(map[string]string)}
 	}
 	if userNameCache == nil {
-		userNameCache = &map[string]string{}
+		userNameCache = &cache{m: make(map[string]string)}
 	}
 	if userIdCache == nil {
-		userIdCache = &map[string]string{}
+		userIdCache = &cache{m: make(map[string]string)}
 	}
 	if roleNameCache == nil {
-		roleNameCache = &map[string]string{}
+		roleNameCache = &cache{m: make(map[string]string)}
 	}
 	if groupNameCache == nil {
-		groupNameCache = &map[string]string{}
+		groupNameCache = &cache{m: make(map[string]string)}
 	}
 	if providerClient == nil {
 		var err error
@@ -117,29 +122,42 @@ func (d keystone) ValidateToken(token string) (policy.Context, error) {
 	if err != nil {
 		return policy.Context{}, err
 	}
-	d.updateCache(&tokenData)
+	d.updateCaches(&tokenData)
 	return tokenData.ToContext(), nil
 }
 
-func (d keystone) updateCache(token *keystoneToken) {
+func (d keystone) updateCaches(token *keystoneToken) {
 	if token.DomainScope.ID != "" && token.DomainScope.Name != "" {
-		(*domainNameCache)[token.DomainScope.ID] = token.DomainScope.Name
+		updateCache(domainNameCache, token.DomainScope.ID, token.DomainScope.Name)
 	}
 	if token.ProjectScope.Domain.ID != "" && token.ProjectScope.Domain.Name != "" {
-		(*domainNameCache)[token.ProjectScope.Domain.ID] = token.ProjectScope.Domain.Name
+		updateCache(domainNameCache, token.ProjectScope.Domain.ID, token.ProjectScope.Domain.Name)
 	}
 	if token.ProjectScope.ID != "" && token.ProjectScope.Name != "" {
-		(*projectNameCache)[token.ProjectScope.ID] = token.ProjectScope.Name
+		updateCache(projectNameCache, token.ProjectScope.ID, token.ProjectScope.Name)
 	}
 	if token.User.ID != "" && token.User.Name != "" {
-		(*userNameCache)[token.User.ID] = token.User.Name
-		(*userIdCache)[token.User.Name] = token.User.ID
+		updateCache(userNameCache, token.User.ID, token.User.Name)
+		updateCache(userIdCache, token.User.Name, token.User.ID)
 	}
 	for _, role := range token.Roles {
 		if role.ID != "" && role.Name != "" {
-			(*roleNameCache)[role.ID] = role.Name
+			updateCache(roleNameCache, role.ID, role.Name)
 		}
 	}
+}
+
+func updateCache(cache *cache, key string, value string) {
+	cache.Lock()
+	cache.m[key] = value
+	cache.Unlock()
+}
+
+func getFromCache(cache *cache, key string) (string, bool) {
+	cache.RLock()
+	value, exists := cache.m[key]
+	cache.RUnlock()
+	return value, exists
 }
 
 func (d keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error) {
@@ -162,7 +180,7 @@ func (d keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Con
 }
 
 func (d keystone) DomainName(id string) (string, error) {
-	cachedName, hit := (*domainNameCache)[id]
+	cachedName, hit := getFromCache(domainNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
@@ -184,13 +202,13 @@ func (d keystone) DomainName(id string) (string, error) {
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
-		(*domainNameCache)[id] = data.Domain.Name
+		updateCache(domainNameCache, id, data.Domain.Name)
 	}
 	return data.Domain.Name, err
 }
 
 func (d keystone) ProjectName(id string) (string, error) {
-	cachedName, hit := (*projectNameCache)[id]
+	cachedName, hit := getFromCache(projectNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
@@ -212,13 +230,13 @@ func (d keystone) ProjectName(id string) (string, error) {
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
-		(*projectNameCache)[id] = data.Project.Name
+		updateCache(projectNameCache, id, data.Project.Name)
 	}
 	return data.Project.Name, err
 }
 
 func (d keystone) UserName(id string) (string, error) {
-	cachedName, hit := (*userNameCache)[id]
+	cachedName, hit := getFromCache(userNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
@@ -240,14 +258,14 @@ func (d keystone) UserName(id string) (string, error) {
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
-		(*userNameCache)[id] = data.User.Name
-		(*userIdCache)[data.User.Name] = id
+		updateCache(userNameCache, id, data.User.Name)
+		updateCache(userIdCache, data.User.Name, id)
 	}
 	return data.User.Name, err
 }
 
 func (d keystone) UserId(name string) (string, error) {
-	cachedId, hit := (*userIdCache)[name]
+	cachedId, hit := getFromCache(userIdCache,name)
 	if hit {
 		return cachedId, nil
 	}
@@ -279,14 +297,14 @@ func (d keystone) UserId(name string) (string, error) {
 			util.LogWarning("Multiple users found with name %s - returning the first one", name)
 			userId = data.User[0].UUID
 		}
-		(*userIdCache)[name] = userId
-		(*userNameCache)[userId] = name
+		updateCache(userIdCache, name, userId)
+		updateCache(userNameCache, userId, name)
 	}
 	return userId, err
 }
 
 func (d keystone) RoleName(id string) (string, error) {
-	cachedName, hit := (*roleNameCache)[id]
+	cachedName, hit := getFromCache(roleNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
@@ -308,13 +326,13 @@ func (d keystone) RoleName(id string) (string, error) {
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
-		(*roleNameCache)[id] = data.Role.Name
+		updateCache(roleNameCache, id, data.Role.Name)
 	}
 	return data.Role.Name, err
 }
 
 func (d keystone) GroupName(id string) (string, error) {
-	cachedName, hit := (*groupNameCache)[id]
+	cachedName, hit := getFromCache(groupNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
@@ -336,7 +354,7 @@ func (d keystone) GroupName(id string) (string, error) {
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
-		(*groupNameCache)[id] = data.Group.Name
+		updateCache(groupNameCache, id, data.Group.Name)
 	}
 	return data.Group.Name, err
 }
