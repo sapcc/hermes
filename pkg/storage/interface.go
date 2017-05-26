@@ -83,6 +83,8 @@ type EventDetail struct {
 		RoleName    string `json:"role_name,omitempty"`
 		Project     string `json:"project,omitempty"`
 		ProjectName string `json:"project_name,omitempty"`
+		User        string `json:"user,omitempty"`
+		UserName    string `json:"user_name,omitempty"`
 		Group       string `json:"group,omitempty"`
 		GroupName   string `json:"group_name,omitempty"`
 		Target      struct {

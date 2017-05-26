@@ -139,15 +139,15 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Dri
 		}
 
 		nameMap := namesForIds(keystoneDriver, map[string]string{
-			"user_domain":  event.Initiator.DomainID,
-			"user_project": event.Initiator.ProjectID,
-			"user":    event.Initiator.UserID,
+			"init_user_domain":  event.Initiator.DomainID,
+			"init_user_project": event.Initiator.ProjectID,
+			"init_user":    event.Initiator.UserID,
 			"target":  event.ResourceId,
 		}, event.ResourceType)
 
-		event.Initiator.DomainName = nameMap["user_domain"]
-		event.Initiator.ProjectName = nameMap["user_project"]
-		event.Initiator.UserName = nameMap["user"]
+		event.Initiator.DomainName = nameMap["init_user_domain"]
+		event.Initiator.ProjectName = nameMap["init_user_project"]
+		event.Initiator.UserName = nameMap["init_user"]
 		event.ResourceName = nameMap["target"]
 
 		events = append(events, &event)
@@ -161,20 +161,22 @@ func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Driver, e
 
 	if event != nil {
 		nameMap := namesForIds(keystoneDriver, map[string]string{
-			"user_domain":  event.Payload.Initiator.DomainID,
-			"user_project": event.Payload.Initiator.ProjectID,
-			"user":         event.Payload.Initiator.UserID,
+			"init_user_domain":  event.Payload.Initiator.DomainID,
+			"init_user_project": event.Payload.Initiator.ProjectID,
+			"init_user":         event.Payload.Initiator.UserID,
 			"target":       event.Payload.Target.ID,
 			"project":      event.Payload.Project,
+			"user":        event.Payload.User,
 			"group":        event.Payload.Group,
 			"role":         event.Payload.Role,
 		}, event.Payload.Target.TypeURI)
 
-		event.Payload.Initiator.DomainName = nameMap["user_domain"]
-		event.Payload.Initiator.ProjectName = nameMap["user_project"]
-		event.Payload.Initiator.UserName = nameMap["user"]
+		event.Payload.Initiator.DomainName = nameMap["init_user_domain"]
+		event.Payload.Initiator.ProjectName = nameMap["init_user_project"]
+		event.Payload.Initiator.UserName = nameMap["init_user"]
 		event.Payload.Target.Name = nameMap["target"]
 		event.Payload.ProjectName = nameMap["project"]
+		event.Payload.UserName = nameMap["user"]
 		event.Payload.GroupName = nameMap["group"]
 		event.Payload.RoleName = nameMap["role"]
 	}
@@ -186,18 +188,32 @@ func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, target
 	var err error
 
 	// Now add the names for IDs in the event
-	userDomainId := idMap["user_domain"]
-	if userDomainId != "" {
-		nameMap["user_domain"], err = keystoneDriver.DomainName(userDomainId)
+	iUserDomainId := idMap["init_user_domain"]
+	if iUserDomainId != "" {
+		nameMap["init_user_domain"], err = keystoneDriver.DomainName(iUserDomainId)
 		if err != nil {
-			log.Printf("Error looking up domain name for domain '%s'", userDomainId)
+			log.Printf("Error looking up domain name for domain '%s'", iUserDomainId)
 		}
 	}
-	userProjectId := idMap["user_project"]
-	if userProjectId != "" {
-		nameMap["user_project"], err = keystoneDriver.ProjectName(userProjectId)
+	iUserProjectId := idMap["init_user_project"]
+	if iUserProjectId != "" {
+		nameMap["init_user_project"], err = keystoneDriver.ProjectName(iUserProjectId)
 		if err != nil {
-			log.Printf("Error looking up project name for project '%s'", userProjectId)
+			log.Printf("Error looking up project name for project '%s'", iUserProjectId)
+		}
+	}
+	iUserId := idMap["init_user"]
+	if iUserId != "" {
+		nameMap["init_user"], err = keystoneDriver.UserName(iUserId)
+		if err != nil {
+			log.Printf("Error looking up user name for user '%s'", iUserId)
+		}
+	}
+	projectId := idMap["project"]
+	if projectId != "" {
+		nameMap["project"], err = keystoneDriver.ProjectName(projectId)
+		if err != nil {
+			log.Printf("Error looking up project name for project '%s'", projectId)
 		}
 	}
 	userId := idMap["user"]
@@ -212,13 +228,6 @@ func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, target
 		nameMap["group"], err = keystoneDriver.GroupName(groupId)
 		if err != nil {
 			log.Printf("Error looking up user name for group '%s'", groupId)
-		}
-	}
-	projectId := idMap["project"]
-	if projectId != "" {
-		nameMap["project"], err = keystoneDriver.ProjectName(projectId)
-		if err != nil {
-			log.Printf("Error looking up project name for project '%s'", projectId)
 		}
 	}
 	roleId := idMap["role"]
