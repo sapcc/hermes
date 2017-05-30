@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
@@ -31,7 +32,8 @@ func Server(keystone keystone.Driver, storage storage.Driver) error {
 
 	http.Handle("/", mainRouter)
 
-	//start HTTP server
+	//start HTTP server with CORS support
 	util.LogInfo("listening on " + viper.GetString("API.ListenAddress"))
-	return http.ListenAndServe(viper.GetString("API.ListenAddress"), nil)
+	handler := cors.Default().Handler(mainRouter)
+	return http.ListenAndServe(viper.GetString("API.ListenAddress"), handler)
 }
