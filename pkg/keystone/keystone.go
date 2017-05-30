@@ -22,6 +22,7 @@ package keystone
 import (
 	"fmt"
 
+	"container/list"
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
@@ -30,6 +31,7 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 	"sync"
+	"time"
 )
 
 // Real keystone implementation
@@ -46,6 +48,95 @@ type cache struct {
 	m map[string]string
 }
 
+func updateCache(cache *cache, key string, value string) {
+	cache.Lock()
+	cache.m[key] = value
+	cache.Unlock()
+}
+
+func getFromCache(cache *cache, key string) (string, bool) {
+	cache.RLock()
+	value, exists := cache.m[key]
+	cache.RUnlock()
+	return value, exists
+}
+
+type keystoneTokenCache struct {
+	sync.RWMutex
+	tMap  map[string]*keystoneToken // map tokenID to token struct
+	eMap  map[time.Time][]string    // map expiration time to list of tokenIDs
+	eList *list.List                // sorted list of expiration times
+}
+
+func addTokenToCache(cache *keystoneTokenCache, id string, token *keystoneToken) {
+	expiryTime, err := time.Parse("2006-01-02T15:04:05.999999Z", token.ExpiresAt)
+	if err != nil {
+		util.LogWarning("Not adding token to cache because time '%s' could not be parsed", token.ExpiresAt)
+		return
+	}
+	cache.Lock()
+	cache.eList.PushBack(expiryTime)
+	// If the expiryTime isn't later than the last item in the list,
+	// move it to the correct place so that we keep the list sorted
+	lastItem := cache.eList.Back()
+	if cache.eList.Back() != nil && expiryTime.Before(lastItem.Value.(time.Time)) {
+		for e := cache.eList.Back(); e != nil; e = e.Prev() {
+			if expiryTime.After((e.Value).(time.Time)) {
+				cache.eList.MoveAfter(cache.eList.Back(), e)
+			}
+		}
+	}
+	if cache.eMap[expiryTime] == nil {
+		cache.eMap[expiryTime] = []string{id}
+	} else {
+		cache.eMap[expiryTime] = append(cache.eMap[expiryTime], id)
+	}
+	cache.tMap[id] = token
+	cacheSize := len(cache.tMap)
+	cache.Unlock()
+	util.LogDebug("Added token to cache. Current cache size: %d", cacheSize)
+}
+
+func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
+	// First, remove expired tokens from cache
+	now := time.Now()
+	elemsToRemove := []*list.Element{}
+	cache.RLock()
+	for e := cache.eList.Front(); e != nil; e = e.Next() {
+		expiryTime := (e.Value).(time.Time)
+		if now.Before(expiryTime) {
+			break // list is sorted, so we can stop once we get to an unexpired token
+		}
+		// We can't remove from the list as we iterate, so remember which ones to delete
+		elemsToRemove = append(elemsToRemove, e)
+	}
+	cache.RUnlock()
+	cache.Lock()
+	for _, elem := range elemsToRemove {
+		cache.eList.Remove(elem) // Remove the cached expiry time from the sorted list
+		time := (elem.Value).(time.Time)
+		tokenIds := cache.eMap[time]
+		delete(cache.eMap, time) // Remove the cached expiry time from the time:tokenIDs map
+		for _, tokenId := range tokenIds {
+			delete(cache.tMap, tokenId) // Remove all the cached tokens
+		}
+	}
+	cacheSize := len(cache.tMap)
+	cache.Unlock()
+	if len(elemsToRemove) > 0 {
+		util.LogDebug("Removed expired token(s) from cache. Current cache size: %d", cacheSize)
+	}
+	// Now look for the token in question
+	cache.RLock()
+	token := cache.tMap[id]
+	cache.RUnlock()
+	if token != nil {
+		util.LogDebug("Got token from cache. Current cache size: %d", cacheSize)
+	}
+
+	return token
+}
+
 var providerClient *gophercloud.ProviderClient
 var domainNameCache *cache
 var projectNameCache *cache
@@ -53,28 +144,25 @@ var userNameCache *cache
 var userIdCache *cache
 var roleNameCache *cache
 var groupNameCache *cache
+var tokenCache *keystoneTokenCache
+
+func init() {
+	domainNameCache = &cache{m: make(map[string]string)}
+	projectNameCache = &cache{m: make(map[string]string)}
+	userNameCache = &cache{m: make(map[string]string)}
+	userIdCache = &cache{m: make(map[string]string)}
+	roleNameCache = &cache{m: make(map[string]string)}
+	groupNameCache = &cache{m: make(map[string]string)}
+	tokenCache = &keystoneTokenCache{
+		tMap:  make(map[string]*keystoneToken),
+		eMap:  make(map[time.Time][]string),
+		eList: list.New(),
+	}
+}
 
 func (d keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	if d.TokenRenewalMutex == nil {
 		d.TokenRenewalMutex = &sync.Mutex{}
-	}
-	if domainNameCache == nil {
-		domainNameCache = &cache{m: make(map[string]string)}
-	}
-	if projectNameCache == nil {
-		projectNameCache = &cache{m: make(map[string]string)}
-	}
-	if userNameCache == nil {
-		userNameCache = &cache{m: make(map[string]string)}
-	}
-	if userIdCache == nil {
-		userIdCache = &cache{m: make(map[string]string)}
-	}
-	if roleNameCache == nil {
-		roleNameCache = &cache{m: make(map[string]string)}
-	}
-	if groupNameCache == nil {
-		groupNameCache = &cache{m: make(map[string]string)}
 	}
 	if providerClient == nil {
 		var err error
@@ -105,6 +193,11 @@ func (d keystone) Client() *gophercloud.ProviderClient {
 }
 
 func (d keystone) ValidateToken(token string) (policy.Context, error) {
+	cachedToken := getCachedToken(tokenCache, token)
+	if cachedToken != nil {
+		return cachedToken.ToContext(), nil
+	}
+
 	client, err := d.keystoneClient()
 	if err != nil {
 		return policy.Context{}, err
@@ -116,17 +209,18 @@ func (d keystone) ValidateToken(token string) (policy.Context, error) {
 		return policy.Context{}, response.Err
 	}
 
-	//use a custom token struct instead of tokens.Token which is way incomplete
+	//use a custom token struct instead of tMap.Token which is way incomplete
 	var tokenData keystoneToken
 	err = response.ExtractInto(&tokenData)
 	if err != nil {
 		return policy.Context{}, err
 	}
-	d.updateCaches(&tokenData)
+	d.updateCaches(&tokenData, token)
 	return tokenData.ToContext(), nil
 }
 
-func (d keystone) updateCaches(token *keystoneToken) {
+func (d keystone) updateCaches(token *keystoneToken, tokenStr string) {
+	addTokenToCache(tokenCache, tokenStr, token)
 	if token.DomainScope.ID != "" && token.DomainScope.Name != "" {
 		updateCache(domainNameCache, token.DomainScope.ID, token.DomainScope.Name)
 	}
@@ -147,19 +241,6 @@ func (d keystone) updateCaches(token *keystoneToken) {
 	}
 }
 
-func updateCache(cache *cache, key string, value string) {
-	cache.Lock()
-	cache.m[key] = value
-	cache.Unlock()
-}
-
-func getFromCache(cache *cache, key string) (string, bool) {
-	cache.RLock()
-	value, exists := cache.m[key]
-	cache.RUnlock()
-	return value, exists
-}
-
 func (d keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error) {
 	client, err := d.keystoneClient()
 	if err != nil {
@@ -170,7 +251,7 @@ func (d keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Con
 		//this includes 4xx responses, so after this point, we can be sure that the token is valid
 		return policy.Context{}, response.Err
 	}
-	//use a custom token struct instead of tokens.Token which is way incomplete
+	//use a custom token struct instead of tMap.Token which is way incomplete
 	var tokenData keystoneToken
 	err = response.ExtractInto(&tokenData)
 	if err != nil {
@@ -265,7 +346,7 @@ func (d keystone) UserName(id string) (string, error) {
 }
 
 func (d keystone) UserId(name string) (string, error) {
-	cachedId, hit := getFromCache(userIdCache,name)
+	cachedId, hit := getFromCache(userIdCache, name)
 	if hit {
 		return cachedId, nil
 	}
@@ -360,10 +441,12 @@ func (d keystone) GroupName(id string) (string, error) {
 }
 
 type keystoneToken struct {
+	// TODO: add token ID and expiry date
 	DomainScope  keystoneTokenThing         `json:"domain"`
 	ProjectScope keystoneTokenThingInDomain `json:"project"`
 	Roles        []keystoneTokenThing       `json:"roles"`
 	User         keystoneTokenThingInDomain `json:"user"`
+	ExpiresAt    string                     `json:"expires_at"`
 }
 
 type keystoneTokenThing struct {
