@@ -34,6 +34,9 @@ func Server(keystone keystone.Driver, storage storage.Driver) error {
 
 	//start HTTP server with CORS support
 	util.LogInfo("listening on " + viper.GetString("API.ListenAddress"))
-	handler := cors.Default().Handler(mainRouter)
+	c := cors.New(cors.Options{
+		AllowedHeaders: []string{"X-Auth-Token"},
+	})
+	handler := c.Handler(mainRouter)
 	return http.ListenAndServe(viper.GetString("API.ListenAddress"), handler)
 }
