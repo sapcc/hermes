@@ -29,6 +29,12 @@ type Driver interface {
 	MaxLimit() uint
 }
 
+// FieldOrder maps the sort Fieldname and Order
+type FieldOrder struct {
+	Fieldname string
+	Order     string //asc or desc
+}
+
 // This Filter is similar to hermes.Filter, but using IDs instead of names
 type Filter struct {
 	Source       string
@@ -36,10 +42,10 @@ type Filter struct {
 	ResourceId   string
 	UserId       string
 	EventType    string
-	Time         map[string] string
+	Time         map[string]string
 	Offset       uint
 	Limit        uint
-	Sort         string
+	Sort         []FieldOrder
 }
 
 // Thanks to the tool at https://mholt.github.io/json-to-go/

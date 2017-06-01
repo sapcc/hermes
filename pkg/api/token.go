@@ -24,11 +24,11 @@ import (
 	"net/http"
 
 	policy "github.com/databus23/goslo.policy"
+	"github.com/gophercloud/gophercloud"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 	"log"
 	"os"
-	"github.com/gophercloud/gophercloud"
 )
 
 //Token represents a user's token, as passed through the X-Auth-Token header of
@@ -62,7 +62,7 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 	}
 	if r.FormValue("project_id") == "" {
 		t.context.Request["project_id"] = t.context.Auth["project_id"]
-	}else {
+	} else {
 		t.context.Request["project_id"] = r.FormValue("project_id")
 	}
 	return t

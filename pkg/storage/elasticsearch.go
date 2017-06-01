@@ -71,18 +71,35 @@ func (es elasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 			}
 		}
 	}
-
-	if filter.Sort != "" {
-		// TODO: it's complicated
+	//Mapping from RequestSort parameter
+	esFieldMapping := map[string]string{
+		"time":          "payload.eventTime",
+		"source":        "publisher_id",
+		"resource_type": "payload.target.typeURI",
+		"resource_name": "payload.target.id.raw",
+		"event_type":    "event_type",
 	}
 
-	search := es.client.Search().
+	esSearch := es.client.Search().
 		Index(index).
-		Query(query).
+		Query(query)
+
+	if filter.Sort != nil {
+		for _, fieldOrder := range filter.Sort {
+			switch fieldOrder.Order {
+			case "asc":
+				esSearch = esSearch.Sort(esFieldMapping[fieldOrder.Fieldname], true)
+			case "desc":
+				esSearch = esSearch.Sort(esFieldMapping[fieldOrder.Fieldname], false)
+			}
+		}
+	}
+
+	esSearch = esSearch.
 		Sort("@timestamp", false).
 		From(int(filter.Offset)).Size(int(filter.Limit))
 
-	searchResult, err := search.Do(context.Background()) // execute
+	searchResult, err := esSearch.Do(context.Background()) // execute
 	if err != nil {
 		return nil, 0, err
 	}
@@ -109,11 +126,11 @@ func (es elasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 	util.LogDebug("Looking for event %s in index %s", eventId, index)
 
 	query := elastic.NewTermQuery("payload.id.raw", eventId)
-	search := es.client.Search().
+	esSearch := es.client.Search().
 		Index(index).
 		Query(query)
 
-	searchResult, err := search.Do(context.Background())
+	searchResult, err := esSearch.Do(context.Background())
 	if err != nil {
 		return nil, err
 	}

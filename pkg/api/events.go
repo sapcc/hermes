@@ -27,6 +27,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/util"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -54,9 +55,45 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32)
 	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
 
+	// Parse the sort querystring
+	//slice of a struct, key and direction.
+
+	sortSpec := []hermes.FieldOrder{}
+	validSortTopics := map[string]bool{"time": true, "source": true, "resource_type": true, "resource_name": true, "event_type": true}
+	validSortDirection := map[string]bool{"asc": true, "desc": true}
+	sortParam := req.FormValue("sort")
+
+	if sortParam != "" {
+		for _, sortElement := range strings.Split(sortParam, ",") {
+			keyVal := strings.SplitN(sortElement, ":", 2)
+			//`time`, `source`, `resource_type`, `resource_name`, and `event_type`.
+			sortfield := keyVal[0]
+			if !validSortTopics[sortfield] {
+				err := errors.New(fmt.Sprintf("Not a valid topic: %s, Valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys()))
+				http.Error(res, err.Error(), 400)
+				return
+			}
+
+			defsortorder := "asc"
+			if len(keyVal) == 2 {
+				sortDirection := keyVal[1]
+				if !validSortDirection[sortDirection] {
+					err := errors.New(fmt.Sprintf("Sort direction %s is invalid, must be asc or desc.", sortDirection))
+					http.Error(res, err.Error(), 400)
+					return
+				}
+				defsortorder = sortDirection
+			}
+
+			s := hermes.FieldOrder{Fieldname: sortfield, Order: defsortorder}
+			sortSpec = append(sortSpec, s)
+
+		}
+	}
+
 	// Next, parse the elements of the time range filter
-	timeRange := make(map[string] string)
-	validOperators := map[string] bool{"lt": true, "lte": true, "gt": true, "gte": true}
+	timeRange := make(map[string]string)
+	validOperators := map[string]bool{"lt": true, "lte": true, "gt": true, "gte": true}
 	timeParam := req.FormValue("time")
 	if timeParam != "" {
 		for _, timeElement := range strings.Split(timeParam, ",") {
@@ -107,7 +144,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		Time:         timeRange,
 		Offset:       uint(offset),
 		Limit:        uint(limit),
-		Sort:         req.FormValue("sort"),
+		Sort:         sortSpec,
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
@@ -174,7 +211,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 func getTenantId(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
 	// Get tenant id from token
 	tenantId := token.context.Auth["tenant_id"]
-	if tenantId=="" {
+	if tenantId == "" {
 		tenantId = token.context.Auth["domain_id"]
 	}
 	// Tenant id can be overriden with a query parameter

@@ -30,7 +30,7 @@ func (m mock) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
 	return &parsedEvent, err
 }
 
-func (m mock) MaxLimit() (uint) {
+func (m mock) MaxLimit() uint {
 	return 100
 }
 

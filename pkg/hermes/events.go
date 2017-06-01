@@ -55,6 +55,12 @@ type ListEvent struct {
 	} `json:"initiator"`
 }
 
+// FieldOrder maps the sort Fieldname and Order
+type FieldOrder struct {
+	Fieldname string
+	Order     string //asc or desc
+}
+
 // Filter maps to the filtering/paging/sorting allowed by the API
 type Filter struct {
 	Source       string
@@ -65,7 +71,7 @@ type Filter struct {
 	Time         map[string]string
 	Offset       uint
 	Limit        uint
-	Sort         string
+	Sort         []FieldOrder
 }
 
 // GetEvents returns a list of matching events (with filtering)
@@ -97,14 +103,19 @@ func storageFilter(filter *Filter, keystoneDriver keystone.Driver, eventStore st
 			filter.Offset, filter.Limit, eventStore.MaxLimit())
 	}
 
+	storagefieldorder := []storage.FieldOrder{}
+	err := copier.Copy(&storagefieldorder, &filter.Sort)
+	if err != nil {
+		panic("Could not copy storage field order.")
+	}
 	storageFilter := storage.Filter{
 		Source:       filter.Source,
 		ResourceType: filter.ResourceType,
 		EventType:    filter.EventType,
-		Time:         filter.Time, // TODO: This will probably get more complicated...
+		Time:         filter.Time,
 		Offset:       filter.Offset,
 		Limit:        filter.Limit,
-		Sort:         filter.Sort, // TODO: This will probably get more complicated...
+		Sort:         storagefieldorder,
 	}
 	// Translate hermes.Filter to storage.Filter by filling in IDs for names
 	if filter.ResourceName != "" {
