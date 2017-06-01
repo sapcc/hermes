@@ -124,10 +124,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	eventList := EventList{Events: events, Total: total}
 
 	// What protocol to use for PrevURL and NextURL?
-	protocol := "http"
-	if req.TLS != nil || req.Header.Get("X-Forwarded-Proto") == "https" {
-		protocol = "https"
-	}
+	protocol := getProtocol(req)
 	// Do we need a NextURL?
 	if int(filter.Offset+filter.Limit) < total {
 		req.Form.Set("offset", strconv.FormatUint(uint64(filter.Offset+filter.Limit), 10))
@@ -140,6 +137,13 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 
 	ReturnJSON(res, 200, eventList)
+}
+func getProtocol(req *http.Request) string {
+	protocol := "http"
+	if req.TLS != nil || req.Header.Get("X-Forwarded-Proto") == "https" {
+		protocol = "https"
+	}
+	return protocol
 }
 
 //GetEvent handles GET /v1/events/:event_id.

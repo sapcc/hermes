@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"bytes"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
@@ -76,7 +77,8 @@ func NewV1Router(keystone keystone.Driver, storage storage.Driver) (http.Handler
 		},
 	}
 
-	r.Methods("GET").Path("/v1/").HandlerFunc(func(res http.ResponseWriter, _ *http.Request) {
+	r.Methods("GET").Path("/v1/").HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		p.versionData.Links[0].URL = fmt.Sprintf("%s://%s%s/", getProtocol(req), req.Host, p.Path())
 		ReturnJSON(res, 200, map[string]interface{}{"version": p.versionData})
 	})
 
