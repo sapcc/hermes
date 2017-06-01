@@ -441,7 +441,6 @@ func (d keystone) GroupName(id string) (string, error) {
 }
 
 type keystoneToken struct {
-	// TODO: add token ID and expiry date
 	DomainScope  keystoneTokenThing         `json:"domain"`
 	ProjectScope keystoneTokenThingInDomain `json:"project"`
 	Roles        []keystoneTokenThing       `json:"roles"`
@@ -505,7 +504,7 @@ func (d keystone) RefreshToken() error {
 	//1. thread-safe token renewal
 	//2. proper support for cross-domain scoping
 
-	util.LogDebug("renewing Keystone token...")
+	util.LogDebug("Getting service user Keystone token...")
 
 	d.TokenRenewalMutex.Lock()
 	defer d.TokenRenewalMutex.Unlock()

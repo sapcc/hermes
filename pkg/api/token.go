@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"github.com/gophercloud/gophercloud"
 )
 
 //Token represents a user's token, as passed through the X-Auth-Token header of
@@ -49,6 +50,10 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 
 	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
 	t.context, t.err = p.keystone.ValidateToken(str)
+	switch t.err.(type) {
+	case gophercloud.ErrDefault404:
+		t.err = errors.New("X-Auth-Token is invalid or expired")
+	}
 	t.context.Request = mux.Vars(r)
 	return t
 }
