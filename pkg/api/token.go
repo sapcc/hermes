@@ -55,6 +55,16 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 		t.err = errors.New("X-Auth-Token is invalid or expired")
 	}
 	t.context.Request = mux.Vars(r)
+	if r.FormValue("domain_id") == "" {
+		t.context.Request["domain_id"] = t.context.Auth["domain_id"]
+	} else {
+		t.context.Request["domain_id"] = r.FormValue("domain_id")
+	}
+	if r.FormValue("project_id") == "" {
+		t.context.Request["project_id"] = t.context.Auth["project_id"]
+	}else {
+		t.context.Request["project_id"] = r.FormValue("project_id")
+	}
 	return t
 }
 
