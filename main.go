@@ -75,6 +75,7 @@ func parseCmdlineFlags() {
 func setDefaultConfig() {
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
+	viper.SetDefault("hermes.enrich_keystone_events", "False")
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
 	viper.SetDefault("elasticsearch.url", "localhost:9200")
 	// index.max_result_window defaults to 10000, as per

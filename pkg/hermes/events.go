@@ -25,6 +25,7 @@ import (
 	"github.com/sapcc/hermes/pkg/keystone"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
+	"github.com/spf13/viper"
 	"log"
 	"strings"
 )
@@ -35,7 +36,7 @@ type ListEvent struct {
 	ID           string `json:"event_id"`
 	Type         string `json:"event_type"`
 	Time         string `json:"event_time"`
-	ResourceName string `json:"resource_name"`
+	ResourceName string `json:"resource_name,omitempty"`
 	ResourceId   string `json:"resource_id"`
 	ResourceType string `json:"resource_type"`
 	Initiator    struct {
@@ -45,7 +46,7 @@ type ListEvent struct {
 		ProjectID   string `json:"project_id,omitempty"`
 		ProjectName string `json:"project_name,omitempty"`
 		UserID      string `json:"user_id"`
-		UserName    string `json:"user_name"`
+		UserName    string `json:"user_name,omitempty"`
 		Host        struct {
 			Agent   string `json:"agent"`
 			Address string `json:"address"`
@@ -61,7 +62,7 @@ type Filter struct {
 	ResourceName string
 	UserName     string
 	EventType    string
-	Time         map[string] string
+	Time         map[string]string
 	Offset       uint
 	Limit        uint
 	Sort         string
@@ -138,18 +139,19 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Dri
 			return nil, err
 		}
 
-		nameMap := namesForIds(keystoneDriver, map[string]string{
-			"init_user_domain":  event.Initiator.DomainID,
-			"init_user_project": event.Initiator.ProjectID,
-			"init_user":    event.Initiator.UserID,
-			"target":  event.ResourceId,
-		}, event.ResourceType)
+		if viper.GetBool("hermes.enrich_keystone_events") {
+			nameMap := namesForIds(keystoneDriver, map[string]string{
+				"init_user_domain":  event.Initiator.DomainID,
+				"init_user_project": event.Initiator.ProjectID,
+				"init_user":         event.Initiator.UserID,
+				"target":            event.ResourceId,
+			}, event.ResourceType)
 
-		event.Initiator.DomainName = nameMap["init_user_domain"]
-		event.Initiator.ProjectName = nameMap["init_user_project"]
-		event.Initiator.UserName = nameMap["init_user"]
-		event.ResourceName = nameMap["target"]
-
+			event.Initiator.DomainName = nameMap["init_user_domain"]
+			event.Initiator.ProjectName = nameMap["init_user_project"]
+			event.Initiator.UserName = nameMap["init_user"]
+			event.ResourceName = nameMap["target"]
+		}
 		events = append(events, &event)
 	}
 	return events, nil
@@ -159,26 +161,28 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Dri
 func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Driver, eventStore storage.Driver) (*storage.EventDetail, error) {
 	event, err := eventStore.GetEvent(eventID, tenantId)
 
-	if event != nil {
-		nameMap := namesForIds(keystoneDriver, map[string]string{
-			"init_user_domain":  event.Payload.Initiator.DomainID,
-			"init_user_project": event.Payload.Initiator.ProjectID,
-			"init_user":         event.Payload.Initiator.UserID,
-			"target":       event.Payload.Target.ID,
-			"project":      event.Payload.Project,
-			"user":        event.Payload.User,
-			"group":        event.Payload.Group,
-			"role":         event.Payload.Role,
-		}, event.Payload.Target.TypeURI)
+	if viper.GetBool("hermes.enrich_keystone_events") {
+		if event != nil {
+			nameMap := namesForIds(keystoneDriver, map[string]string{
+				"init_user_domain":  event.Payload.Initiator.DomainID,
+				"init_user_project": event.Payload.Initiator.ProjectID,
+				"init_user":         event.Payload.Initiator.UserID,
+				"target":            event.Payload.Target.ID,
+				"project":           event.Payload.Project,
+				"user":              event.Payload.User,
+				"group":             event.Payload.Group,
+				"role":              event.Payload.Role,
+			}, event.Payload.Target.TypeURI)
 
-		event.Payload.Initiator.DomainName = nameMap["init_user_domain"]
-		event.Payload.Initiator.ProjectName = nameMap["init_user_project"]
-		event.Payload.Initiator.UserName = nameMap["init_user"]
-		event.Payload.Target.Name = nameMap["target"]
-		event.Payload.ProjectName = nameMap["project"]
-		event.Payload.UserName = nameMap["user"]
-		event.Payload.GroupName = nameMap["group"]
-		event.Payload.RoleName = nameMap["role"]
+			event.Payload.Initiator.DomainName = nameMap["init_user_domain"]
+			event.Payload.Initiator.ProjectName = nameMap["init_user_project"]
+			event.Payload.Initiator.UserName = nameMap["init_user"]
+			event.Payload.Target.Name = nameMap["target"]
+			event.Payload.ProjectName = nameMap["project"]
+			event.Payload.UserName = nameMap["user"]
+			event.Payload.GroupName = nameMap["group"]
+			event.Payload.RoleName = nameMap["role"]
+		}
 	}
 	return event, err
 }
@@ -187,7 +191,7 @@ func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, target
 	nameMap := map[string]string{}
 	var err error
 
-	// Now add the names for IDs in the event
+	// Now add the names for IDs in the event to the nameMap
 	iUserDomainId := idMap["init_user_domain"]
 	if iUserDomainId != "" {
 		nameMap["init_user_domain"], err = keystoneDriver.DomainName(iUserDomainId)
