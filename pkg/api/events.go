@@ -111,7 +111,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
-	tenantId, err := getTenantId(req, res)
+	tenantId, err := getTenantId(token, req, res)
 	if err != nil {
 		return
 	}
@@ -149,7 +149,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	eventID := mux.Vars(req)["event_id"]
-	tenantId, err := getTenantId(req, res)
+	tenantId, err := getTenantId(token, req, res)
 	if err != nil {
 		return
 	}
@@ -167,10 +167,15 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	ReturnJSON(res, 200, event)
 }
 
-func getTenantId(r *http.Request, w http.ResponseWriter) (string, error) {
+func getTenantId(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
+	// Get tenant id from token
+	tenantId := token.context.Auth["tenant_id"]
+	if tenantId=="" {
+		tenantId = token.context.Auth["domain_id"]
+	}
+	// Tenant id can be overriden with a query parameter
 	projectId := r.FormValue("project_id")
 	domainId := r.FormValue("domain_id")
-	var tenantId string
 	if projectId != "" {
 		tenantId = projectId
 	}
