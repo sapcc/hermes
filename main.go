@@ -72,10 +72,13 @@ func parseCmdlineFlags() {
 	flag.Parse()
 }
 
+var nullEnforcer, _ = policy.NewEnforcer(make(map[string]string))
+
 func setDefaultConfig() {
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
 	viper.SetDefault("hermes.enrich_keystone_events", "False")
+	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
 	viper.SetDefault("elasticsearch.url", "localhost:9200")
 	// index.max_result_window defaults to 10000, as per
@@ -91,6 +94,7 @@ func readConfig(configPath *string) {
 		shouldReadConfig = *configPath != flag.Lookup("f").DefValue
 	}
 	// Now we sorted that out, read the config
+	util.LogDebug("Should read config: %v, config file is %s", shouldReadConfig, *configPath)
 	if shouldReadConfig {
 		viper.SetConfigFile(*configPath)
 		viper.SetConfigType("toml")
@@ -139,10 +143,15 @@ func readPolicy() {
 	if err != nil {
 		util.LogFatal(err.Error())
 	}
-	viper.Set("hermes.PolicyEnforcer", policyEnforcer)
+	if policyEnforcer != nil {
+		viper.Set("hermes.PolicyEnforcer", policyEnforcer)
+	}
 }
 
 func loadPolicyFile(path string) (*policy.Enforcer, error) {
+	if path == "" {
+		return nil, nil
+	}
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
