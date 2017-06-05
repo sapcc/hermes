@@ -7,15 +7,12 @@
       "event_id": "d5eed458-6666-58ec-ad06-8d3cf6bafca1",
       "event_type": "identity.project.deleted",
       "event_time": "2017-05-02T12:02:46.726056+0000",
-      "resource_name": "ceilometer-cadf-delete-me",
       "resource_id": "b3b70c8271a845709f9a03030e705da7",
       "resource_type": "data/security/project",
       "initiator": {
         "typeURI": "service/security/account/user",
         "project_id": "ae63ddf2076d4342a56eb049e37a7621",
-        "project_name": "ceilometer-cadf-delete-me",
         "user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
-        "user_name": "I056593",
         "host": {
           "agent": "python-keystoneclient",
           "address": "100.65.0.11"
@@ -28,15 +25,12 @@
       "event_id": "095056c9-4cbb-5200-af70-0977dbcf5000",
       "event_type": "identity.project.deleted",
       "event_time": "2017-05-02T11:45:49.982112+0000",
-      "resource_name": "ceilometer-cadf-delete-me",
       "resource_id": "b3b70c8271a845709f9a03030e705da7",
       "resource_type": "data/security/project",
       "initiator": {
         "typeURI": "service/security/account/user",
         "project_id": "ae63ddf2076d4342a56eb049e37a7621",
-        "project_name": "ceilometer-cadf-delete-me",
         "user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
-        "user_name": "I056593",
         "host": {
           "agent": "python-keystoneclient",
           "address": "100.64.0.4"
@@ -49,15 +43,12 @@
       "event_id": "dbd72ad7-61b4-5dab-b9ed-26068a187c7a",
       "event_type": "identity.project.deleted",
       "event_time": "2017-05-02T11:45:44.755215+0000",
-      "resource_name": "ceilometer-cadf-delete-me",
       "resource_id": "b3b70c8271a845709f9a03030e705da7",
       "resource_type": "data/security/project",
       "initiator": {
         "typeURI": "service/security/account/user",
         "project_id": "ae63ddf2076d4342a56eb049e37a7621",
-        "project_name": "ceilometer-cadf-delete-me",
         "user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
-        "user_name": "I056593",
         "host": {
           "agent": "python-keystoneclient",
           "address": "100.64.0.4"

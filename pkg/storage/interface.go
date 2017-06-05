@@ -73,7 +73,7 @@ type EventDetail struct {
 			ProjectID   string `json:"project_id,omitempty"`
 			ProjectName string `json:"project_name,omitempty"`
 			UserID      string `json:"user_id"`
-			UserName    string `json:"user_name"`
+			UserName    string `json:"user_name,omitempty"`
 			Host        struct {
 				Agent   string `json:"agent"`
 				Address string `json:"address"`

@@ -11,9 +11,7 @@
     "initiator": {
       "typeURI": "service/security/account/user",
       "project_id": "6a030751147a45c0863c3b5bde32c744",
-      "project_name": "ceilometer-cadf-delete-me",
       "user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
-      "user_name": "I056593",
       "host": {
         "agent": "python-keystoneclient",
         "address": "100.65.0.11"
@@ -27,8 +25,7 @@
     "outcome": "success",
     "target": {
       "typeURI": "data/security/project",
-      "id": "b3b70c8271a845709f9a03030e705da7",
-      "name": "ceilometer-cadf-delete-me"
+      "id": "b3b70c8271a845709f9a03030e705da7"
     }
   },
   "message_id": "5a32c2f3-2996-4f46-819c-6197cf06037e",

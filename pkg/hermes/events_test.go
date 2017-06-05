@@ -17,7 +17,7 @@ func Test_GetEvent(t *testing.T) {
 	assert.Equal(t, "d5eed458-6666-58ec-ad06-8d3cf6bafca1", event.Payload.ID)
 	assert.NotEmpty(t, event.Payload.EventType)
 	assert.NotEmpty(t, event.Payload.EventTime)
-	assert.NotEmpty(t, event.Payload.Target.Name)
+	assert.NotEmpty(t, event.Payload.Target.ID)
 }
 
 func Test_GetEvents(t *testing.T) {
