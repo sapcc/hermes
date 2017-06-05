@@ -1,0 +1,29 @@
+FROM hub.global.cloud.sap/monsoon/monsoon-pipeline:1.8.4
+MAINTAINER "Darren Hague <d.hague@sap.com>"
+
+RUN yum -y install gcc glibc-static
+# cannot just `yum install go` because go-1.6 from the repo is too old
+RUN curl https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz | ( cd /usr/local && tar xzf - )
+
+# To test building inside a container...
+
+#Do once only:
+#
+#$ cd $GOPATH/src/github.com/sapcc/hermes
+#
+#$ docker build -f Dockerfile.local -t hermes-build.local .
+#
+#Do once only per shell session:
+#
+#$ echo 201706022012 > /tmp/version/version
+#
+#Do once per build attempt:
+#
+#$ docker run --privileged -v $GOPATH/src/github.com/sapcc/hermes:/tmp/build/hermes.git -v /tmp/version:/tmp/build/hermes.version -w="/tmp/build/hermes.git" -e "NO_PROXY=$NO_PROXY" -e "HTTP_PROXY=$HTTP_PROXY" hermes-build.local /bin/bash -c '
+#set -ex
+#export TZ=UTC
+#source /tasks/common.sh
+#set -uo pipefail
+#export PATH=/usr/local/go/bin:$PATH
+#rm -rf build/*
+#make build/docker.tar'
