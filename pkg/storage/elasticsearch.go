@@ -10,17 +10,21 @@ import (
 )
 
 type elasticSearch struct {
-	client *elastic.Client
+	esClient *elastic.Client
 }
 
 var es elasticSearch
 
 // Initialise and return the ES driver
 func ElasticSearch() Driver {
-	if es.client == nil {
+	return es
+}
+
+func (es *elasticSearch) client() *elastic.Client {
+	if es.esClient == nil {
 		es.init()
 	}
-	return es
+	return es.esClient
 }
 
 func (es *elasticSearch) init() {
@@ -30,7 +34,7 @@ func (es *elasticSearch) init() {
 	var err error
 	var url = viper.GetString("elasticsearch.url")
 	util.LogDebug("Using ElasticSearch URL: %s", url)
-	es.client, err = elastic.NewClient(elastic.SetURL(url))
+	es.esClient, err = elastic.NewClient(elastic.SetURL(url))
 	if err != nil {
 		panic(err)
 	}
@@ -80,7 +84,7 @@ func (es elasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 		"event_type":    "event_type",
 	}
 
-	esSearch := es.client.Search().
+	esSearch := es.client().Search().
 		Index(index).
 		Query(query)
 
@@ -126,7 +130,7 @@ func (es elasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 	util.LogDebug("Looking for event %s in index %s", eventId, index)
 
 	query := elastic.NewTermQuery("payload.id.raw", eventId)
-	esSearch := es.client.Search().
+	esSearch := es.client().Search().
 		Index(index).
 		Query(query)
 
