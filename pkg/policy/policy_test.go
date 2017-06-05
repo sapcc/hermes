@@ -11,7 +11,7 @@ import (
 
 // Setup test
 func GetEnforcer() *policy.Enforcer {
-	const path = "etc/policy.json"
+	const path = "../../etc/policy.json"
 
 
 	policyenforcer, err := util.LoadPolicyFile(path)
