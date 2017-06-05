@@ -24,9 +24,9 @@ import (
 	"fmt"
 	"os"
 
-	"encoding/json"
-	"io/ioutil"
 	"strings"
+
+	"log"
 
 	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/api"
@@ -35,7 +35,6 @@ import (
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
-	"log"
 )
 
 var configPath *string
@@ -139,27 +138,11 @@ func configuredStorageDriver() storage.Driver {
 
 func readPolicy() {
 	//load the policy file
-	policyEnforcer, err := loadPolicyFile(viper.GetString("hermes.PolicyFilePath"))
+	policyEnforcer, err := util.LoadPolicyFile(viper.GetString("hermes.PolicyFilePath"))
 	if err != nil {
 		util.LogFatal(err.Error())
 	}
 	if policyEnforcer != nil {
 		viper.Set("hermes.PolicyEnforcer", policyEnforcer)
 	}
-}
-
-func loadPolicyFile(path string) (*policy.Enforcer, error) {
-	if path == "" {
-		return nil, nil
-	}
-	bytes, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	var rules map[string]string
-	err = json.Unmarshal(bytes, &rules)
-	if err != nil {
-		return nil, err
-	}
-	return policy.NewEnforcer(rules)
 }
