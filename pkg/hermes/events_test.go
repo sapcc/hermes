@@ -3,7 +3,7 @@ package hermes
 import (
 	"testing"
 
-	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -11,7 +11,7 @@ import (
 
 func Test_GetEvent(t *testing.T) {
 	eventId := "d5eed458-6666-58ec-ad06-8d3cf6bafca1"
-	event, err := GetEvent(eventId, "", keystone.Mock(), storage.Mock())
+	event, err := GetEvent(eventId, "", identity.Mock{}, storage.Mock{})
 	require.Nil(t, err)
 	require.NotNil(t, event)
 	assert.Equal(t, "d5eed458-6666-58ec-ad06-8d3cf6bafca1", event.Payload.ID)
@@ -21,7 +21,7 @@ func Test_GetEvent(t *testing.T) {
 }
 
 func Test_GetEvents(t *testing.T) {
-	events, total, err := GetEvents(&Filter{}, "", keystone.Mock(), storage.Mock())
+	events, total, err := GetEvents(&Filter{}, "", identity.Mock{}, storage.Mock{})
 	require.Nil(t, err)
 	require.NotNil(t, events)
 	assert.Equal(t, len(events), 3)

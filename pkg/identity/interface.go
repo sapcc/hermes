@@ -17,19 +17,19 @@
 *
 *******************************************************************************/
 
-package keystone
+package identity
 
 import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 )
 
-// Driver is an interface that wraps the authentication of the service user and
+// Identity is an interface that wraps the authentication of the service user and
 // token checking of API users. Because it is an interface, the real implementation
 // can be mocked away in unit tests.
-type Driver interface {
+type Identity interface {
 	//Return the main gophercloud client from which the respective service
-	//clients can be derived. For mock drivers, this returns nil, so test code
+	//clients can be derived. For Mock drivers, this returns nil, so test code
 	//should be prepared to handle a nil Client() where appropriate.
 	Client() *gophercloud.ProviderClient
 	AuthOptions() *gophercloud.AuthOptions
@@ -42,10 +42,4 @@ type Driver interface {
 	UserId(name string) (string, error)
 	RoleName(id string) (string, error)
 	GroupName(id string) (string, error)
-}
-
-//KeystoneNameId describes just the name and id of a Keystone object.
-type KeystoneNameId struct {
-	UUID string `json:"id"`
-	Name string `json:"name"`
 }
