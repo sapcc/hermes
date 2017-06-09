@@ -6,5 +6,7 @@
   "project_viewer": "rule:domain_viewer or (rule:project_scope and role:audit_viewer)",
 
   "event:list":     "rule:project_viewer",
-  "event:show":     "rule:project_viewer"
+  "event:show":     "rule:project_viewer",
+
+  "audit:show":    "@" //TODO- make this actually check. Currently permissive.
 }

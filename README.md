@@ -202,6 +202,26 @@ event, e.g.:
 }
 ```
 
+## Audit Config
+
+**GET /v1/audit/**
+
+Returns the details of configuration for a given audit tenant, e.g.:
+
+```json {
+    "enabled": true/false,
+}
+
+**PUT /v1/audit/**
+
+Sets the details of configuration for a given audit tenant, e.g.:
+
+```json {
+    "tenant_id": "openstack_tenant_string",
+    "enabled": true/false
+}
+
+
 
 # Installation
 

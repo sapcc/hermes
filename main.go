@@ -34,6 +34,7 @@ import (
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
+	"github.com/sapcc/hermes/pkg/configdb"
 )
 
 var configPath *string
@@ -45,8 +46,9 @@ func main() {
 	readConfig(configPath)
 	keystoneDriver := configuredKeystoneDriver()
 	storageDriver := configuredStorageDriver()
+	dbDriver := configuredDBDriver()
 	readPolicy()
-	api.Server(keystoneDriver, storageDriver)
+	api.Server(keystoneDriver, storageDriver, dbDriver)
 }
 
 func parseCmdlineFlags() {
@@ -64,10 +66,12 @@ var nullEnforcer, _ = policy.NewEnforcer(make(map[string]string))
 func setDefaultConfig() {
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
+	viper.SetDefault("hermes.configdb_driver", "mysql")
 	viper.SetDefault("hermes.enrich_keystone_events", "False")
 	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
 	viper.SetDefault("elasticsearch.url", "localhost:9200")
+	viper.SetDefault("mysql.dsn", "dbuser:capetown@tcp(192.168.1.125:3306)/data")
 	// index.max_result_window defaults to 10000, as per
 	// https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html
 	viper.SetDefault("elasticsearch.max_result_window", "10000")
@@ -125,6 +129,23 @@ func configuredStorageDriver() storage.Storage {
 		return elasticSearchStorage
 	case "mock":
 		return mockStorage
+	default:
+		log.Printf("Couldn't match a storage driver for configured value \"%s\"", driverName)
+		return nil
+	}
+}
+
+var mysqldb = configdb.MySQL{}
+var mockconfigdb = configdb.Mock{}
+
+func configuredDBDriver() configdb.Driver {
+	driverName := viper.GetString("hermes.configdb_driver")
+
+	switch driverName {
+	case "mysql":
+		return mysqldb
+	case "mock":
+		return mockconfigdb
 	default:
 		log.Printf("Couldn't match a storage driver for configured value \"%s\"", driverName)
 		return nil

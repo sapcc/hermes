@@ -30,6 +30,7 @@ import (
 	"github.com/sapcc/hermes/pkg/test"
 	"github.com/spf13/viper"
 	"io/ioutil"
+	"github.com/sapcc/hermes/pkg/configdb"
 )
 
 type object map[string]interface{}
@@ -54,7 +55,8 @@ func setupTest(t *testing.T) http.Handler {
 	//create test driver with the domains and projects from start-data.sql
 	keystone := identity.Mock{}
 	storage := storage.Mock{}
-	router, _ := NewV1Router(keystone, storage)
+	configdb := configdb.Mock{}
+	router, _ := NewV1Router(keystone, storage, configdb)
 	return router
 }
 
