@@ -9,25 +9,19 @@ import (
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
-type elasticSearch struct {
+type ElasticSearch struct {
 	esClient *elastic.Client
 }
 
-var es elasticSearch
-
-// Initialise and return the ES driver
-func ElasticSearch() Driver {
-	return es
-}
-
-func (es *elasticSearch) client() *elastic.Client {
+func (es *ElasticSearch) client() *elastic.Client {
+	// Lazy initialisation - don't connect to ElasticSearch until we need to
 	if es.esClient == nil {
 		es.init()
 	}
 	return es.esClient
 }
 
-func (es *elasticSearch) init() {
+func (es *ElasticSearch) init() {
 	util.LogDebug("Initiliasing ElasticSearch()")
 
 	// Create a client
@@ -40,7 +34,7 @@ func (es *elasticSearch) init() {
 	}
 }
 
-func (es elasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
+func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
 	index := indexName(tenantId)
 	util.LogDebug("Looking for events in index %s", index)
 
@@ -125,7 +119,7 @@ func (es elasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 	return events, int(total), nil
 }
 
-func (es elasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
+func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
 	index := indexName(tenantId)
 	util.LogDebug("Looking for event %s in index %s", eventId, index)
 
@@ -149,7 +143,7 @@ func (es elasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 	return nil, nil
 }
 
-func (es elasticSearch) MaxLimit() uint {
+func (es ElasticSearch) MaxLimit() uint {
 	return uint(viper.GetInt("elasticsearch.max_result_window"))
 }
 

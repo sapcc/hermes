@@ -19,9 +19,9 @@
 
 package storage
 
-// Driver is an interface that wraps the underlying event storage mechanism.
+// Storage is an interface that wraps the underlying event storage mechanism.
 // Because it is an interface, the real implementation can be mocked away in unit tests.
-type Driver interface {
+type Storage interface {
 
 	/********** requests to ElasticSearch **********/
 	GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error)
@@ -50,12 +50,14 @@ type Filter struct {
 
 // Thanks to the tool at https://mholt.github.io/json-to-go/
 
+//  The JSON annotations are for parsing the result from ElasticSearch
 type eventListWithTotal struct {
 	Total  int           `json:"total"`
 	Events []EventDetail `json:"events"`
 }
 
 // EventDetail contains the CADF payload, enhanced with names for IDs
+//  The JSON annotations are for parsing the result from ElasticSearch AND for generating the Hermes API response
 type EventDetail struct {
 	PublisherID string `json:"publisher_id"`
 	EventType   string `json:"event_type"`

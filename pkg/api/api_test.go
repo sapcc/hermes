@@ -25,7 +25,7 @@ import (
 
 	"encoding/json"
 	"github.com/databus23/goslo.policy"
-	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
 	"github.com/spf13/viper"
@@ -52,8 +52,8 @@ func setupTest(t *testing.T) http.Handler {
 	viper.Set("hermes.PolicyEnforcer", policyEnforcer)
 
 	//create test driver with the domains and projects from start-data.sql
-	keystone := keystone.Mock()
-	storage := storage.Mock()
+	keystone := identity.Mock{}
+	storage := storage.Mock{}
 	router, _ := NewV1Router(keystone, storage)
 	return router
 }

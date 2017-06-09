@@ -30,8 +30,7 @@ import (
 
 	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/api"
-	"github.com/sapcc/hermes/pkg/cmd"
-	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
@@ -47,18 +46,7 @@ func main() {
 	keystoneDriver := configuredKeystoneDriver()
 	storageDriver := configuredStorageDriver()
 	readPolicy()
-
-	// If there are args left over after flag processing, we are a Hermes CLI client
-	if len(flag.Args()) > 0 {
-		cmd.RootCmd.SetArgs(flag.Args())
-		cmd.SetDrivers(keystoneDriver, storageDriver)
-		if err := cmd.RootCmd.Execute(); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	} else { // otherwise, we are running a Hermes API server
-		api.Server(keystoneDriver, storageDriver)
-	}
+	api.Server(keystoneDriver, storageDriver)
 }
 
 func parseCmdlineFlags() {
@@ -104,32 +92,39 @@ func readConfig(configPath *string) {
 	}
 
 	// Setup environment variable overrides for OpenStack authentication
-	for _, osVarName := range cmd.OSVars {
+	var OSVars = []string{"username", "password", "auth_url", "user_domain_name", "project_name", "project_domain_name"}
+	for _, osVarName := range OSVars {
 		viper.BindEnv("keystone."+osVarName, "OS_"+strings.ToUpper(osVarName))
 	}
 
 }
 
-func configuredKeystoneDriver() keystone.Driver {
+var keystoneIdentity = identity.Keystone{}
+var mockIdentity = identity.Mock{}
+
+func configuredKeystoneDriver() identity.Identity {
 	driverName := viper.GetString("hermes.keystone_driver")
 	switch driverName {
 	case "keystone":
-		return keystone.Keystone()
+		return keystoneIdentity
 	case "mock":
-		return keystone.Mock()
+		return mockIdentity
 	default:
 		log.Printf("Couldn't match a keystone driver for configured value \"%s\"", driverName)
 		return nil
 	}
 }
 
-func configuredStorageDriver() storage.Driver {
+var elasticSearchStorage = storage.ElasticSearch{}
+var mockStorage = storage.Mock{}
+
+func configuredStorageDriver() storage.Storage {
 	driverName := viper.GetString("hermes.storage_driver")
 	switch driverName {
 	case "elasticsearch":
-		return storage.ElasticSearch()
+		return elasticSearchStorage
 	case "mock":
-		return storage.Mock()
+		return mockStorage
 	default:
 		log.Printf("Couldn't match a storage driver for configured value \"%s\"", driverName)
 		return nil

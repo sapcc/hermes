@@ -8,11 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
 // Setup test
 func GetEnforcer() *policy.Enforcer {
 	const path = "../../etc/policy.json"
-
 
 	policyenforcer, err := util.LoadPolicyFile(path)
 
@@ -45,10 +43,10 @@ func Test_Policy_AuditViewerTrue(t *testing.T) {
 			"tenant_domain_name":  "aaaa",
 		},
 		Request: map[string]string{
-			"domain_id":           "ca1b267e149d4e44bf53d28d1c8d6bc9",
-			"project_id":          "7a09c05926ec452ca7992af4aa03c31d",
+			"domain_id":  "ca1b267e149d4e44bf53d28d1c8d6bc9",
+			"project_id": "7a09c05926ec452ca7992af4aa03c31d",
 		},
-		Logger:  util.LogDebug,
+		Logger: util.LogDebug,
 	}
 	assert.True(t, policyenforcer.Enforce("event:show", c))
 }
@@ -76,10 +74,10 @@ func Test_Policy_UnknownRoleFalse(t *testing.T) {
 			"tenant_domain_name":  "aaaa",
 		},
 		Request: map[string]string{
-			"domain_id":           "ca1b267e149d4e44bf53d28d1c8d6bc9",
-			"project_id":          "7a09c05926ec452ca7992af4aa03c31d",
+			"domain_id":  "ca1b267e149d4e44bf53d28d1c8d6bc9",
+			"project_id": "7a09c05926ec452ca7992af4aa03c31d",
 		},
-		Logger:  util.LogDebug,
+		Logger: util.LogDebug,
 	}
 	assert.False(t, policyenforcer.Enforce("event:show", c))
 }

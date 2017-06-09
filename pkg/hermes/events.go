@@ -22,7 +22,7 @@ package hermes
 import (
 	"fmt"
 	"github.com/jinzhu/copier"
-	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
@@ -31,6 +31,7 @@ import (
 )
 
 // ListEvent contains high-level data about an event, intended as a list item
+//  The JSON annotations here are for the JSON to be returned by the API
 type ListEvent struct {
 	Source       string `json:"source"`
 	ID           string `json:"event_id"`
@@ -75,7 +76,7 @@ type Filter struct {
 }
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Driver, eventStore storage.Driver) ([]*ListEvent, int, error) {
+func GetEvents(filter *Filter, tenantId string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*ListEvent, int, error) {
 	storageFilter, err := storageFilter(filter, keystoneDriver, eventStore)
 	if err != nil {
 		return nil, 0, err
@@ -92,7 +93,7 @@ func GetEvents(filter *Filter, tenantId string, keystoneDriver keystone.Driver, 
 	return events, total, err
 }
 
-func storageFilter(filter *Filter, keystoneDriver keystone.Driver, eventStore storage.Driver) (*storage.Filter, error) {
+func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.Filter, error) {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
@@ -133,7 +134,7 @@ func storageFilter(filter *Filter, keystoneDriver keystone.Driver, eventStore st
 }
 
 // Construct ListEvents and add the names for IDs in the events
-func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Driver) ([]*ListEvent, error) {
+func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Identity) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		p := storageEvent.Payload
@@ -169,7 +170,7 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver keystone.Dri
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Driver, eventStore storage.Driver) (*storage.EventDetail, error) {
+func GetEvent(eventID string, tenantId string, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.EventDetail, error) {
 	event, err := eventStore.GetEvent(eventID, tenantId)
 
 	if viper.GetBool("hermes.enrich_keystone_events") {
@@ -198,7 +199,7 @@ func GetEvent(eventID string, tenantId string, keystoneDriver keystone.Driver, e
 	return event, err
 }
 
-func namesForIds(keystoneDriver keystone.Driver, idMap map[string]string, targetType string) map[string]string {
+func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targetType string) map[string]string {
 	nameMap := map[string]string{}
 	var err error
 

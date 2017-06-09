@@ -6,14 +6,14 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
-	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 )
 
 // Set up and start the API server, hooking it up to the API router
-func Server(keystone keystone.Driver, storage storage.Driver) error {
+func Server(keystone identity.Identity, storage storage.Storage) error {
 	fmt.Println("API")
 	mainRouter := mux.NewRouter()
 

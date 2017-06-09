@@ -27,7 +27,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/sapcc/hermes/pkg/keystone"
+	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
@@ -47,15 +47,15 @@ type versionLinkData struct {
 }
 
 type v1Provider struct {
-	keystone    keystone.Driver
-	storage     storage.Driver
+	keystone    identity.Identity
+	storage     storage.Storage
 	versionData versionData
 }
 
 //NewV1Router creates a http.Handler that serves the Hermes v1 API.
 //It also returns the versionData for this API version which is needed for the
 //version advertisement on "GET /".
-func NewV1Router(keystone keystone.Driver, storage storage.Driver) (http.Handler, versionData) {
+func NewV1Router(keystone identity.Identity, storage storage.Storage) (http.Handler, versionData) {
 	r := mux.NewRouter()
 	p := &v1Provider{
 		keystone: keystone,

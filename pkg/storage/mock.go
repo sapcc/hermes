@@ -4,14 +4,10 @@ import (
 	"encoding/json"
 )
 
-type mock struct{}
-
 // Mock elasticsearch driver with static data
-func Mock() Driver {
-	return mock{}
-}
+type Mock struct{}
 
-func (m mock) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
+func (m Mock) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 
@@ -24,13 +20,13 @@ func (m mock) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, e
 	return events, detailedEvents.Total, nil
 }
 
-func (m mock) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
+func (m Mock) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
 	var parsedEvent EventDetail
 	err := json.Unmarshal(mockEvent, &parsedEvent)
 	return &parsedEvent, err
 }
 
-func (m mock) MaxLimit() uint {
+func (m Mock) MaxLimit() uint {
 	return 100
 }
 
