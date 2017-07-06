@@ -208,6 +208,35 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	ReturnJSON(res, 200, event)
 }
 
+//GetAttributes handles GET /v1/attributes/:attribute_name
+func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
+	token := p.CheckToken(req)
+	if !token.Require(res, "event:show") {
+		return
+	}
+	queryName := mux.Vars(req)["attribute_name"]
+	if queryName == "" {
+		fmt.Errorf("QueryName not found")
+	}
+	tenantId, err := getTenantId(token, req, res)
+	if err != nil {
+		return
+	}
+
+	//Append .raw onto queryName, in Elasticsearch aggregations on for .raw
+	attribute, err := hermes.GetAttributes(queryName+".raw", tenantId, p.storage)
+
+	if ReturnError(res, err) {
+		return
+	}
+	if attribute == nil {
+		err := fmt.Errorf("Attribute %s could not be found in tenant %s", attribute, tenantId)
+		http.Error(res, err.Error(), 404)
+		return
+	}
+	ReturnJSON(res, 200, attribute)
+}
+
 func getTenantId(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
 	// Get tenant id from token
 	tenantId := token.context.Auth["tenant_id"]

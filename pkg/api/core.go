@@ -27,9 +27,9 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
-	"github.com/sapcc/hermes/pkg/configdb"
 )
 
 //versionData is used by version advertisement handlers.
@@ -87,6 +87,7 @@ func NewV1Router(keystone identity.Identity, storage storage.Storage, configdb c
 
 	r.Methods("GET").Path("/v1/events").HandlerFunc(p.ListEvents)
 	r.Methods("GET").Path("/v1/events/{event_id}").HandlerFunc(p.GetEventDetails)
+	r.Methods("GET").Path("/v1/attributes/{attribute_name}").HandlerFunc(p.GetAttributes)
 	r.Methods("GET").Path("/v1/audit").HandlerFunc(p.GetAudit)
 	r.Methods("PUT").Path("/v1/audit").HandlerFunc(p.PutAudit)
 	return r, p.versionData

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
-	elastic "gopkg.in/olivere/elastic.v5"
+	"gopkg.in/olivere/elastic.v5"
 )
 
 type ElasticSearch struct {
@@ -28,7 +28,9 @@ func (es *ElasticSearch) init() {
 	var err error
 	var url = viper.GetString("elasticsearch.url")
 	util.LogDebug("Using ElasticSearch URL: %s", url)
-	es.esClient, err = elastic.NewClient(elastic.SetURL(url))
+	// Added disabling sniffing for Testing from Golang. This corrects a problem. Likely needs to be removed before prod deploy
+	es.esClient, err = elastic.NewClient(elastic.SetURL(url), elastic.SetSniff(false))
+	//es.esClient, err = elastic.NewClient(elastic.SetURL(url))
 	if err != nil {
 		panic(err)
 	}
@@ -141,6 +143,50 @@ func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 		return &de, err
 	}
 	return nil, nil
+}
+
+//Return all unique attributes
+//Possible queries, event_type, dns, identity, etc..
+func (es ElasticSearch) GetAttributes(queryName string, tenantId string) (*AttributeValueList, error) {
+	index := indexName(tenantId)
+
+	util.LogDebug("Looking for unique attributes for %s in index %s", queryName, index)
+
+	queryAgg := elastic.NewTermsAggregation().Field(queryName)
+
+	esSearch := es.client().Search().Index(index).Aggregation("attributes", queryAgg)
+	searchResult, err := esSearch.Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	if searchResult.Hits == nil {
+		util.LogDebug("expected Hits != nil; got: nil")
+	}
+
+	agg := searchResult.Aggregations
+	if agg == nil {
+		util.LogDebug("expected Aggregations, got nil")
+	}
+
+	termsAggRes, found := agg.Terms("attributes")
+	if !found {
+		util.LogDebug("Term %s not found in Aggregation", queryName)
+	}
+	if termsAggRes == nil {
+		util.LogDebug("termsAggRes is nil")
+	}
+	util.LogDebug("Number of Buckets: %d", len(termsAggRes.Buckets))
+
+	var al AttributeValueList
+
+	for _, bucket := range termsAggRes.Buckets {
+		util.LogDebug("key: %s count: %d", bucket.Key, bucket.DocCount)
+		//attributes = append(attributes, bucket.KeyAsString)
+		al = append(al, AttributeValue{Value: bucket.Key.(string)})
+	}
+
+	return &al, nil
 }
 
 func (es ElasticSearch) MaxLimit() uint {

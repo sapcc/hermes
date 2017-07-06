@@ -26,6 +26,7 @@ type Storage interface {
 	/********** requests to ElasticSearch **********/
 	GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error)
 	GetEvent(eventId string, tenantId string) (*EventDetail, error)
+	GetAttributes(queryName string, tenantId string) (*AttributeValueList, error)
 	MaxLimit() uint
 }
 
@@ -104,4 +105,11 @@ type EventDetail struct {
 	MessageID string `json:"message_id"`
 	Priority  string `json:"priority"`
 	Timestamp string `json:"timestamp"`
+}
+
+type AttributeValueList []AttributeValue
+
+type AttributeValue struct {
+	Value string `json:"value"`
+	count int64  `json:"count"` // Removing export due to desire to not include it in JSON return
 }

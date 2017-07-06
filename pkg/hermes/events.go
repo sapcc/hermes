@@ -199,6 +199,13 @@ func GetEvent(eventID string, tenantId string, keystoneDriver identity.Identity,
 	return event, err
 }
 
+// No Logic here, but handles mock implementation for eventStore
+func GetAttributes(queryName string, tenantId string, eventStore storage.Storage) (*storage.AttributeValueList, error) {
+	attribute, err := eventStore.GetAttributes(queryName, tenantId)
+
+	return attribute, err
+}
+
 func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targetType string) map[string]string {
 	nameMap := map[string]string{}
 	var err error
