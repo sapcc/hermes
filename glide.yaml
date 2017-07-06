@@ -15,14 +15,6 @@ import:
   version: v0.8.0
 - package: github.com/rs/cors
   version: v1.1
-- package: github.com/sapcc/hermes
-  subpackages:
-  - pkg/api
-  - pkg/configdb
-  - pkg/hermes
-  - pkg/identity
-  - pkg/storage
-  - pkg/util
 - package: github.com/spf13/viper
 - package: github.com/streadway/amqp
 - package: gopkg.in/gorp.v2
