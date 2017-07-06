@@ -30,11 +30,11 @@ import (
 
 	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/api"
+	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
-	"github.com/sapcc/hermes/pkg/configdb"
 )
 
 var configPath *string
@@ -71,7 +71,7 @@ func setDefaultConfig() {
 	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
 	viper.SetDefault("elasticsearch.url", "localhost:9200")
-	viper.SetDefault("mysql.dsn", "dbuser:capetown@tcp(192.168.1.125:3306)/data")
+	viper.SetDefault("mysql.dsn", "user:password@tcp(hostname:3306)/database")
 	// index.max_result_window defaults to 10000, as per
 	// https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html
 	viper.SetDefault("elasticsearch.max_result_window", "10000")

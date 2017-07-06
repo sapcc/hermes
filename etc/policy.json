@@ -8,5 +8,6 @@
   "event:list":     "rule:project_viewer",
   "event:show":     "rule:project_viewer",
 
-  "audit:show":    "@" //TODO- make this actually check. Currently permissive.
+  "audit:show":    "@", //TODO- make this actually check. Currently permissive.
+  "audit:update":  "@"
 }

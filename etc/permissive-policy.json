@@ -1,4 +1,6 @@
 {
   "event:list":     "@",
-  "event:show":     "@"
+  "event:show":     "@",
+  "audit:show":    "@",
+  "audit:update":  "@"
 }
