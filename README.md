@@ -202,25 +202,43 @@ event, e.g.:
 }
 ```
 
+## Attributes
+
+**GET /v1/attributes/<attribute_name>**
+
+Returns the unique attributes from ElasticSearch for a given attribute name.
+
+```json 
+{
+    "value": "identity.role_assignment.created"
+},
+{
+    "value": "dns.domain.update"
+}
+```
+
 ## Audit Config
 
 **GET /v1/audit/**
 
 Returns the details of configuration for a given audit tenant, e.g.:
 
-```json {
+```json 
+{
     "enabled": true/false,
 }
+```
 
 **PUT /v1/audit/**
 
 Sets the details of configuration for a given audit tenant, e.g.:
 
-```json {
+```json 
+{
     "tenant_id": "openstack_tenant_string",
     "enabled": true/false
 }
-
+```
 
 
 # Installation
