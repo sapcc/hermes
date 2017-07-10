@@ -51,9 +51,6 @@ GO2XUNIT = $(BIN)/go2xunit
 $(BIN)/go2xunit: | $(BASE) ; $(info $(M) building go2xunit…)
 	$Q go get github.com/tebeka/go2xunit
 
-GLIDE = $(BIN)/glide
-$(BIN)/glide: | $(BASE) ; $(info $(M) building glide…)
-	$Q go get github.com/Masterminds/glide
 
 # Tests
 
@@ -110,8 +107,6 @@ fmt: ; $(info $(M) running gofmt…) @ ## Run gofmt on all source files
 vendor:
 	@# vendoring by https://github.com/holocm/golangvend
 	golangvend
-	# Running both glide, and old vendoring until I get glide working.
-	glide update -v
 
 # Misc
 
@@ -131,8 +126,6 @@ version:
 	@echo $(VERSION)
 
 build/docker.tar: clean test
-	glide cc
-	glide install -v
 	make GO_LDFLAGS="-s -w -linkmode external -extldflags -static" DESTDIR='$(CURDIR)/build/install' install
 	( cd build/install && tar cf - . ) > build/docker.tar
 
