@@ -135,7 +135,7 @@ func configuredStorageDriver() storage.Storage {
 	}
 }
 
-var mysqldb = configdb.MySQL{}
+
 var mockconfigdb = configdb.Mock{}
 
 func configuredDBDriver() configdb.Driver {
@@ -143,7 +143,7 @@ func configuredDBDriver() configdb.Driver {
 
 	switch driverName {
 	case "mysql":
-		return mysqldb
+		return nil
 	case "mock":
 		return mockconfigdb
 	default:
