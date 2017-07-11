@@ -23,6 +23,24 @@ func GetEnforcer() *policy.Enforcer {
 	return policyenforcer
 }
 
+func Test_Policy_AuditViewerTrue(t *testing.T) {
+	enforcer := GetEnforcer()
+	c := policy.Context{
+		Roles: []string{
+			"audit_viewer",
+		},
+		// Auth will only have one entry
+		Auth: map[string]string{
+			//"domain_id":           "ca1b267e149d4e44bf53d28d1c8d6bc9",
+			"project_id": "7a09c05926ec452ca7992af4aa03c31d",
+		},
+		Request: map[string]string{
+			"project_id": "7a09c05926ec452ca7992af4aa03c31d", "domain_id": "ca1b267e149d4e44bf53d28d1c8d6bc9",
+		},
+		Logger: util.LogDebug,
+	}
+	assert.True(t, enforcer.Enforce("audit:show", c))
+}
 
 func Test_Policy_UnknownRoleFalse(t *testing.T) {
 	enforcer := GetEnforcer()
