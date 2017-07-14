@@ -125,7 +125,7 @@ func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 	index := indexName(tenantId)
 	util.LogDebug("Looking for event %s in index %s", eventId, index)
 
-	query := elastic.NewTermQuery("payload.id.raw", eventId)
+	query := elastic.NewTermQuery("message_id.raw", eventId)
 	esSearch := es.client().Search().
 		Index(index).
 		Query(query)

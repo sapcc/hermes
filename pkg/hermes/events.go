@@ -140,7 +140,7 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 		p := storageEvent.Payload
 		event := ListEvent{
 			Source:       strings.SplitN(storageEvent.EventType, ".", 2)[0],
-			ID:           p.ID,
+			ID:           storageEvent.MessageID,
 			Type:         storageEvent.EventType,
 			Time:         p.EventTime,
 			ResourceId:   storageEvent.Payload.Target.ID,
