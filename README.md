@@ -209,12 +209,10 @@ event, e.g.:
 Returns the unique attributes from ElasticSearch for a given attribute name.
 
 ```json 
-{
-    "value": "identity.role_assignment.created"
-},
-{
-    "value": "dns.domain.update"
-}
+[
+  "identity.role_assignment.created",
+  "identity.OS-TRUST:trust.created"
+]
 ```
 
 ## Audit Config

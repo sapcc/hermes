@@ -26,7 +26,7 @@ type Storage interface {
 	/********** requests to ElasticSearch **********/
 	GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error)
 	GetEvent(eventId string, tenantId string) (*EventDetail, error)
-	GetAttributes(queryName string, tenantId string) (*AttributeValueList, error)
+	GetAttributes(queryName string, tenantId string) ([]string, error)
 	MaxLimit() uint
 }
 

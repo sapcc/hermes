@@ -30,10 +30,10 @@ func (m Mock) MaxLimit() uint {
 	return 100
 }
 
-func (m Mock) GetAttributes(queryName string, tenantId string) (*AttributeValueList, error) {
-	var parsedAttribute AttributeValueList
-	err := json.Unmarshal(mockEvent, &parsedAttribute)
-	return &parsedAttribute, err
+func (m Mock) GetAttributes(queryName string, tenantId string) ([]string, error) {
+	var parsedAttribute []string
+	err := json.Unmarshal(mockEvent, parsedAttribute)
+	return parsedAttribute, err
 }
 
 var mockEvent = []byte(`

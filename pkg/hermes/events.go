@@ -200,7 +200,7 @@ func GetEvent(eventID string, tenantId string, keystoneDriver identity.Identity,
 }
 
 // No Logic here, but handles mock implementation for eventStore
-func GetAttributes(queryName string, tenantId string, eventStore storage.Storage) (*storage.AttributeValueList, error) {
+func GetAttributes(queryName string, tenantId string, eventStore storage.Storage) ([]string, error) {
 	attribute, err := eventStore.GetAttributes(queryName, tenantId)
 
 	return attribute, err

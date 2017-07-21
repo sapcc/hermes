@@ -147,7 +147,7 @@ func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 
 //Return all unique attributes
 //Possible queries, event_type, dns, identity, etc..
-func (es ElasticSearch) GetAttributes(queryName string, tenantId string) (*AttributeValueList, error) {
+func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]string, error) {
 	index := indexName(tenantId)
 
 	util.LogDebug("Looking for unique attributes for %s in index %s", queryName, index)
@@ -178,15 +178,14 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) (*Attri
 	}
 	util.LogDebug("Number of Buckets: %d", len(termsAggRes.Buckets))
 
-	var al AttributeValueList
-
+	var unique []string
 	for _, bucket := range termsAggRes.Buckets {
 		util.LogDebug("key: %s count: %d", bucket.Key, bucket.DocCount)
 		//attributes = append(attributes, bucket.KeyAsString)
-		al = append(al, AttributeValue{Value: bucket.Key.(string)})
+		unique = append(unique, bucket.Key.(string))
 	}
 
-	return &al, nil
+	return unique, nil
 }
 
 func (es ElasticSearch) MaxLimit() uint {
