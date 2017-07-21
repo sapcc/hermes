@@ -124,11 +124,12 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 		//storageFilter.ResourceId = resourceId
 	}
 	if filter.UserName != "" {
-		userId, err := keystoneDriver.UserId(filter.UserName)
-		if err != nil {
-			util.LogError("Could not find user ID for name %s", filter.UserName)
-		}
-		storageFilter.UserId = userId
+		util.LogDebug("Filtering on UserName: %s", filter.UserName)
+		//userId, err := keystoneDriver.UserId(filter.UserName)
+		//if err != nil {
+		//	util.LogError("Could not find user ID &s for name %s", userId, filter.UserName)
+		//}
+		storageFilter.UserId = filter.UserName
 	}
 	return &storageFilter, nil
 }
