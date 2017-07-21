@@ -223,8 +223,7 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//Append .raw onto queryName, in Elasticsearch aggregations on for .raw
-	attribute, err := hermes.GetAttributes(queryName+".raw", tenantId, p.storage)
+	attribute, err := hermes.GetAttributes(queryName, tenantId, p.storage)
 
 	if ReturnError(res, err) {
 		return

@@ -152,7 +152,25 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 
 	util.LogDebug("Looking for unique attributes for %s in index %s", queryName, index)
 
-	queryAgg := elastic.NewTermsAggregation().Field(queryName)
+	//Mapping from RequestSort parameter
+	esFieldMapping := map[string]string{
+		"time":          "payload.eventTime",
+		"source":        "publisher_id",
+		"resource_type": "payload.target.typeURI",
+		"resource_name": "payload.target.id",
+		"event_type":    "event_type",
+	}
+
+	var esName string
+	util.LogDebug("Mapped Queryname: %s", esFieldMapping[queryName])
+	//Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
+	if val, ok := esFieldMapping[queryName]; ok {
+		esName = val+".raw"
+	} else {
+		esName = queryName+".raw"
+	}
+
+	queryAgg := elastic.NewTermsAggregation().Field(esName)
 
 	esSearch := es.client().Search().Index(index).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
@@ -171,7 +189,7 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 
 	termsAggRes, found := agg.Terms("attributes")
 	if !found {
-		util.LogDebug("Term %s not found in Aggregation", queryName)
+		util.LogDebug("Term %s not found in Aggregation", esName)
 	}
 	if termsAggRes == nil {
 		util.LogDebug("termsAggRes is nil")
