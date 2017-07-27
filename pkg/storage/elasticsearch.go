@@ -7,6 +7,7 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 	"gopkg.in/olivere/elastic.v5"
+	"strings"
 )
 
 type ElasticSearch struct {
@@ -42,6 +43,7 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 
 	query := elastic.NewBoolQuery()
 	if filter.Source != "" {
+		util.LogDebug("Filtering on Source %s", filter.Source)
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("publisher_id", filter.Source))
 	}
 	if filter.ResourceType != "" {
@@ -152,10 +154,11 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 
 	util.LogDebug("Looking for unique attributes for %s in index %s", queryName, index)
 
-	//Mapping from RequestSort parameter
+	//Mapping for attributes based on return values to API
+	//Source in this case is not the cadf source, but instead the first part of event_type
 	esFieldMapping := map[string]string{
 		"time":          "payload.eventTime",
-		"source":        "publisher_id",
+		"source":        "event_type",
 		"resource_type": "payload.target.typeURI",
 		"resource_name": "payload.target.id",
 		"event_type":    "event_type",
@@ -200,7 +203,12 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 	for _, bucket := range termsAggRes.Buckets {
 		util.LogDebug("key: %s count: %d", bucket.Key, bucket.DocCount)
 		//attributes = append(attributes, bucket.KeyAsString)
-		unique = append(unique, bucket.Key.(string))
+		if queryName == "source" {
+			source := strings.SplitN(bucket.Key.(string), ".", 2)[0]
+			unique = append(unique, source)
+		} else {
+			unique = append(unique, bucket.Key.(string))
+		}
 	}
 
 	return unique, nil

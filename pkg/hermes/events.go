@@ -134,7 +134,7 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 	return &storageFilter, nil
 }
 
-// Construct ListEvents and add the names for IDs in the events
+// Construct ListEvents - Optionally (default off) add the names for IDs in the events
 func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Identity) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
