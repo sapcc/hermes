@@ -44,7 +44,7 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 	query := elastic.NewBoolQuery()
 	if filter.Source != "" {
 		util.LogDebug("Filtering on Source %s", filter.Source)
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("publisher_id", filter.Source))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("event_type", filter.Source))
 	}
 	if filter.ResourceType != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("payload.target.typeURI", filter.ResourceType))
@@ -53,7 +53,7 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 		query = query.Filter(elastic.NewTermQuery("payload.target.id.raw", filter.ResourceId))
 	}
 	if filter.UserId != "" {
-		query = query.Filter(elastic.NewTermQuery("payload.initiator.user_id.raw", filter.UserId))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("payload.initiator.user_id.raw", filter.UserId))
 	}
 	if filter.EventType != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("event_type", filter.EventType))
