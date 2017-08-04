@@ -53,7 +53,7 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 		query = query.Filter(elastic.NewTermQuery("payload.target.id.raw", filter.ResourceId))
 	}
 	if filter.UserId != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("payload.initiator.user_id.raw", filter.UserId))
+		query = query.Filter(elastic.NewPrefixQuery("payload.initiator.user_id.raw", filter.UserId))
 	}
 	if filter.EventType != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("event_type", filter.EventType))
