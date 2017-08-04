@@ -35,7 +35,7 @@ be found in the PDF
 | --- | --- | --- |
 | source | string | Selects all events with source similar to this value. |
 | resource\_type | string | Selects all events with resource type similar to this value. |
-| user\_name | string | Selects all events with user name equal to this value. |
+| user\_name | string | Selects all events with user name equal to this value. Prefix matching enabled.|
 | event\_type | string | Selects all events with event\_type equal to this value. |
 | time | string | Date filter to select all events with _event_time_ matching the specified criteria. See Date Filters below for more detail. |
 | offset | integer | The starting index within the total list of the events that you would like to retrieve. |
