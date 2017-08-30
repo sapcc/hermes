@@ -1,7 +1,7 @@
 # Hermes
 
 [![Build Status](https://travis-ci.org/sapcc/hermes.svg?branch=master)](https://travis-ci.org/sapcc/hermes)
-[![Coverage Status](https://coveralls.io/repos/github/sapcc/hermes/badge.svg?branch=master)](https://coveralls.io/github/sapcc/hermes?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/sapcc/hermes/badge.svg)](https://coveralls.io/github/sapcc/hermes)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sapcc/hermes)](https://goreportcard.com/report/github.com/sapcc/hermes)
 [![GoDoc](https://godoc.org/github.com/sapcc/hermes?status.svg)](https://godoc.org/github.com/sapcc/hermes)
 
