@@ -13,21 +13,20 @@ Hermes Service (TODO add operators guide)
 * Project and domain-level access control (scoping)
 * Compatible with other cloud based audit APIs 
 
-Hermes CLI 
-* Feature-complete CLI supporting all API operations
-* JSON based output of CADF audit events
-
 # Installation 
 
-Via Go Get
+Via Makefule:
 
-* go get github.com/sapcc/hermes
-* go build 
+* `make` to just compile and run the binaries from the `build/` directory
+* `make && make install` to install to `/usr`
+* `make && make install PREFIX=/some/path` to install to `/some/path`
+* `make docker` to build the Docker image (set image name and tag with the `DOCKER_IMAGE` and `DOCKER_TAG` variables)
+
 
 # Using Hermes
 
 Hermes can be used via our [Converged Cloud Dashboard Elektra](https://github.com/sapcc/elektra) 
-via "Auditing" or via CLI.
+via "Auditing" or as an API.
 
 Enter `hermes --help` to see a list of commands and options
 
@@ -266,16 +265,6 @@ Sets the details of configuration for a given audit tenant, e.g.:
     "enabled": true/false
 }
 ```
-
-
-# Installation
-
-There's a Makefile, so do:
-
-* `make` to just compile and run the binaries from the `build/` directory
-* `make && make install` to install to `/usr`
-* `make && make install PREFIX=/some/path` to install to `/some/path`
-* `make docker` to build the Docker image (set image name and tag with the `DOCKER_IMAGE` and `DOCKER_TAG` variables)
 
 ## Usage
  *TO DO
