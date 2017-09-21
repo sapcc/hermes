@@ -76,13 +76,13 @@ type Filter struct {
 }
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *Filter, tenantId string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*ListEvent, int, error) {
+func GetEvents(filter *Filter, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*ListEvent, int, error) {
 	storageFilter, err := storageFilter(filter, keystoneDriver, eventStore)
 	if err != nil {
 		return nil, 0, err
 	}
-	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantId)
-	eventDetails, total, err := eventStore.GetEvents(storageFilter, tenantId)
+	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantID)
+	eventDetails, total, err := eventStore.GetEvents(storageFilter, tenantID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -171,8 +171,8 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, tenantId string, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.EventDetail, error) {
-	event, err := eventStore.GetEvent(eventID, tenantId)
+func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.EventDetail, error) {
+	event, err := eventStore.GetEvent(eventID, tenantID)
 
 	if viper.GetBool("hermes.enrich_keystone_events") {
 		if event != nil {
@@ -200,9 +200,9 @@ func GetEvent(eventID string, tenantId string, keystoneDriver identity.Identity,
 	return event, err
 }
 
-// No Logic here, but handles mock implementation for eventStore
-func GetAttributes(queryName string, tenantId string, eventStore storage.Storage) ([]string, error) {
-	attribute, err := eventStore.GetAttributes(queryName, tenantId)
+//GetAttributes No Logic here, but handles mock implementation for eventStore
+func GetAttributes(queryName string, tenantID string, eventStore storage.Storage) ([]string, error) {
+	attribute, err := eventStore.GetAttributes(queryName, tenantID)
 
 	return attribute, err
 }
@@ -212,53 +212,53 @@ func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targ
 	var err error
 
 	// Now add the names for IDs in the event to the nameMap
-	iUserDomainId := idMap["init_user_domain"]
-	if iUserDomainId != "" {
-		nameMap["init_user_domain"], err = keystoneDriver.DomainName(iUserDomainId)
+	iUserDomainID := idMap["init_user_domain"]
+	if iUserDomainID != "" {
+		nameMap["init_user_domain"], err = keystoneDriver.DomainName(iUserDomainID)
 		if err != nil {
-			log.Printf("Error looking up domain name for domain '%s'", iUserDomainId)
+			log.Printf("Error looking up domain name for domain '%s'", iUserDomainID)
 		}
 	}
-	iUserProjectId := idMap["init_user_project"]
-	if iUserProjectId != "" {
-		nameMap["init_user_project"], err = keystoneDriver.ProjectName(iUserProjectId)
+	iUserProjectID := idMap["init_user_project"]
+	if iUserProjectID != "" {
+		nameMap["init_user_project"], err = keystoneDriver.ProjectName(iUserProjectID)
 		if err != nil {
-			log.Printf("Error looking up project name for project '%s'", iUserProjectId)
+			log.Printf("Error looking up project name for project '%s'", iUserProjectID)
 		}
 	}
-	iUserId := idMap["init_user"]
-	if iUserId != "" {
-		nameMap["init_user"], err = keystoneDriver.UserName(iUserId)
+	iUserID := idMap["init_user"]
+	if iUserID != "" {
+		nameMap["init_user"], err = keystoneDriver.UserName(iUserID)
 		if err != nil {
-			log.Printf("Error looking up user name for user '%s'", iUserId)
+			log.Printf("Error looking up user name for user '%s'", iUserID)
 		}
 	}
-	projectId := idMap["project"]
-	if projectId != "" {
-		nameMap["project"], err = keystoneDriver.ProjectName(projectId)
+	projectID := idMap["project"]
+	if projectID != "" {
+		nameMap["project"], err = keystoneDriver.ProjectName(projectID)
 		if err != nil {
-			log.Printf("Error looking up project name for project '%s'", projectId)
+			log.Printf("Error looking up project name for project '%s'", projectID)
 		}
 	}
-	userId := idMap["user"]
-	if userId != "" {
-		nameMap["user"], err = keystoneDriver.UserName(userId)
+	userID := idMap["user"]
+	if userID != "" {
+		nameMap["user"], err = keystoneDriver.UserName(userID)
 		if err != nil {
-			log.Printf("Error looking up user name for user '%s'", userId)
+			log.Printf("Error looking up user name for user '%s'", userID)
 		}
 	}
-	groupId := idMap["group"]
-	if groupId != "" {
-		nameMap["group"], err = keystoneDriver.GroupName(groupId)
+	groupID := idMap["group"]
+	if groupID != "" {
+		nameMap["group"], err = keystoneDriver.GroupName(groupID)
 		if err != nil {
-			log.Printf("Error looking up user name for group '%s'", groupId)
+			log.Printf("Error looking up user name for group '%s'", groupID)
 		}
 	}
-	roleId := idMap["role"]
-	if roleId != "" {
-		nameMap["role"], err = keystoneDriver.RoleName(roleId)
+	roleID := idMap["role"]
+	if roleID != "" {
+		nameMap["role"], err = keystoneDriver.RoleName(roleID)
 		if err != nil {
-			log.Printf("Error looking up user name for role '%s'", roleId)
+			log.Printf("Error looking up user name for role '%s'", roleID)
 		}
 	}
 

@@ -10,8 +10,8 @@ import (
 )
 
 func Test_GetEvent(t *testing.T) {
-	eventId := "d5eed458-6666-58ec-ad06-8d3cf6bafca1"
-	event, err := GetEvent(eventId, "", identity.Mock{}, storage.Mock{})
+	eventID := "d5eed458-6666-58ec-ad06-8d3cf6bafca1"
+	event, err := GetEvent(eventID, "", identity.Mock{}, storage.Mock{})
 	require.Nil(t, err)
 	require.NotNil(t, event)
 	assert.Equal(t, "d5eed458-6666-58ec-ad06-8d3cf6bafca1", event.Payload.ID)

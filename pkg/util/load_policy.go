@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	policy "github.com/databus23/goslo.policy"
+	"github.com/databus23/goslo.policy"
 )
 
+// LoadPolicyFile used to Load the hermes policy.json file from disk.
 func LoadPolicyFile(path string) (*policy.Enforcer, error) {
 	if path == "" {
 		return nil, nil

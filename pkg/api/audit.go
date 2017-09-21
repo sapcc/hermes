@@ -35,18 +35,18 @@ func (p *v1Provider) GetAudit(res http.ResponseWriter, req *http.Request) {
 	//	//TODO - This is supposed to work, and isn't. So FIXME
 	//}
 
-	tenantId, err := getTenantId(token, req, res)
+	tenantID, err := getTenantID(token, req, res)
 	if ReturnError(res, err) {
 		return
 	}
 
-	auditconf, err := hermes.GetAudit(tenantId, p.configdb)
+	auditconf, err := hermes.GetAudit(tenantID, p.configdb)
 
 	if ReturnError(res, err) {
 		return
 	}
 	if auditconf == nil {
-		err := fmt.Errorf("Audit Configuration could not be found for tenant %s", tenantId)
+		err := fmt.Errorf("Audit Configuration could not be found for tenant %s", tenantID)
 		http.Error(res, err.Error(), 404)
 		return
 	}
@@ -62,15 +62,15 @@ func (p *v1Provider) PutAudit(res http.ResponseWriter, req *http.Request) {
 	////	//TODO - This is supposed to work, and isn't. So FIXME
 	//}
 
-	tenantId, err := getTenantId(token, req, res)
+	tenantID, err := getTenantID(token, req, res)
 	if ReturnError(res, err) {
 		return
 	}
 
-	auditconf, err := hermes.PutAudit(tenantId, p.configdb)
+	auditconf, err := hermes.PutAudit(tenantID, p.configdb)
 
 	if auditconf == nil {
-		err := fmt.Errorf("Audit Configuration could not be found for tenant %s", tenantId)
+		err := fmt.Errorf("Audit Configuration could not be found for tenant %s", tenantID)
 		http.Error(res, err.Error(), 404)
 		return
 	}

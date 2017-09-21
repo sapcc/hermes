@@ -22,7 +22,7 @@ package identity
 import (
 	"fmt"
 
-	policy "github.com/databus23/goslo.policy"
+	"github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
@@ -32,7 +32,7 @@ import (
 	"sync"
 )
 
-// Real Keystone implementation
+//Keystone Openstack Keystone implementation
 type Keystone struct {
 	TokenRenewalMutex *sync.Mutex // Used for controlling the token refresh process
 }
@@ -229,9 +229,9 @@ func (d Keystone) UserName(id string) (string, error) {
 }
 
 func (d Keystone) UserId(name string) (string, error) {
-	cachedId, hit := getFromCache(userIdCache, name)
+	cachedID, hit := getFromCache(userIdCache, name)
 	if hit {
-		return cachedId, nil
+		return cachedID, nil
 	}
 
 	client, err := d.keystoneClient()

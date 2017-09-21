@@ -69,7 +69,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			//`time`, `source`, `resource_type`, `resource_name`, and `event_type`.
 			sortfield := keyVal[0]
 			if !validSortTopics[sortfield] {
-				err := errors.New(fmt.Sprintf("Not a valid topic: %s, Valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys()))
+				err := fmt.Errorf("Not a valid topic: %s, Valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
 				http.Error(res, err.Error(), 400)
 				return
 			}
@@ -78,7 +78,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			if len(keyVal) == 2 {
 				sortDirection := keyVal[1]
 				if !validSortDirection[sortDirection] {
-					err := errors.New(fmt.Sprintf("Sort direction %s is invalid, must be asc or desc.", sortDirection))
+					err := fmt.Errorf("sort direction %s is invalid, must be asc or desc", sortDirection)
 					http.Error(res, err.Error(), 400)
 					return
 				}
@@ -100,18 +100,18 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			keyVal := strings.SplitN(timeElement, ":", 2)
 			operator := keyVal[0]
 			if !validOperators[operator] {
-				err := errors.New(fmt.Sprintf("Time operator %s is not valid. Must be lt, lte, gt or gte.", operator))
+				err := fmt.Errorf("time operator %s is not valid. Must be lt, lte, gt or gte", operator)
 				http.Error(res, err.Error(), 400)
 				return
 			}
 			_, exists := timeRange[operator]
 			if exists {
-				err := errors.New(fmt.Sprintf("Time operator %s can only occur once", operator))
+				err := fmt.Errorf("Time operator %s can only occur once", operator)
 				http.Error(res, err.Error(), 400)
 				return
 			}
 			if len(keyVal) != 2 {
-				err := errors.New(fmt.Sprintf("Time operator %s missing :<timestamp>", operator))
+				err := fmt.Errorf("Time operator %s missing :<timestamp>", operator)
 				http.Error(res, err.Error(), 400)
 				return
 			}
@@ -126,7 +126,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 				}
 			}
 			if !isValidTimeFormat {
-				err := errors.New(fmt.Sprintf("Invalid time format: %s", timeStr))
+				err := fmt.Errorf("Invalid time format: %s", timeStr)
 				http.Error(res, err.Error(), 400)
 				return
 			}
@@ -148,11 +148,11 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
-	tenantId, err := getTenantId(token, req, res)
+	tenantID, err := getTenantID(token, req, res)
 	if err != nil {
 		return
 	}
-	events, total, err := hermes.GetEvents(&filter, tenantId, p.keystone, p.storage)
+	events, total, err := hermes.GetEvents(&filter, tenantID, p.keystone, p.storage)
 	if ReturnError(res, err) {
 		util.LogError("api.ListEvents: error %s", err)
 		return
@@ -190,18 +190,18 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	eventID := mux.Vars(req)["event_id"]
-	tenantId, err := getTenantId(token, req, res)
+	tenantID, err := getTenantID(token, req, res)
 	if err != nil {
 		return
 	}
 
-	event, err := hermes.GetEvent(eventID, tenantId, p.keystone, p.storage)
+	event, err := hermes.GetEvent(eventID, tenantID, p.keystone, p.storage)
 
 	if ReturnError(res, err) {
 		return
 	}
 	if event == nil {
-		err := fmt.Errorf("Event %s could not be found in tenant %s", eventID, tenantId)
+		err := fmt.Errorf("Event %s could not be found in tenant %s", eventID, tenantID)
 		http.Error(res, err.Error(), 404)
 		return
 	}
@@ -218,43 +218,43 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	if queryName == "" {
 		fmt.Errorf("QueryName not found")
 	}
-	tenantId, err := getTenantId(token, req, res)
+	tenantID, err := getTenantID(token, req, res)
 	if err != nil {
 		return
 	}
 
-	attribute, err := hermes.GetAttributes(queryName, tenantId, p.storage)
+	attribute, err := hermes.GetAttributes(queryName, tenantID, p.storage)
 
 	if ReturnError(res, err) {
 		return
 	}
 	if attribute == nil {
-		err := fmt.Errorf("Attribute %s could not be found in tenant %s", attribute, tenantId)
+		err := fmt.Errorf("Attribute %s could not be found in tenant %s", attribute, tenantID)
 		http.Error(res, err.Error(), 404)
 		return
 	}
 	ReturnJSON(res, 200, attribute)
 }
 
-func getTenantId(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
+func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
 	// Get tenant id from token
-	tenantId := token.context.Auth["tenant_id"]
-	if tenantId == "" {
-		tenantId = token.context.Auth["domain_id"]
+	tenantID := token.context.Auth["tenant_id"]
+	if tenantID == "" {
+		tenantID = token.context.Auth["domain_id"]
 	}
 	// Tenant id can be overriden with a query parameter
-	projectId := r.FormValue("project_id")
-	domainId := r.FormValue("domain_id")
-	if projectId != "" {
-		tenantId = projectId
+	projectID := r.FormValue("project_id")
+	domainID := r.FormValue("domain_id")
+	if projectID != "" {
+		tenantID = projectID
 	}
-	if domainId != "" {
-		if projectId != "" {
+	if domainID != "" {
+		if projectID != "" {
 			err := errors.New("domain_id and project_id cannot both be specified")
 			http.Error(w, err.Error(), 400)
 			return "", err
 		}
-		tenantId = domainId
+		tenantID = domainID
 	}
-	return tenantId, nil
+	return tenantID, nil
 }

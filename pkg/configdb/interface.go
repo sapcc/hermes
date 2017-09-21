@@ -23,8 +23,8 @@ package configdb
 // Because it is an interface, the real implementation can be mocked away in unit tests.
 type Driver interface {
 	/********** requests to MySQL **********/
-	GetAudit(tenantId string) (*AuditConfig, error)
-	PutAudit(tenantId string) (*AuditConfig, error)
+	GetAudit(tenantID string) (*AuditConfig, error)
+	PutAudit(tenantID string) (*AuditConfig, error)
 }
 
 // AuditConfig contains the mapping to MySQL config table.

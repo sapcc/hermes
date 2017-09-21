@@ -168,9 +168,9 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 	util.LogDebug("Mapped Queryname: %s", esFieldMapping[queryName])
 	//Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
 	if val, ok := esFieldMapping[queryName]; ok {
-		esName = val+".raw"
+		esName = val + ".raw"
 	} else {
-		esName = queryName+".raw"
+		esName = queryName + ".raw"
 	}
 
 	queryAgg := elastic.NewTermsAggregation().Field(esName)

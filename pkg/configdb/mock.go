@@ -1,16 +1,17 @@
 package configdb
 
+//Mock implementation of configdb with static data
 type Mock struct{}
 
-// Mock configdb driver with static data
-
-func (m Mock) GetAudit(tenantId string) (*AuditConfig, error) {
+//GetAudit Mock implementation of GetAudit Endpoint
+func (m Mock) GetAudit(tenantID string) (*AuditConfig, error) {
 	d := AuditConfig{Enabled: true}
 
 	return &d, nil
 }
 
-func (m Mock) PutAudit(tenantId string) (*AuditConfig, error) {
+//PutAudit Mock implementation of PutAudit Endpoint
+func (m Mock) PutAudit(tenantID string) (*AuditConfig, error) {
 	d := AuditConfig{Enabled: true}
 
 	return &d, nil

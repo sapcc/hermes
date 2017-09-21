@@ -25,12 +25,12 @@ import (
 
 	"encoding/json"
 	"github.com/databus23/goslo.policy"
+	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
 	"github.com/spf13/viper"
 	"io/ioutil"
-	"github.com/sapcc/hermes/pkg/configdb"
 )
 
 type object map[string]interface{}

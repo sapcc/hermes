@@ -2,10 +2,10 @@ package identity
 
 import (
 	"container/list"
-	"time"
-	"sync"
 	"github.com/gophercloud/gophercloud"
 	"github.com/sapcc/hermes/pkg/util"
+	"sync"
+	"time"
 )
 
 // Cache type used for the name caches

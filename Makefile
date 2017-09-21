@@ -1,12 +1,12 @@
-PACKAGE  = github.com/sapcc/hermes
-PREFIX = /usr
+PKG 	= github.com/sapcc/hermes
+PREFIX 	:= /usr
 DATE    ?= $(shell date +%FT%T%z)
 VERSION ?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || \
 			cat $(CURDIR)/.version 2> /dev/null || echo v0)
 GOPATH   = $(CURDIR)/.gopath
 BIN      = $(GOPATH)/bin
-BASE     = $(GOPATH)/src/$(PACKAGE)
-PKGS     = $(or $(PKG),$(shell cd $(BASE) && env GOPATH=$(GOPATH) $(GO) list ./... | grep -v "^$(PACKAGE)/vendor/"))
+BASE     = $(GOPATH)/src/$(PKG)
+PKGS     = $(or $(PKG),$(shell cd $(BASE) && env GOPATH=$(GOPATH) $(GO) list ./... | grep -v "^$(PKG)/vendor/"))
 TESTPKGS = $(shell env GOPATH=$(GOPATH) $(GO) list -f '{{ if or .TestGoFiles .XTestGoFiles }}{{ .ImportPath }}{{ end }}' $(PKGS))
 
 GO      = GOPATH=$(CURDIR)/.gopath GOBIN=$(CURDIR)/build go
@@ -15,19 +15,40 @@ GOFMT   = gofmt
 #GLIDE   = glide
 TIMEOUT = 15
 V = 0
-Q = $(if $(filter 1,$V),,@) # This quiets info, comment out for debug
+# Quiets info, comment out to debug
+Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m▶\033[0m")
+
 
 .PHONY: all
 #all: fmt lint vendor | $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
 all: fmt | $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
 	$Q cd $(BASE) && $(GO) install \
 		-tags release \
-		-ldflags '-X $(PACKAGE)/cmd.Version=$(VERSION) -X $(PACKAGE)/cmd.BuildDate=$(DATE)'
+		-ldflags '-X $(PKG)/cmd.Version=$(VERSION) -X $(PKG)/cmd.BuildDate=$(DATE)'
 
 $(BASE): ; $(info $(M) setting GOPATH…)
 #	@mkdir -p $(dir $@)
 #	@ln -sf $(CURDIR) $@
+
+# which packages to measure coverage for?
+GO_COVERPKGS := $(shell go list $(PKG)/pkg/... | grep -v plugins)
+# output files from `go test`
+GO_COVERFILES := $(patsubst %,build/%.cover.out,$(subst /,_,$(GO_TESTPKGS)))
+
+check: all static-check build/cover.html FORCE
+	@echo -e "\e[1;32m>> All tests successful.\e[0m"
+
+static-check: FORCE
+	@if s="$$(gofmt -s -l *.go pkg 2>/dev/null)"                            && test -n "$$s"; then printf ' => %s\n%s\n' gofmt  "$$s"; false; fi
+	@if s="$$(golint . && find pkg -type d -exec golint {} \; 2>/dev/null)" && test -n "$$s"; then printf ' => %s\n%s\n' golint "$$s"; false; fi
+	$(GO) vet $(GO_ALLPKGS)
+
+build/cover.out: $(GO_COVERFILES)
+	pkg/test/util/gocovcat.go $(GO_COVERFILES) > $@
+
+build/cover.html: build/cover.out
+	$(GO) tool cover -html $< -o $@
 
 # Tools
 
@@ -82,7 +103,7 @@ test-coverage: fmt lint vendor test-coverage-tools | $(BASE) ; $(info $(M) runni
 	$Q cd $(BASE) && for pkg in $(TESTPKGS); do \
 		$(GO) test \
 			-coverpkg=$$($(GO) list -f '{{ join .Deps "\n" }}' $$pkg | \
-					grep '^$(PACKAGE)/' | grep -v '^$(PACKAGE)/vendor/' | \
+					grep '^$(PKG)/' | grep -v '^$(PKG)/vendor/' | \
 					tr '\n' ',')$$pkg \
 			-covermode=$(COVERAGE_MODE) \
 			-coverprofile="$(COVERAGE_DIR)/coverage/`echo $$pkg | tr "/" "-"`.cover" $$pkg ;\
@@ -139,3 +160,5 @@ docker: build/docker.tar
 install: all
 	#install -D -m 0755 build/hermes "$(DESTDIR)$(PREFIX)/bin/hermes"
 	install -D -m 0755 $(CURDIR)/build/hermes "$(DESTDIR)$(PREFIX)/bin/hermes"
+
+.PHONY: FORCE

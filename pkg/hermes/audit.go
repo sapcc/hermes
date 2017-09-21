@@ -11,9 +11,9 @@ type AuditDetail struct {
 }
 
 //GetAudit returns the config for auditing matching a tenant in JSON
-func GetAudit(tenantId string, configDB configdb.Driver) (*AuditDetail, error) {
+func GetAudit(tenantID string, configDB configdb.Driver) (*AuditDetail, error) {
 	ad := AuditDetail{}
-	auditconf, err := configDB.GetAudit(tenantId)
+	auditconf, err := configDB.GetAudit(tenantID)
 
 	if err != nil {
 		util.LogError("Error %v", err)
@@ -28,9 +28,9 @@ func GetAudit(tenantId string, configDB configdb.Driver) (*AuditDetail, error) {
 
 //PutAudit changes the config for auditing for a given tenant.
 //Inserts config database entry if one doesn't exist with defaults.
-func PutAudit(tenantId string, configDB configdb.Driver) (*AuditDetail, error) {
+func PutAudit(tenantID string, configDB configdb.Driver) (*AuditDetail, error) {
 	ad := AuditDetail{}
-	auditconf, err := configDB.PutAudit(tenantId)
+	auditconf, err := configDB.PutAudit(tenantID)
 
 	if err != nil {
 		util.LogError("Error %v", err)
