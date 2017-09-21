@@ -23,7 +23,7 @@ func (es *ElasticSearch) client() *elastic.Client {
 }
 
 func (es *ElasticSearch) init() {
-	util.LogDebug("Initiliasing ElasticSearch()")
+	util.LogDebug("Initializing ElasticSearch()")
 
 	// Create a client
 	var err error
