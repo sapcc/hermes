@@ -26,20 +26,20 @@ With all of this plumbing together, we build a complete Openstack Auditing setup
 Hermes is configured using a TOML config file that is by default located in `etc/hermes/hermes.conf`.
 An example configuration file is located in etc/ which can help you get started.
 
-####Main Hermes config
+#### Main Hermes config
 
 \[hermes\]
 * PolicyFilePath - Location of [OpenStack policy file](https://docs.openstack.org/security-guide/identity/policies.html) - policy.json file for which roles are required to access audit events. 
 Example located in `etc/policy.json`
 * enrich_keystone_events - Defaults to false, will optionally change UUIDs to real names.
 
-####ElasticSearch configuration
+#### ElasticSearch configuration
 Any data served by Hermes requires an underlying Elasticsearch installation to act as the Datastore.
 
 \[elasticsearch\]
 * url - Url for elasticsearch
 
-####Integration for Openstack Keystone
+#### Integration for Openstack Keystone
 \[keystone\] 
 * auth_url - Location of v3 keystone identity - ex. https://keystone.example.com/v3
 * username - Openstack *service* user to authenticate and authorize clients.
