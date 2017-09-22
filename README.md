@@ -1,6 +1,6 @@
 # Hermes
 
-Hermes is an OpenStack audit data retrieval service for accessing CADF audit events collected through Keystone middleware.   
+**Hermes** is an OpenStack audit data retrieval service for accessing CADF audit events collected through Keystone middleware.   
  
 At SAP we collect CADF audit events from our Converged Cloud platform and provide them as an auditing service for our users.  
 
