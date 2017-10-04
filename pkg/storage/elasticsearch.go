@@ -37,6 +37,8 @@ func (es *ElasticSearch) init() {
 	}
 }
 
+
+// GetEvents grabs events for a given tenantID with filtering.
 func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
 	index := indexName(tenantId)
 	util.LogDebug("Looking for events in index %s", index)
@@ -73,7 +75,8 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 			}
 		}
 	}
-	//Mapping from RequestSort parameter
+
+	// Fields are mapped differently in ES, must maintain a mapping to json.
 	esFieldMapping := map[string]string{
 		"time":          "payload.eventTime",
 		"source":        "publisher_id",
@@ -123,6 +126,8 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 	return events, int(total), nil
 }
 
+
+// GetEvent Returns EventDetail for a single event.
 func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
 	index := indexName(tenantId)
 	util.LogDebug("Looking for event %s in index %s", eventId, index)
@@ -147,15 +152,15 @@ func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 	return nil, nil
 }
 
-//Return all unique attributes
-//Possible queries, event_type, dns, identity, etc..
+// GetAttributes Return all unique attributes available for filtering
+// Possible queries, event_type, dns, identity, etc..
 func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]string, error) {
 	index := indexName(tenantId)
 
 	util.LogDebug("Looking for unique attributes for %s in index %s", queryName, index)
 
-	//Mapping for attributes based on return values to API
-	//Source in this case is not the cadf source, but instead the first part of event_type
+	// Mapping for attributes based on return values to API
+	// Source in this case is not the cadf source, but instead the first part of event_type
 	esFieldMapping := map[string]string{
 		"time":          "payload.eventTime",
 		"source":        "event_type",
@@ -166,7 +171,7 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 
 	var esName string
 	util.LogDebug("Mapped Queryname: %s", esFieldMapping[queryName])
-	//Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
+	// Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
 	if val, ok := esFieldMapping[queryName]; ok {
 		esName = val + ".raw"
 	} else {
@@ -202,7 +207,6 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 	var unique []string
 	for _, bucket := range termsAggRes.Buckets {
 		util.LogDebug("key: %s count: %d", bucket.Key, bucket.DocCount)
-		//attributes = append(attributes, bucket.KeyAsString)
 		if queryName == "source" {
 			source := strings.SplitN(bucket.Key.(string), ".", 2)[0]
 			unique = append(unique, source)
@@ -215,7 +219,7 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 	return unique, nil
 }
 
-//Ensure unique slice values for Attributes
+// SliceUniqMap Removes duplicates from slice
 func SliceUniqMap(s []string) []string {
 	seen := make(map[string]struct{}, len(s))
 	j := 0
@@ -230,10 +234,13 @@ func SliceUniqMap(s []string) []string {
 	return s[:j]
 }
 
+// MaxLimit grabs the configured maxlimit for results
 func (es ElasticSearch) MaxLimit() uint {
 	return uint(viper.GetInt("elasticsearch.max_result_window"))
 }
 
+// indexName Generates the index name for a given TenantId. If no tenantId defaults to audit-*
+// Records for audit-* will not be accessible from a given Tenant.
 func indexName(tenantId string) string {
 	index := "audit-*"
 	if tenantId != "" {
