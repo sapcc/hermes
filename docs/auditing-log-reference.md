@@ -19,10 +19,8 @@ what the request was, and when the request occurred.
 | initiator.domain_id | string | Unique ID for the domain  |
 | initiator.typeURI | string | Indicates that the initiator is a user  |
 | initiator.user_id | string | UUID for User that initiated the action  |
-| initiator.host.agent | string | Agent where the OpenStack
-                                   compute service request came from |
-| initiator.host.address | string | Address information where the OpenStack
-                                   compute service request came from |
+| initiator.host.agent | string | Agent where the OpenStack compute service request came from |
+| initiator.host.address | string | Address information where the OpenStack compute service request came from |
 | initiator.id | string | OpenStack initiator Unique Id |
 
 
