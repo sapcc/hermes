@@ -8,20 +8,20 @@ what the request was, and when the request occurred.
 
 **Parameters**
 
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| source | string | OpenStack Service Origin (ex: identity) |
-| event_id | string | Unique ID for event within Auditing system |
-| event_type | string | Description of event (ex: identity.project.created) |
-| event_time | string | Timestamp event occured (ex: 2017-04-20T11:27:15.834562+0000) |
-| resource_id | string | Unique ID for targeted resource  |
-| resource_type | string | Targeted service description (ex: data/security/project)  |
-| initiator.domain_id | string | Unique ID for the domain  |
-| initiator.typeURI | string | Indicates that the initiator is a user  |
-| initiator.user_id | string | UUID for User that initiated the action  |
-| initiator.host.agent | string | Agent where the OpenStack compute service request came from |
-| initiator.host.address | string | Address information where the OpenStack compute service request came from |
-| initiator.id | string | OpenStack initiator Unique Id |
+| **Name** | **Description** |
+| --- | --- |
+| source | OpenStack Service Origin (ex: identity) |
+| event_id | Unique ID for event within Auditing system |
+| event_type | Description of event (ex: identity.project.created) |
+| event_time | Timestamp event occured (ex: 2017-04-20T11:27:15.834562+0000) |
+| resource_id | Unique ID for targeted resource  |
+| resource_type | Targeted service description (ex: data/security/project)  |
+| initiator.domain_id | Unique ID for the domain  |
+| initiator.typeURI | Indicates that the initiator is a user  |
+| initiator.user_id | UUID for User that initiated the action  |
+| initiator.host.agent | Agent where the OpenStack compute service request came from |
+| initiator.host.address | Address information where the OpenStack compute service request came from |
+| initiator.id | OpenStack initiator Unique Id |
 
 
 
