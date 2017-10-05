@@ -26,20 +26,20 @@ With all of this plumbing together, we build a complete Openstack Auditing setup
 Hermes is configured using a TOML config file that is by default located in `etc/hermes/hermes.conf`.
 An example configuration file is located in etc/ which can help you get started.
 
-#####Main Hermes config
+#### Main Hermes config
 
 \[hermes\]
 * PolicyFilePath - Location of [OpenStack policy file](https://docs.openstack.org/security-guide/identity/policies.html) - policy.json file for which roles are required to access audit events. 
 Example located in `etc/policy.json`
 * enrich_keystone_events - Defaults to false, will optionally change UUIDs to real names.
 
-#####ElasticSearch configuration
+#### ElasticSearch configuration
 Any data served by Hermes requires an underlying Elasticsearch installation to act as the Datastore.
 
 \[elasticsearch\]
 * url - Url for elasticsearch
 
-#####Integration for Openstack Keystone
+#### Integration for Openstack Keystone
 \[keystone\] 
 * auth_url - Location of v3 keystone identity - ex. https://keystone.example.com/v3
 * username - Openstack *service* user to authenticate and authorize clients.
@@ -55,5 +55,29 @@ Running the hermes binary will start the Server listening on `http://localhost:8
 
 ## Configuration of Keystone Middleware, RabbitMQ, Logstash, ElasticSearch
 
-TODO - Discuss configuration of each part to have a working full path Auditing System.
+Documentation for [Keystone Middleware's Audit](https://docs.openstack.org/keystonemiddleware/latest/audit.html) 
+describes how to enable the audit capabilities in CADF Format for
+various openstack services. 
+
+[PyCadf Audit Mappings](https://github.com/openstack/pycadf/tree/master/etc/pycadf) are used for this process.
+
+Using the oslo.messaging bus, we configure the middleware to send audit 
+events to an audit specific rabbitmq. This keeps the load on the main
+oslo.messaging bus to a minimum so that auditing doesn't impact other 
+core openstack services.
+
+We then implement a Logstash instance to act as a transformation step before
+loading into Elasticsearch. 
+
+Common transforms are dropping events that don't provide value as Auditing 
+events, and adding CADF mappings to events that do not currently have an 
+audit map in keystone middleware due to their lack of consistent event details.
+Ex: Designate Events 
+
+From there the data is loaded into Elasticsearch where we have a rolling 
+index that is created from a template to hold audit details via daily 
+index.
+
+Hermes is used as the API to query this Elasticsearch to provide API events
+to the Openstack Dashboard. We use a custom Openstack Dashboard named Elektra.
 
