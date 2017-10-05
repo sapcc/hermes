@@ -36,7 +36,9 @@ func Server(keystone identity.Identity, storage storage.Storage, configdb config
 	//start HTTP server with CORS support
 	util.LogInfo("listening on " + viper.GetString("API.ListenAddress"))
 	c := cors.New(cors.Options{
-		AllowedHeaders: []string{"X-Auth-Token"},
+		AllowedHeaders: []string{"X-Auth-Token", "Content-Type", "Accept"},
+		AllowedMethods: []string{"GET", "HEAD"},
+		MaxAge: 600,
 	})
 	handler := c.Handler(mainRouter)
 	return http.ListenAndServe(viper.GetString("API.ListenAddress"), handler)
