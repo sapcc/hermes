@@ -25,9 +25,6 @@ import (
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
-	"github.com/spf13/viper"
-	"golang.org/x/tools/go/gcimporter15/testdata"
-	"log"
 	"strings"
 )
 
