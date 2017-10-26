@@ -37,7 +37,6 @@ func (es *ElasticSearch) init() {
 	}
 }
 
-
 // GetEvents grabs events for a given tenantID with filtering.
 func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
 	index := indexName(tenantId)
@@ -46,23 +45,23 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 	query := elastic.NewBoolQuery()
 	if filter.Source != "" {
 		util.LogDebug("Filtering on Source %s", filter.Source)
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("event_type", filter.Source))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("observer.typeURI", filter.Source))
 	}
 	if filter.ResourceType != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("payload.target.typeURI", filter.ResourceType))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("target.typeURI", filter.ResourceType))
 	}
 	if filter.ResourceId != "" {
-		query = query.Filter(elastic.NewTermQuery("payload.target.id.raw", filter.ResourceId))
+		query = query.Filter(elastic.NewTermQuery("target.id", filter.ResourceId))
 	}
 	if filter.UserId != "" {
 		query = query.Filter(elastic.NewPrefixQuery("initiator.id", filter.UserId))
 	}
 	if filter.EventType != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("event_type", filter.EventType))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.EventType))
 	}
 	if filter.Time != nil && len(filter.Time) > 0 {
 		for key, value := range filter.Time {
-			timeField := "payload.eventTime"
+			timeField := "eventTime"
 			switch key {
 			case "lt":
 				query = query.Filter(elastic.NewRangeQuery(timeField).Lt(value))
@@ -78,11 +77,11 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 
 	// Fields are mapped differently in ES, must maintain a mapping to json.
 	esFieldMapping := map[string]string{
-		"time":          "payload.eventTime",
-		"source":        "publisher_id",
-		"resource_type": "payload.target.typeURI",
-		"resource_name": "payload.target.id.raw",
-		"event_type":    "event_type",
+		"time":          "eventTime",
+		"source":        "observer.typeURI",
+		"resource_type": "target.typeURI",
+		"resource_name": "target.id",
+		"event_type":    "action",
 	}
 
 	esSearch := es.client().Search().
@@ -101,7 +100,7 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 	}
 
 	esSearch = esSearch.
-		Sort("@timestamp", false).
+		Sort("eventTime", false).
 		From(int(filter.Offset)).Size(int(filter.Limit))
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
@@ -125,7 +124,6 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 
 	return events, int(total), nil
 }
-
 
 // GetEvent Returns EventDetail for a single event.
 func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
@@ -162,11 +160,11 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 	// Mapping for attributes based on return values to API
 	// Source in this case is not the cadf source, but instead the first part of event_type
 	esFieldMapping := map[string]string{
-		"time":          "payload.eventTime",
-		"source":        "event_type",
-		"resource_type": "payload.target.typeURI",
-		"resource_name": "payload.target.id",
-		"event_type":    "event_type",
+		"time":          "eventTime",
+		"source":        "observer.typeURI",
+		"resource_type": "target.typeURI",
+		"resource_name": "target.id",
+		"event_type":    "action",
 	}
 
 	var esName string
