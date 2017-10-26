@@ -26,6 +26,7 @@ import (
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
+	"golang.org/x/tools/go/gcimporter15/testdata"
 	"log"
 	"strings"
 )
@@ -33,27 +34,31 @@ import (
 // ListEvent contains high-level data about an event, intended as a list item
 //  The JSON annotations here are for the JSON to be returned by the API
 type ListEvent struct {
-	Source       string `json:"source"`
-	ID           string `json:"event_id"`
-	Type         string `json:"event_type"`
-	Time         string `json:"event_time"`
-	ResourceName string `json:"resource_name,omitempty"`
-	ResourceId   string `json:"resource_id"`
-	ResourceType string `json:"resource_type"`
-	Initiator    struct {
-		TypeURI     string `json:"typeURI"`
-		DomainID    string `json:"domain_id,omitempty"`
-		DomainName  string `json:"domain_name,omitempty"`
-		ProjectID   string `json:"project_id,omitempty"`
-		ProjectName string `json:"project_name,omitempty"`
-		UserID      string `json:"user_id"`
-		UserName    string `json:"user_name,omitempty"`
-		Host        struct {
-			Agent   string `json:"agent"`
-			Address string `json:"address"`
-		} `json:"host"`
-		ID string `json:"id"`
+	// TODO: This should be a subset of the storage event
+	Source       string `json:"source"`                  // observer.typeURI
+	ID           string `json:"event_id"`                // id
+	Type         string `json:"event_type"`              // action
+	Time         string `json:"event_time"`              // eventType
+	ResourceId   string `json:"resource_id"`             // target.id
+	ResourceType string `json:"resource_type"`           // target.typeURI
+	ResourceName string `json:"resource_name,omitempty"` // drop
+	// NEW:
+	//ID        string `json:"id"`
+	//Time      string `json:"eventTime"`
+	//Action    string `json:"action"`
+	Initiator struct {
+		TypeURI string `json:"typeURI"`
+		// TODO: make this user_id and id again
+		ID string `json:"user_id"`
 	} `json:"initiator"`
+	//Target struct {
+	//	TypeURI   string `json:"typeURI"`
+	//	ID        string `json:"id"`
+	//} `json:"target"`
+	//Observer struct {
+	//	TypeURI string `json:"typeURI"`
+	//	ID      string `json:"id"`
+	//} `json:"observer"`
 }
 
 // FieldOrder maps the sort Fieldname and Order
@@ -66,13 +71,13 @@ type FieldOrder struct {
 type Filter struct {
 	Source       string
 	ResourceType string
-	ResourceName string
-	UserName     string
-	EventType    string
-	Time         map[string]string
-	Offset       uint
-	Limit        uint
-	Sort         []FieldOrder
+	// ResourceName string
+	UserName  string
+	EventType string
+	Time      map[string]string
+	Offset    uint
+	Limit     uint
+	Sort      []FieldOrder
 }
 
 // GetEvents returns a list of matching events (with filtering)
@@ -104,8 +109,8 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 			filter.Offset, filter.Limit, eventStore.MaxLimit())
 	}
 
-	storagefieldorder := []storage.FieldOrder{}
-	err := copier.Copy(&storagefieldorder, &filter.Sort)
+	storageFieldOrder := []storage.FieldOrder{}
+	err := copier.Copy(&storageFieldOrder, &filter.Sort)
 	if err != nil {
 		panic("Could not copy storage field order.")
 	}
@@ -116,21 +121,23 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 		Time:         filter.Time,
 		Offset:       filter.Offset,
 		Limit:        filter.Limit,
-		Sort:         storagefieldorder,
+		Sort:         storageFieldOrder,
 	}
-	// Translate hermes.Filter to storage.Filter by filling in IDs for names
-	if filter.ResourceName != "" {
-		// TODO: make sure there is a resource type, then look up the corresponding name
-		//storageFilter.ResourceId = resourceId
-	}
-	if filter.UserName != "" {
-		util.LogDebug("Filtering on UserName: %s", filter.UserName)
-		//userId, err := keystoneDriver.UserId(filter.UserName)
-		//if err != nil {
-		//	util.LogError("Could not find user ID &s for name %s", userId, filter.UserName)
-		//}
-		storageFilter.UserId = filter.UserName
-	}
+	// TODO: double-check if we really want to do this (think of all the different resource types out there)
+	// IMHO (jobrs) resolving IDs into names can be done on the UI and on request of the user
+	//// Translate hermes.Filter to storage.Filter by filling in IDs for names
+	//if filter.ResourceName != "" {
+	//	// TODO: make sure there is a resource type, then look up the corresponding name
+	//	//storageFilter.ResourceId = resourceId
+	//}
+	//if filter.UserName != "" {
+	//	util.LogDebug("Filtering on UserName: %s", filter.UserName)
+	//	//userId, err := keystoneDriver.UserId(filter.UserName)
+	//	//if err != nil {
+	//	//	util.LogError("Could not find user ID &s for name %s", userId, filter.UserName)
+	//	//}
+	//	storageFilter.UserId = filter.UserName
+	//}
 	return &storageFilter, nil
 }
 
@@ -138,33 +145,33 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Identity) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
-		p := storageEvent.Payload
 		event := ListEvent{
-			Source:       strings.SplitN(storageEvent.EventType, ".", 2)[0],
-			ID:           storageEvent.MessageID,
-			Type:         storageEvent.EventType,
-			Time:         p.EventTime,
-			ResourceId:   storageEvent.Payload.Target.ID,
-			ResourceType: storageEvent.Payload.Target.TypeURI,
+			Source:       strings.SplitN(storageEvent.Observer.TypeURI, "/", 2)[1],
+			ID:           storageEvent.ID,
+			Type:         storageEvent.Action,
+			Time:         storageEvent.EventTime,
+			ResourceId:   storageEvent.Target.ID,
+			ResourceType: storageEvent.Target.TypeURI,
 		}
-		err := copier.Copy(&event.Initiator, &storageEvent.Payload.Initiator)
+		err := copier.Copy(&event.Initiator, &storageEvent.Initiator)
 		if err != nil {
 			return nil, err
 		}
 
-		if viper.GetBool("hermes.enrich_keystone_events") {
-			nameMap := namesForIds(keystoneDriver, map[string]string{
-				"init_user_domain":  event.Initiator.DomainID,
-				"init_user_project": event.Initiator.ProjectID,
-				"init_user":         event.Initiator.UserID,
-				"target":            event.ResourceId,
-			}, event.ResourceType)
-
-			event.Initiator.DomainName = nameMap["init_user_domain"]
-			event.Initiator.ProjectName = nameMap["init_user_project"]
-			event.Initiator.UserName = nameMap["init_user"]
-			event.ResourceName = nameMap["target"]
-		}
+		// TODO: adapt and reactivate if needed
+		//if viper.GetBool("hermes.enrich_keystone_events") {
+		//	nameMap := namesForIds(keystoneDriver, map[string]string{
+		//		"init_user_domain":  event.Initiator.DomainID,
+		//		"init_user_project": event.Initiator.ProjectID,
+		//		"init_user":         event.Initiator.UserID,
+		//		"target":            event.ResourceId,
+		//	}, event.ResourceType)
+		//
+		//	//event.Initiator.DomainName = nameMap["init_user_domain"]
+		//	//event.Initiator.ProjectName = nameMap["init_user_project"]
+		//	//event.Initiator.UserName = nameMap["init_user"]
+		//	event.ResourceName = nameMap["target"]
+		//}
 		events = append(events, &event)
 	}
 	return events, nil
@@ -174,6 +181,8 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.EventDetail, error) {
 	event, err := eventStore.GetEvent(eventID, tenantID)
 
+	/* TODO: think about whether this makes sense. In CADF, arbitrary resources are referenced by typeURI and ID.
+	Should we attempt to resolve these IDs into names or leave this up to the UI layer.
 	if viper.GetBool("hermes.enrich_keystone_events") {
 		if event != nil {
 			nameMap := namesForIds(keystoneDriver, map[string]string{
@@ -187,16 +196,17 @@ func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity,
 				"role":              event.Payload.Role,
 			}, event.Payload.Target.TypeURI)
 
-			event.Payload.Initiator.DomainName = nameMap["init_user_domain"]
-			event.Payload.Initiator.ProjectName = nameMap["init_user_project"]
-			event.Payload.Initiator.UserName = nameMap["init_user"]
-			event.Payload.Target.Name = nameMap["target"]
-			event.Payload.ProjectName = nameMap["project"]
-			event.Payload.UserName = nameMap["user"]
-			event.Payload.GroupName = nameMap["group"]
-			event.Payload.RoleName = nameMap["role"]
+			event.Initiator.DomainName = nameMap["init_user_domain"]
+			event.Initiator.ProjectName = nameMap["init_user_project"]
+			event.Initiator.UserName = nameMap["init_user"]
+			event.Target.Name = nameMap["target"]
+			event.ProjectName = nameMap["project"]
+			event.UserName = nameMap["user"]
+			event.GroupName = nameMap["group"]
+			event.RoleName = nameMap["role"]
 		}
 	}
+	*/
 	return event, err
 }
 
@@ -207,6 +217,8 @@ func GetAttributes(queryName string, tenantID string, eventStore storage.Storage
 	return attribute, err
 }
 
+// TODO: remove or extend for all those Nova, Neutron, ... resource types
+/*
 func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targetType string) map[string]string {
 	nameMap := map[string]string{}
 	var err error
@@ -278,3 +290,4 @@ func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targ
 
 	return nameMap
 }
+*/

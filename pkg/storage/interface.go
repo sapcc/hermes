@@ -41,6 +41,7 @@ type Filter struct {
 	Source       string
 	ResourceType string
 	ResourceId   string
+	ResourceName string
 	UserId       string
 	EventType    string
 	Time         map[string]string
@@ -60,51 +61,34 @@ type eventListWithTotal struct {
 // EventDetail contains the CADF payload, enhanced with names for IDs
 //  The JSON annotations are for parsing the result from ElasticSearch AND for generating the Hermes API response
 type EventDetail struct {
-	PublisherID string `json:"publisher_id"`
-	EventType   string `json:"event_type"`
-	Payload     struct {
-		Observer struct {
-			TypeURI string `json:"typeURI"`
-			ID      string `json:"id"`
-		} `json:"observer"`
-		ResourceInfo string `json:"resource_info"`
-		TypeURI      string `json:"typeURI"`
-		Initiator    struct {
-			TypeURI     string `json:"typeURI"`
-			DomainID    string `json:"domain_id,omitempty"`
-			DomainName  string `json:"domain_name,omitempty"`
-			ProjectID   string `json:"project_id,omitempty"`
-			ProjectName string `json:"project_name,omitempty"`
-			UserID      string `json:"user_id"`
-			UserName    string `json:"user_name,omitempty"`
-			Host        struct {
-				Agent   string `json:"agent"`
-				Address string `json:"address"`
-			} `json:"host"`
-			ID string `json:"id"`
-		} `json:"initiator"`
-		EventTime   string `json:"eventTime"`
-		Action      string `json:"action"`
-		EventType   string `json:"eventType"`
-		ID          string `json:"id"`
-		Outcome     string `json:"outcome"`
-		Role        string `json:"role,omitempty"`
-		RoleName    string `json:"role_name,omitempty"`
-		Project     string `json:"project,omitempty"`
-		ProjectName string `json:"project_name,omitempty"`
-		User        string `json:"user,omitempty"`
-		UserName    string `json:"user_name,omitempty"`
-		Group       string `json:"group,omitempty"`
-		GroupName   string `json:"group_name,omitempty"`
-		Target      struct {
-			TypeURI string `json:"typeURI"`
-			ID      string `json:"id"`
-			Name    string `json:"name,omitempty"`
-		} `json:"target"`
-	} `json:"payload"`
-	MessageID string `json:"message_id"`
-	Priority  string `json:"priority"`
-	Timestamp string `json:"timestamp"`
+	TypeURI   string `json:"typeURI"`
+	ID        string `json:"id"`
+	EventTime string `json:"eventTime"`
+	Action    string `json:"action"`
+	EventType string `json:"eventType"`
+	Outcome   string `json:"outcome"`
+	Initiator struct {
+		TypeURI   string `json:"typeURI"`
+		ID        string `json:"id"`
+		DomainID  string `json:"domain_id,omitempty"`
+		ProjectID string `json:"project_id,omitempty"`
+		Host      struct {
+			Agent   string `json:"agent"`
+			Address string `json:"address"`
+		} `json:"host"`
+	} `json:"initiator"`
+	Target struct {
+		TypeURI   string `json:"typeURI"`
+		ID        string `json:"id"`
+		Name      string `json:"name,omitempty"`
+		ProjectID string `json:"project_id,omitempty"`
+		DomainID  string `json:"domain_id,omitempty"`
+	} `json:"target"`
+	Observer struct {
+		TypeURI string `json:"typeURI"`
+		ID      string `json:"id"`
+	} `json:"observer"`
+	// TODO: attachments for additional parameters
 }
 
 type AttributeValueList []AttributeValue
