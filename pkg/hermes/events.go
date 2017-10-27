@@ -143,7 +143,7 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		event := ListEvent{
-			Source:       strings.SplitN(storageEvent.Observer.TypeURI, "/", 2)[1],
+			Source:       storageEvent.Observer.TypeURI,
 			ID:           storageEvent.ID,
 			Type:         storageEvent.Action,
 			Time:         storageEvent.EventTime,

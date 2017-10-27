@@ -75,7 +75,7 @@ type EventDetail struct {
 		Host      struct {
 			Agent   string `json:"agent"`
 			Address string `json:"address"`
-		} `json:"host"`
+		} `json:"host,omitempty"`
 	} `json:"initiator"`
 	Target struct {
 		TypeURI   string `json:"typeURI"`
