@@ -25,7 +25,6 @@ import (
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
-	"strings"
 )
 
 // ListEvent contains high-level data about an event, intended as a list item
