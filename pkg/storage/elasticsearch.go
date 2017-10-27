@@ -137,9 +137,11 @@ func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 
 	searchResult, err := esSearch.Do(context.Background())
 	if err != nil {
+		util.LogDebug("Query failed: %s", err.Error())
 		return nil, err
 	}
 	total := searchResult.TotalHits()
+	util.LogDebug("Results: %d", total)
 
 	if total > 0 {
 		hit := searchResult.Hits.Hits[0]
