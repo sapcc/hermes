@@ -54,7 +54,7 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 		query = query.Filter(elastic.NewTermQuery("target.id", filter.ResourceId))
 	}
 	if filter.UserId != "" {
-		query = query.Filter(elastic.NewPrefixQuery("initiator.id", filter.UserId))
+		query = query.Filter(elastic.NewTermQuery("initiator.id", filter.UserId))
 	}
 	if filter.EventType != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.EventType))

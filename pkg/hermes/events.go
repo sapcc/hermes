@@ -112,6 +112,7 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 	}
 	storageFilter := storage.Filter{
 		Source:       filter.Source,
+		UserId:       filter.UserName,
 		ResourceType: filter.ResourceType,
 		EventType:    filter.EventType,
 		Time:         filter.Time,
