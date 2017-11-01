@@ -178,7 +178,9 @@ func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity,
 	event, err := eventStore.GetEvent(eventID, tenantID)
 
 	/* TODO: think about whether this makes sense. In CADF, arbitrary resources are referenced by typeURI and ID.
-	Should we attempt to resolve these IDs into names or leave this up to the UI layer.
+	Should we attempt to resolve these IDs into names or leave this up to the UI layer? The UI layer should have that
+	functionality and corresponding caching mechanism already. Also names are not unique and can change, so they cannot
+	be used safely for anything but presentation.
 	if viper.GetBool("hermes.enrich_keystone_events") {
 		if event != nil {
 			nameMap := namesForIds(keystoneDriver, map[string]string{
