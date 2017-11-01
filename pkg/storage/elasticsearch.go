@@ -130,6 +130,7 @@ func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 	index := indexName(tenantId)
 	util.LogDebug("Looking for event %s in index %s", eventId, index)
 
+	// TODO: what is the meaning of this .raw suffix? without it there are now results
 	query := elastic.NewTermQuery("id.raw", eventId)
 	esSearch := es.client().Search().
 		Index(index).

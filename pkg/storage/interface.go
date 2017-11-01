@@ -78,11 +78,16 @@ type EventDetail struct {
 		} `json:"host,omitempty"`
 	} `json:"initiator"`
 	Target struct {
-		TypeURI   string `json:"typeURI"`
-		ID        string `json:"id"`
-		Name      string `json:"name,omitempty"`
-		ProjectID string `json:"project_id,omitempty"`
-		DomainID  string `json:"domain_id,omitempty"`
+		TypeURI     string `json:"typeURI"`
+		ID          string `json:"id"`
+		Name        string `json:"name,omitempty"`
+		ProjectID   string `json:"project_id,omitempty"`
+		DomainID    string `json:"domain_id,omitempty"`
+		Attachments struct {
+			Content     string `json:"content"`
+			ContentType string `json:"contentType"`
+			Name        string `json:"name,omitempty"`
+		} `json:"attachments,omitempty"`
 	} `json:"target"`
 	Observer struct {
 		TypeURI string `json:"typeURI"`
