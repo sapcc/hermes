@@ -112,7 +112,7 @@ func (q *RangeQuery) Format(format string) *RangeQuery {
 	return q
 }
 
-// Source returns JSON for the query.
+// ObserverType returns JSON for the query.
 func (q *RangeQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 

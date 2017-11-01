@@ -51,7 +51,7 @@ func (s *SearchService) SearchSource(searchSource *SearchSource) *SearchService 
 	return s
 }
 
-// Source allows the user to set the request body manually without using
+// ObserverType allows the user to set the request body manually without using
 // any of the structs and interfaces in Elastic.
 func (s *SearchService) Source(source interface{}) *SearchService {
 	s.source = source

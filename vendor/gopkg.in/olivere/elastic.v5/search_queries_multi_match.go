@@ -189,7 +189,7 @@ func (q *MultiMatchQuery) QueryName(queryName string) *MultiMatchQuery {
 	return q
 }
 
-// Source returns JSON for the query.
+// ObserverType returns JSON for the query.
 func (q *MultiMatchQuery) Source() (interface{}, error) {
 	//
 	// {

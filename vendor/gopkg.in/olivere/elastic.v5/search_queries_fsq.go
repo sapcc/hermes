@@ -95,7 +95,7 @@ func (q *FunctionScoreQuery) MinScore(minScore float64) *FunctionScoreQuery {
 	return q
 }
 
-// Source returns JSON for the function score query.
+// ObserverType returns JSON for the function score query.
 func (q *FunctionScoreQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	query := make(map[string]interface{})

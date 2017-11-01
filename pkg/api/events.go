@@ -136,16 +136,16 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 	util.LogDebug("api.ListEvents: Create filter")
 	filter := hermes.Filter{
-		Source:       req.FormValue("source"),
-		ResourceType: req.FormValue("resource_type"),
-
-		// TODO:	ResourceName: req.FormValue("resource_name"),
-		UserName:  req.FormValue("user_name"),
-		EventType: req.FormValue("event_type"),
-		Time:      timeRange,
-		Offset:    uint(offset),
-		Limit:     uint(limit),
-		Sort:      sortSpec,
+		// TODO: remove append of deprecated parameters
+		ObserverType: req.FormValue("observer_type") + req.FormValue("source"),
+		TargetType:   req.FormValue("target_type") + req.FormValue("resource_type"),
+		TargetID:     req.FormValue("target_id"),
+		OriginatorID: req.FormValue("originator_id") + req.FormValue("user_name"),
+		Action:       req.FormValue("action") + req.FormValue("event_type"),
+		Time:         timeRange,
+		Offset:       uint(offset),
+		Limit:        uint(limit),
+		Sort:         sortSpec,
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")

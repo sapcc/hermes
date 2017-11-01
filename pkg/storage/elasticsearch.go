@@ -43,21 +43,21 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 	util.LogDebug("Looking for events in index %s", index)
 
 	query := elastic.NewBoolQuery()
-	if filter.Source != "" {
-		util.LogDebug("Filtering on Source %s", filter.Source)
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("observer.typeURI", filter.Source))
+	if filter.ObserverType != "" {
+		util.LogDebug("Filtering on ObserverType %s", filter.ObserverType)
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("observer.typeURI", filter.ObserverType))
 	}
-	if filter.ResourceType != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("target.typeURI", filter.ResourceType))
+	if filter.TargetType != "" {
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("target.typeURI", filter.TargetType))
 	}
-	if filter.ResourceId != "" {
-		query = query.Filter(elastic.NewTermQuery("target.id", filter.ResourceId))
+	if filter.TargetID != "" {
+		query = query.Filter(elastic.NewTermQuery("target.id", filter.TargetID))
 	}
-	if filter.UserId != "" {
-		query = query.Filter(elastic.NewTermQuery("initiator.id", filter.UserId))
+	if filter.OriginatorID != "" {
+		query = query.Filter(elastic.NewTermQuery("initiator.id", filter.OriginatorID))
 	}
-	if filter.EventType != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.EventType))
+	if filter.Action != "" {
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.Action))
 	}
 	if filter.Time != nil && len(filter.Time) > 0 {
 		for key, value := range filter.Time {
@@ -161,23 +161,34 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]stri
 	util.LogDebug("Looking for unique attributes for %s in index %s", queryName, index)
 
 	// Mapping for attributes based on return values to API
-	// Source in this case is not the cadf source, but instead the first part of event_type
+	// ObserverType in this case is not the cadf source, but instead the first part of event_type
 	esFieldMapping := map[string]string{
+		// old names
 		"time":          "eventTime",
 		"source":        "observer.typeURI",
 		"resource_type": "target.typeURI",
 		"resource_name": "target.id",
 		"event_type":    "action",
+		"user_name":     "originator.id",
+
+		// new names
+		"action":          "action",
+		"source_id":       "observer.id",
+		"source_type":     "observer.typeURI",
+		"target_type":     "target.typeURI",
+		"target_name":     "target.id",
+		"originator_id":   "originator.id",
+		"originator_type": "originator.type",
 	}
 
 	var esName string
-	util.LogDebug("Mapped Queryname: %s", esFieldMapping[queryName])
 	// Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
 	if val, ok := esFieldMapping[queryName]; ok {
 		esName = val + ".raw"
 	} else {
 		esName = queryName + ".raw"
 	}
+	util.LogDebug("Mapped Queryname: %s --> %s", queryName, esName)
 
 	queryAgg := elastic.NewTermsAggregation().Field(esName)
 

@@ -307,7 +307,7 @@ func TestObjectType(t *testing.T) {
 	}
 
 	for _, l := range literals {
-		t.Logf("Source: %s", l.src)
+		t.Logf("ObserverType: %s", l.src)
 
 		p := newParser([]byte(l.src))
 		// p.enableTrace = true

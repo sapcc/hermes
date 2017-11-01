@@ -82,7 +82,7 @@ func (s *Script) Params(params map[string]interface{}) *Script {
 	return s
 }
 
-// Source returns the JSON serializable data for this Script.
+// ObserverType returns the JSON serializable data for this Script.
 func (s *Script) Source() (interface{}, error) {
 	if s.typ == "" && s.lang == "" && len(s.params) == 0 {
 		return s.script, nil
@@ -116,7 +116,7 @@ func NewScriptField(fieldName string, script *Script) *ScriptField {
 	return &ScriptField{FieldName: fieldName, script: script}
 }
 
-// Source returns the serializable JSON for the ScriptField.
+// ObserverType returns the serializable JSON for the ScriptField.
 func (f *ScriptField) Source() (interface{}, error) {
 	if f.script == nil {
 		return nil, errors.New("ScriptField expects script")

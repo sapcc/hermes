@@ -15,10 +15,10 @@ const eof = rune(0)
 
 // Scanner defines a lexical scanner
 type Scanner struct {
-	buf *bytes.Buffer // Source buffer for advancing and scanning
-	src []byte        // Source buffer for immutable access
+	buf *bytes.Buffer // ObserverType buffer for advancing and scanning
+	src []byte        // ObserverType buffer for immutable access
 
-	// Source Position
+	// ObserverType Position
 	srcPos  token.Pos // current position
 	prevPos token.Pos // previous position, used for peek() method
 

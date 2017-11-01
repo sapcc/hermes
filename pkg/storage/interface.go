@@ -24,9 +24,9 @@ package storage
 type Storage interface {
 
 	/********** requests to ElasticSearch **********/
-	GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error)
-	GetEvent(eventId string, tenantId string) (*EventDetail, error)
-	GetAttributes(queryName string, tenantId string) ([]string, error)
+	GetEvents(filter *Filter, tenantID string) ([]*EventDetail, int, error)
+	GetEvent(eventId string, tenantID string) (*EventDetail, error)
+	GetAttributes(queryName string, tenantID string) ([]string, error)
 	MaxLimit() uint
 }
 
@@ -38,12 +38,11 @@ type FieldOrder struct {
 
 // This Filter is similar to hermes.Filter, but using IDs instead of names
 type Filter struct {
-	Source       string
-	ResourceType string
-	ResourceId   string
-	ResourceName string
-	UserId       string
-	EventType    string
+	ObserverType string
+	TargetType   string
+	TargetID     string
+	OriginatorID string
+	Action       string
 	Time         map[string]string
 	Offset       uint
 	Limit        uint

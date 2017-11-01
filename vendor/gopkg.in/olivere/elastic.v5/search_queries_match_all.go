@@ -26,7 +26,7 @@ func (q *MatchAllQuery) Boost(boost float64) *MatchAllQuery {
 	return q
 }
 
-// Source returns JSON for the function score query.
+// ObserverType returns JSON for the function score query.
 func (q MatchAllQuery) Source() (interface{}, error) {
 	// {
 	//   "match_all" : { ... }

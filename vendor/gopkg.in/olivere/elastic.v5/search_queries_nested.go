@@ -59,7 +59,7 @@ func (q *NestedQuery) IgnoreUnmapped(value bool) *NestedQuery {
 	return q
 }
 
-// Source returns JSON for the query.
+// ObserverType returns JSON for the query.
 func (q *NestedQuery) Source() (interface{}, error) {
 	query := make(map[string]interface{})
 	nq := make(map[string]interface{})

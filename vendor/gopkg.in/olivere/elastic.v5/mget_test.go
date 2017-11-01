@@ -70,11 +70,11 @@ func TestMultiGet(t *testing.T) {
 		t.Errorf("expected no error on item 0; got %v", item.Error)
 	}
 	if item.Source == nil {
-		t.Errorf("expected Source != nil; got %v", item.Source)
+		t.Errorf("expected ObserverType != nil; got %v", item.Source)
 	}
 	var doc tweet
 	if err := json.Unmarshal(*item.Source, &doc); err != nil {
-		t.Fatalf("expected to unmarshal item Source; got %v", err)
+		t.Fatalf("expected to unmarshal item ObserverType; got %v", err)
 	}
 	if doc.Message != tweet1.Message {
 		t.Errorf("expected Message of first tweet to be %q; got %q", tweet1.Message, doc.Message)
@@ -85,10 +85,10 @@ func TestMultiGet(t *testing.T) {
 		t.Errorf("expected no error on item 1; got %v", item.Error)
 	}
 	if item.Source == nil {
-		t.Errorf("expected Source != nil; got %v", item.Source)
+		t.Errorf("expected ObserverType != nil; got %v", item.Source)
 	}
 	if err := json.Unmarshal(*item.Source, &doc); err != nil {
-		t.Fatalf("expected to unmarshal item Source; got %v", err)
+		t.Fatalf("expected to unmarshal item ObserverType; got %v", err)
 	}
 	if doc.Message != tweet3.Message {
 		t.Errorf("expected Message of second tweet to be %q; got %q", tweet3.Message, doc.Message)

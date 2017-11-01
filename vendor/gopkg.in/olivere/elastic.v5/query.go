@@ -8,6 +8,6 @@ package elastic
 // is to return the source of the query as a JSON-serializable object.
 // Returning map[string]interface{} is the norm for queries.
 type Query interface {
-	// Source returns the JSON-serializable query request.
+	// ObserverType returns the JSON-serializable query request.
 	Source() (interface{}, error)
 }

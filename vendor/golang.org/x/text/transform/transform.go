@@ -451,7 +451,7 @@ func (c *chain) Transform(dst, src []byte, atEOF bool) (nDst, nSrc int, err erro
 				err = ErrShortSrc
 				break
 			}
-			// Source bytes were depleted before filling up the destination buffer.
+			// ObserverType bytes were depleted before filling up the destination buffer.
 			// Verify we made some progress, move the remaining bytes to the errStart
 			// and try to get more source bytes.
 			if needProgress && nSrc == 0 || in.n-in.p == len(in.b) {

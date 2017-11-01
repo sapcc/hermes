@@ -37,7 +37,7 @@ func NewIndicesShrinkService(client *Client) *IndicesShrinkService {
 	}
 }
 
-// Source is the name of the source index to shrink.
+// ObserverType is the name of the source index to shrink.
 func (s *IndicesShrinkService) Source(source string) *IndicesShrinkService {
 	s.source = source
 	return s
@@ -120,7 +120,7 @@ func (s *IndicesShrinkService) buildURL() (string, url.Values, error) {
 func (s *IndicesShrinkService) Validate() error {
 	var invalid []string
 	if s.source == "" {
-		invalid = append(invalid, "Source")
+		invalid = append(invalid, "ObserverType")
 	}
 	if s.target == "" {
 		invalid = append(invalid, "Target")

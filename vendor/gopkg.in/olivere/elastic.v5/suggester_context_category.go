@@ -32,7 +32,7 @@ func (q *SuggesterCategoryMapping) FieldName(fieldName string) *SuggesterCategor
 	return q
 }
 
-// Source returns a map that will be used to serialize the context query as JSON.
+// ObserverType returns a map that will be used to serialize the context query as JSON.
 func (q *SuggesterCategoryMapping) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
@@ -82,7 +82,7 @@ func (q *SuggesterCategoryQuery) Values(values ...string) *SuggesterCategoryQuer
 	return q
 }
 
-// Source returns a map that will be used to serialize the context query as JSON.
+// ObserverType returns a map that will be used to serialize the context query as JSON.
 func (q *SuggesterCategoryQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 

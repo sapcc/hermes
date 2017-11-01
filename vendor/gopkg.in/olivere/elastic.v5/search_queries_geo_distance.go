@@ -72,7 +72,7 @@ func (q *GeoDistanceQuery) QueryName(queryName string) *GeoDistanceQuery {
 	return q
 }
 
-// Source returns JSON for the function score query.
+// ObserverType returns JSON for the function score query.
 func (q *GeoDistanceQuery) Source() (interface{}, error) {
 	// {
 	//   "geo_distance" : {

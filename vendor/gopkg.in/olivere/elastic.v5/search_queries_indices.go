@@ -46,7 +46,7 @@ func (q *IndicesQuery) QueryName(queryName string) *IndicesQuery {
 	return q
 }
 
-// Source returns JSON for the function score query.
+// ObserverType returns JSON for the function score query.
 func (q *IndicesQuery) Source() (interface{}, error) {
 	// {
 	//	 "indices" : {

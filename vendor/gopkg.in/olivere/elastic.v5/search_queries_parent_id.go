@@ -65,7 +65,7 @@ func (q *ParentIdQuery) InnerHit(innerHit *InnerHit) *ParentIdQuery {
 	return q
 }
 
-// Source returns JSON for the parent_id query.
+// ObserverType returns JSON for the parent_id query.
 func (q *ParentIdQuery) Source() (interface{}, error) {
 	// {
 	//   "parent_id" : {

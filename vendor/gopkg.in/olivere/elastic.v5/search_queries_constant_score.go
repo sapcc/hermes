@@ -29,7 +29,7 @@ func (q *ConstantScoreQuery) Boost(boost float64) *ConstantScoreQuery {
 	return q
 }
 
-// Source returns the query source.
+// ObserverType returns the query source.
 func (q *ConstantScoreQuery) Source() (interface{}, error) {
 	// "constant_score" : {
 	//     "filter" : {

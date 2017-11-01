@@ -16,7 +16,7 @@ type GeoPoint struct {
 	Lon float64 `json:"lon"`
 }
 
-// Source returns the object to be serialized in Elasticsearch DSL.
+// ObserverType returns the object to be serialized in Elasticsearch DSL.
 func (pt *GeoPoint) Source() map[string]float64 {
 	return map[string]float64{
 		"lat": pt.Lat,

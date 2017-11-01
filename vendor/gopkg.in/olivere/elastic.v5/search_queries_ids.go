@@ -42,7 +42,7 @@ func (q *IdsQuery) QueryName(queryName string) *IdsQuery {
 	return q
 }
 
-// Source returns JSON for the function score query.
+// ObserverType returns JSON for the function score query.
 func (q *IdsQuery) Source() (interface{}, error) {
 	// {
 	//	"ids" : {

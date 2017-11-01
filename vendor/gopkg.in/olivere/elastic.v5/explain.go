@@ -70,7 +70,7 @@ func (s *ExplainService) Type(typ string) *ExplainService {
 	return s
 }
 
-// Source is the URL-encoded query definition (instead of using the request body).
+// ObserverType is the URL-encoded query definition (instead of using the request body).
 func (s *ExplainService) Source(source string) *ExplainService {
 	s.source = source
 	return s

@@ -71,7 +71,7 @@ type SortByDoc struct {
 	Sorter
 }
 
-// Source returns the JSON-serializable data.
+// ObserverType returns the JSON-serializable data.
 func (s SortByDoc) Source() (interface{}, error) {
 	return "_doc", nil
 }
@@ -107,7 +107,7 @@ func (s *ScoreSort) Desc() *ScoreSort {
 	return s
 }
 
-// Source returns the JSON-serializable data.
+// ObserverType returns the JSON-serializable data.
 func (s *ScoreSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	x := make(map[string]interface{})
@@ -211,7 +211,7 @@ func (s *FieldSort) NestedPath(nestedPath string) *FieldSort {
 	return s
 }
 
-// Source returns the JSON-serializable data.
+// ObserverType returns the JSON-serializable data.
 func (s *FieldSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	x := make(map[string]interface{})
@@ -351,7 +351,7 @@ func (s *GeoDistanceSort) NestedPath(nestedPath string) *GeoDistanceSort {
 	return s
 }
 
-// Source returns the JSON-serializable data.
+// ObserverType returns the JSON-serializable data.
 func (s *GeoDistanceSort) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	x := make(map[string]interface{})
@@ -466,7 +466,7 @@ func (s *ScriptSort) NestedPath(nestedPath string) *ScriptSort {
 	return s
 }
 
-// Source returns the JSON-serializable data.
+// ObserverType returns the JSON-serializable data.
 func (s *ScriptSort) Source() (interface{}, error) {
 	if s.script == nil {
 		return nil, errors.New("ScriptSort expected a script")

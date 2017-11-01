@@ -35,8 +35,8 @@ func NewExponentialDecayFunction() *ExponentialDecayFunction {
 	return &ExponentialDecayFunction{}
 }
 
-// Name represents the JSON field name under which the output of Source
-// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
+// Name represents the JSON field name under which the output of ObserverType
+// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.ObserverType).
 func (fn *ExponentialDecayFunction) Name() string {
 	return "exp"
 }
@@ -96,7 +96,7 @@ func (fn *ExponentialDecayFunction) MultiValueMode(mode string) *ExponentialDeca
 	return fn
 }
 
-// Source returns the serializable JSON data of this score function.
+// ObserverType returns the serializable JSON data of this score function.
 func (fn *ExponentialDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -137,8 +137,8 @@ func NewGaussDecayFunction() *GaussDecayFunction {
 	return &GaussDecayFunction{}
 }
 
-// Name represents the JSON field name under which the output of Source
-// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
+// Name represents the JSON field name under which the output of ObserverType
+// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.ObserverType).
 func (fn *GaussDecayFunction) Name() string {
 	return "gauss"
 }
@@ -198,7 +198,7 @@ func (fn *GaussDecayFunction) MultiValueMode(mode string) *GaussDecayFunction {
 	return fn
 }
 
-// Source returns the serializable JSON data of this score function.
+// ObserverType returns the serializable JSON data of this score function.
 func (fn *GaussDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -240,8 +240,8 @@ func NewLinearDecayFunction() *LinearDecayFunction {
 	return &LinearDecayFunction{}
 }
 
-// Name represents the JSON field name under which the output of Source
-// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
+// Name represents the JSON field name under which the output of ObserverType
+// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.ObserverType).
 func (fn *LinearDecayFunction) Name() string {
 	return "linear"
 }
@@ -308,7 +308,7 @@ func (fn *LinearDecayFunction) GetMultiValueMode() string {
 	return fn.multiValueMode
 }
 
-// Source returns the serializable JSON data of this score function.
+// ObserverType returns the serializable JSON data of this score function.
 func (fn *LinearDecayFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})
@@ -350,8 +350,8 @@ func NewScriptFunction(script *Script) *ScriptFunction {
 	}
 }
 
-// Name represents the JSON field name under which the output of Source
-// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
+// Name represents the JSON field name under which the output of ObserverType
+// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.ObserverType).
 func (fn *ScriptFunction) Name() string {
 	return "script_score"
 }
@@ -376,7 +376,7 @@ func (fn *ScriptFunction) GetWeight() *float64 {
 	return fn.weight
 }
 
-// Source returns the serializable JSON data of this score function.
+// ObserverType returns the serializable JSON data of this score function.
 func (fn *ScriptFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.script != nil {
@@ -408,8 +408,8 @@ func NewFieldValueFactorFunction() *FieldValueFactorFunction {
 	return &FieldValueFactorFunction{}
 }
 
-// Name represents the JSON field name under which the output of Source
-// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
+// Name represents the JSON field name under which the output of ObserverType
+// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.ObserverType).
 func (fn *FieldValueFactorFunction) Name() string {
 	return "field_value_factor"
 }
@@ -454,7 +454,7 @@ func (fn *FieldValueFactorFunction) Missing(missing float64) *FieldValueFactorFu
 	return fn
 }
 
-// Source returns the serializable JSON data of this score function.
+// ObserverType returns the serializable JSON data of this score function.
 func (fn *FieldValueFactorFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.field != "" {
@@ -488,8 +488,8 @@ func NewWeightFactorFunction(weight float64) *WeightFactorFunction {
 	return &WeightFactorFunction{weight: weight}
 }
 
-// Name represents the JSON field name under which the output of Source
-// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
+// Name represents the JSON field name under which the output of ObserverType
+// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.ObserverType).
 func (fn *WeightFactorFunction) Name() string {
 	return "weight"
 }
@@ -508,7 +508,7 @@ func (fn *WeightFactorFunction) GetWeight() *float64 {
 	return &fn.weight
 }
 
-// Source returns the serializable JSON data of this score function.
+// ObserverType returns the serializable JSON data of this score function.
 func (fn *WeightFactorFunction) Source() (interface{}, error) {
 	// Notice that the weight has to be serialized in FunctionScoreQuery.
 	return fn.weight, nil
@@ -529,8 +529,8 @@ func NewRandomFunction() *RandomFunction {
 	return &RandomFunction{}
 }
 
-// Name represents the JSON field name under which the output of Source
-// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.Source).
+// Name represents the JSON field name under which the output of ObserverType
+// needs to be serialized by FunctionScoreQuery (see FunctionScoreQuery.ObserverType).
 func (fn *RandomFunction) Name() string {
 	return "random_score"
 }
@@ -556,7 +556,7 @@ func (fn *RandomFunction) GetWeight() *float64 {
 	return fn.weight
 }
 
-// Source returns the serializable JSON data of this score function.
+// ObserverType returns the serializable JSON data of this score function.
 func (fn *RandomFunction) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fn.seed != nil {

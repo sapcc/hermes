@@ -28,7 +28,7 @@ func (q *ExistsQuery) QueryName(queryName string) *ExistsQuery {
 	return q
 }
 
-// Source returns the JSON serializable content for this query.
+// ObserverType returns the JSON serializable content for this query.
 func (q *ExistsQuery) Source() (interface{}, error) {
 	// {
 	//   "exists" : {

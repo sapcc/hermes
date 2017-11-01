@@ -395,7 +395,7 @@ func TestSearchSpecificFields(t *testing.T) {
 			t.Errorf("expected SearchResult.Hits.Hit.Index = %q; got %q", testIndexName, hit.Index)
 		}
 		if hit.Source != nil {
-			t.Fatalf("expected SearchResult.Hits.Hit.Source to be nil; got: %q", hit.Source)
+			t.Fatalf("expected SearchResult.Hits.Hit.ObserverType to be nil; got: %q", hit.Source)
 		}
 		if hit.Fields == nil {
 			t.Fatal("expected SearchResult.Hits.Hit.Fields to be != nil")
@@ -540,7 +540,7 @@ func TestSearchSource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Set up the request JSON manually to pass to the search service via Source()
+	// Set up the request JSON manually to pass to the search service via ObserverType()
 	source := map[string]interface{}{
 		"query": map[string]interface{}{
 			"match_all": map[string]interface{}{},
@@ -662,7 +662,7 @@ func TestSearchSearchSource(t *testing.T) {
 	// Set up the search source manually and pass it to the search service via SearchSource()
 	ss := NewSearchSource().Query(NewMatchAllQuery()).From(0).Size(2)
 
-	// One can use ss.Source() to get to the raw interface{} that will be used
+	// One can use ss.ObserverType() to get to the raw interface{} that will be used
 	// as the search request JSON by the SearchService.
 
 	searchResult, err := client.Search().

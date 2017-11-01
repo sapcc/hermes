@@ -27,34 +27,30 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 )
 
+type ResourceRef struct {
+	TypeURI string `json:"typeURI"`
+	ID      string `json:"id"`
+}
+
 // ListEvent contains high-level data about an event, intended as a list item
 //  The JSON annotations here are for the JSON to be returned by the API
 type ListEvent struct {
-	// TODO: This should be a subset of the storage event
-	Source       string `json:"source"`                  // observer.typeURI
-	ID           string `json:"event_id"`                // id
-	Type         string `json:"event_type"`              // action
-	Time         string `json:"event_time"`              // eventType
-	ResourceId   string `json:"resource_id"`             // target.id
-	ResourceType string `json:"resource_type"`           // target.typeURI
-	ResourceName string `json:"resource_name,omitempty"` // drop
+	// TODO: Remove these deprecations
+	SourceDeprecated       string `json:"source"`                  // observer.typeURI
+	IDDeprecated           string `json:"event_id"`                // id
+	TypeDeprecated         string `json:"event_type"`              // action
+	TimeDeprecated         string `json:"event_time"`              // eventType
+	ResourceIdDeprecated   string `json:"resource_id"`             // target.id
+	ResourceTypeDeprecated string `json:"resource_type"`           // target.typeURI
+	ResourceNameDeprecated string `json:"resource_name,omitempty"` // drop
 	// NEW:
-	//ID        string `json:"id"`
-	//Time      string `json:"eventTime"`
-	//Action    string `json:"action"`
-	Initiator struct {
-		TypeURI string `json:"typeURI"`
-		// TODO: make this user_id and id again
-		ID string `json:"user_id"`
-	} `json:"initiator"`
-	//Target struct {
-	//	TypeURI   string `json:"typeURI"`
-	//	ID        string `json:"id"`
-	//} `json:"target"`
-	//Observer struct {
-	//	TypeURI string `json:"typeURI"`
-	//	ID      string `json:"id"`
-	//} `json:"observer"`
+	ID        string      `json:"id"`
+	Time      string      `json:"eventTime"`
+	Action    string      `json:"action"`
+	Outcome   string      `json:"outcome"`
+	Initiator ResourceRef `json:"initiator"`
+	Target    ResourceRef `json:"target"`
+	Observer  ResourceRef `json:"observer"`
 }
 
 // FieldOrder maps the sort Fieldname and Order
@@ -65,15 +61,15 @@ type FieldOrder struct {
 
 // Filter maps to the filtering/paging/sorting allowed by the API
 type Filter struct {
-	Source       string
-	ResourceType string
-	// ResourceName string
-	UserName  string
-	EventType string
-	Time      map[string]string
-	Offset    uint
-	Limit     uint
-	Sort      []FieldOrder
+	ObserverType string
+	TargetType   string
+	TargetID     string
+	OriginatorID string
+	Action       string
+	Time         map[string]string
+	Offset       uint
+	Limit        uint
+	Sort         []FieldOrder
 }
 
 // GetEvents returns a list of matching events (with filtering)
@@ -111,10 +107,11 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 		panic("Could not copy storage field order.")
 	}
 	storageFilter := storage.Filter{
-		Source:       filter.Source,
-		UserId:       filter.UserName,
-		ResourceType: filter.ResourceType,
-		EventType:    filter.EventType,
+		ObserverType: filter.ObserverType,
+		OriginatorID: filter.OriginatorID,
+		TargetType:   filter.TargetType,
+		TargetID:     filter.TargetID,
+		Action:       filter.Action,
 		Time:         filter.Time,
 		Offset:       filter.Offset,
 		Limit:        filter.Limit,
@@ -125,15 +122,15 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 	//// Translate hermes.Filter to storage.Filter by filling in IDs for names
 	//if filter.ResourceName != "" {
 	//	// TODO: make sure there is a resource type, then look up the corresponding name
-	//	//storageFilter.ResourceId = resourceId
+	//	//storageFilter.TargetID = resourceId
 	//}
-	//if filter.UserName != "" {
-	//	util.LogDebug("Filtering on UserName: %s", filter.UserName)
-	//	//userId, err := keystoneDriver.UserId(filter.UserName)
+	//if filter.OriginatorID != "" {
+	//	util.LogDebug("Filtering on OriginatorID: %s", filter.OriginatorID)
+	//	//userId, err := keystoneDriver.OriginatorID(filter.OriginatorID)
 	//	//if err != nil {
-	//	//	util.LogError("Could not find user ID &s for name %s", userId, filter.UserName)
+	//	//	util.LogError("Could not find user ID &s for name %s", userId, filter.OriginatorID)
 	//	//}
-	//	storageFilter.UserId = filter.UserName
+	//	storageFilter.OriginatorID = filter.OriginatorID
 	//}
 	return &storageFilter, nil
 }
@@ -143,12 +140,30 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		event := ListEvent{
-			Source:       storageEvent.Observer.TypeURI,
-			ID:           storageEvent.ID,
-			Type:         storageEvent.Action,
-			Time:         storageEvent.EventTime,
-			ResourceId:   storageEvent.Target.ID,
-			ResourceType: storageEvent.Target.TypeURI,
+			// TODO: remove old attribute names
+			SourceDeprecated:       storageEvent.Observer.TypeURI,
+			IDDeprecated:           storageEvent.ID,
+			TypeDeprecated:         storageEvent.Action,
+			TimeDeprecated:         storageEvent.EventTime,
+			ResourceIdDeprecated:   storageEvent.Target.ID,
+			ResourceTypeDeprecated: storageEvent.Target.TypeURI,
+			// new attributes
+			Initiator: ResourceRef{
+				TypeURI: storageEvent.Initiator.TypeURI,
+				ID:      storageEvent.Initiator.ID,
+			},
+			Target: ResourceRef{
+				TypeURI: storageEvent.Target.TypeURI,
+				ID:      storageEvent.Target.ID,
+			},
+			ID:      storageEvent.ID,
+			Action:  storageEvent.Action,
+			Outcome: storageEvent.Outcome,
+			Time:    storageEvent.EventTime,
+			Observer: ResourceRef{
+				TypeURI: storageEvent.Observer.TypeURI,
+				ID:      storageEvent.Observer.ID,
+			},
 		}
 		err := copier.Copy(&event.Initiator, &storageEvent.Initiator)
 		if err != nil {
@@ -161,12 +176,12 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 		//		"init_user_domain":  event.Initiator.DomainID,
 		//		"init_user_project": event.Initiator.ProjectID,
 		//		"init_user":         event.Initiator.UserID,
-		//		"target":            event.ResourceId,
-		//	}, event.ResourceType)
+		//		"target":            event.TargetID,
+		//	}, event.TargetType)
 		//
 		//	//event.Initiator.DomainName = nameMap["init_user_domain"]
 		//	//event.Initiator.ProjectName = nameMap["init_user_project"]
-		//	//event.Initiator.UserName = nameMap["init_user"]
+		//	//event.Initiator.OriginatorID = nameMap["init_user"]
 		//	event.ResourceName = nameMap["target"]
 		//}
 		events = append(events, &event)
@@ -197,10 +212,10 @@ func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity,
 
 			event.Initiator.DomainName = nameMap["init_user_domain"]
 			event.Initiator.ProjectName = nameMap["init_user_project"]
-			event.Initiator.UserName = nameMap["init_user"]
+			event.Initiator.OriginatorID = nameMap["init_user"]
 			event.Target.Name = nameMap["target"]
 			event.ProjectName = nameMap["project"]
-			event.UserName = nameMap["user"]
+			event.OriginatorID = nameMap["user"]
 			event.GroupName = nameMap["group"]
 			event.RoleName = nameMap["role"]
 		}
@@ -239,7 +254,7 @@ func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targ
 	}
 	iUserID := idMap["init_user"]
 	if iUserID != "" {
-		nameMap["init_user"], err = keystoneDriver.UserName(iUserID)
+		nameMap["init_user"], err = keystoneDriver.OriginatorID(iUserID)
 		if err != nil {
 			log.Printf("Error looking up user name for user '%s'", iUserID)
 		}
@@ -253,7 +268,7 @@ func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targ
 	}
 	userID := idMap["user"]
 	if userID != "" {
-		nameMap["user"], err = keystoneDriver.UserName(userID)
+		nameMap["user"], err = keystoneDriver.OriginatorID(userID)
 		if err != nil {
 			log.Printf("Error looking up user name for user '%s'", userID)
 		}
@@ -279,7 +294,7 @@ func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targ
 		nameMap["target"], err = keystoneDriver.ProjectName(idMap["target"])
 	case "service/security/account/user":
 	// doesn't work for users - a UUID is used for some reason, which can't be looked up
-	//	nameMap["target"], err = keystoneDriver.UserName(idMap["target"])
+	//	nameMap["target"], err = keystoneDriver.OriginatorID(idMap["target"])
 	default:
 		log.Printf("Unhandled payload type \"%s\", cannot look up name.", targetType)
 	}

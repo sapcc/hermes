@@ -39,7 +39,7 @@ func (q *GeoPolygonQuery) QueryName(queryName string) *GeoPolygonQuery {
 	return q
 }
 
-// Source returns JSON for the function score query.
+// ObserverType returns JSON for the function score query.
 func (q *GeoPolygonQuery) Source() (interface{}, error) {
 	// "geo_polygon" : {
 	//  	"person.location" : {

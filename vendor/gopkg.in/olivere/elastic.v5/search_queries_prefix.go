@@ -40,7 +40,7 @@ func (q *PrefixQuery) QueryName(queryName string) *PrefixQuery {
 	return q
 }
 
-// Source returns JSON for the query.
+// ObserverType returns JSON for the query.
 func (q *PrefixQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	query := make(map[string]interface{})

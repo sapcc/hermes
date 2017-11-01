@@ -64,16 +64,16 @@ be found in the PDF
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| source | string | Selects all events with source similar to this value. |
-| resource\_type | string | Selects all events with resource type similar to this value. |
-| user\_name | string | Selects all events with user name equal to this value. Prefix matching enabled.|
-| event\_type | string | Selects all events with event\_type equal to this value. |
-| time | string | Date filter to select all events with _event_time_ matching the specified criteria. See Date Filters below for more detail. |
+| observer_type | string | Selects all events with source similar to this value. |
+| target\_type | string | Selects all events related to this resource type. |
+| originator\_id | string | Selects all events caused by this originator (usually an OpenStack user ID) |
+| action | string | Selects all events representing activities of this type. |
+| time | string | Date filter to select all events with _eventTime_ matching the specified criteria. See Date Filters below for more detail. |
 | offset | integer | The starting index within the total list of the events that you would like to retrieve. |
 | limit | integer | The maximum number of records to return (up to 100). The default limit is 10. |
 | sort | string | Determines the sorted order of the returned list. See Sorting below for more detail. |
-| domain\_id | string | Selects all events in this domain. |
-| project\_id | string | Selects all events in this project. |
+| domain\_id | string | Selects all events in this domain (requires special permissions). |
+| project\_id | string | Selects all events in this project (requires special permissions). |
 
 **Scope:**
 
@@ -100,7 +100,7 @@ GET /v1/events?time=gte:2017-05-01T00:00:00,lt:2017-06-01T00:00:00
 **Sorting:**
 
 The value of the sort parameter is a comma-separated list of sort keys. Supported 
-sort keys include `time`, `source`, `resource_type`, and `event_type`.
+sort keys include `time`, `observer_type`, `target_type`, and `action`.
 
 Each sort key may also include a direction. Supported directions are `:asc` for 
 ascending and `:desc` for descending. The service will use `:asc` for every key 
@@ -124,7 +124,7 @@ Headers:
 
 **Response:**
 
-This example shows the audit events for creating & deleting a project.
+This example shows the audit events for adding a role to a user.
 
 ```json
 {
@@ -132,44 +132,25 @@ This example shows the audit events for creating & deleting a project.
   "previous": "http://{hermes_host}:8788/v1/events?limit=2&offset=0",
   "events": [
     {
-      "source": "identity",
-      "event_id": "3824e534-6cd4-53b2-93d4-33dc4ab50b8c",
-      "event_type": "identity.project.created",
-      "event_time": "2017-04-20T11:27:15.834562+0000",
-      "resource_id": "3a7e3d2421384f56a8fb6cf082a8efab",
-      "resource_type": "data/security/project",
+      "id": "d3f6695e-8a55-5db1-895c-9f7f0910b7a5",
+      "eventTime": "2017-11-01T12:28:58.660965+0000",
+      "action": "created.role_assignment",
+      "outcome": "success",
       "initiator": {
-        "domain_id": "39a253e16e4a4a3686edca72c8e101bc",
         "typeURI": "service/security/account/user",
-        "user_id": "275e9a16294b3805c8dd2ab77123531af6aacd92182ddcd491933e5c09864a1d",
-        "host": {
-           "agent": "python-keystoneclient",
-           "address": "100.66.0.24"
-        },
-        "id": "493b9a5284675cbb9f3f6439bd222eb6"
-      }
-    },
-    {
-      "source": "identity",
-      "event_id": "1ff4703a-d8c3-50f8-94d1-8ab382941e80",
-      "event_type": "identity.project.deleted",
-      "event_time": "2017-04-20T11:28:32.521298+0000",
-      "resource_id": "3a7e3d2421384f56a8fb6cf082a8efab",
-      "resource_type": "data/security/project",
-      "initiator": {
-        "domain_id": "39a253e16e4a4a3686edca72c8e101bc",
+        "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
+      },
+      "target": {
         "typeURI": "service/security/account/user",
-        "user_id": "275e9a16294b3805c8dd2ab77123531af6aacd92182ddcd491933e5c09864a1d",
-        "host": {
-           "agent": "python-keystoneclient",
-           "address": "100.66.0.24"
-        },
-        "id": "493b9a5284675cbb9f3f6439bd222eb6"
-
+        "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
+      },
+      "observer": {
+        "typeURI": "service/security",
+        "id": "0e8a00bf-e36c-5a51-9418-2d56d59c8887"
       }
     }
   ],
-  "total": 5
+  "total": 2
 }
 ```
 
@@ -198,38 +179,36 @@ event, e.g.:
 
 ```json
 {
-   "publisher_id": "identity.keystone-2031324599-cgpyi",
-   "event_type": "identity.project.deleted",
-   "payload": {
-      "observer": {
-         "typeURI": "service/security",
-         "id": "3824e534-6cd4-53b2-93d4-33dc4ab50b8c"
-      },
-      "resource_info": "d2eec974d849446da1715923e60d0b3b",
-      "typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
-      "initiator": {
-         "domain_id": "39a253e16e4a4a3686edca72c8e101bc",
-         "typeURI": "service/security/account/user",
-         "user_id": "275e9a16294b3805c8dd2ab77123531af6aacd92182ddcd491933e5c09864a1d",
-         "host": {
-            "agent": "python-keystoneclient",
-            "address": "100.66.0.24"
-         },
-         "id": "493b9a5284675cbb9f3f6439bd222eb6"
-      },
-      "eventTime": "2017-04-20T11:28:32.521298+0000",
-      "action": "deleted.project",
-      "eventType": "activity",
-      "id": "1ff4703a-d8c3-50f8-94d1-8ab382941e80",
-      "outcome": "success",
-      "target": {
-         "typeURI": "data/security/project",
-         "id": "d2eec974d849446da1715923e60d0b3b"
+  "typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
+  "id": "d3f6695e-8a55-5db1-895c-9f7f0910b7a5",
+  "eventTime": "2017-11-01T12:28:58.660965+0000",
+  "action": "created.role_assignment",
+  "eventType": "activity",
+  "outcome": "success",
+  "initiator": {
+    "typeURI": "service/security/account/user",
+    "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
+    "project_id": "6a030751147a45c0863c3b5bde32c744",
+    "host": {
+      "agent": "Ruby",
+      "address": "100.65.1.2"
+    }
+  },
+  "target": {
+    "typeURI": "service/security/account/user",
+    "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
+    "attachments": [
+      {
+        "content": "e381a86296f54267afe05b96560e8e14",
+        "contentType": "/data/security/project",
+        "name": "project_id"
       }
-   },
-   "message_id": "d4f88c45-5fea-4013-80ec-2d357eab37c3",
-   "priority": "info",
-   "timestamp": "2017-04-20 11:28:32.521769"
+    ]
+  },
+  "observer": {
+    "typeURI": "service/security",
+    "id": "0e8a00bf-e36c-5a51-9418-2d56d59c8887"
+  }
 }
 ```
 

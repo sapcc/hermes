@@ -58,7 +58,7 @@ func (q *DisMaxQuery) QueryName(queryName string) *DisMaxQuery {
 	return q
 }
 
-// Source returns the JSON serializable content for this query.
+// ObserverType returns the JSON serializable content for this query.
 func (q *DisMaxQuery) Source() (interface{}, error) {
 	// {
 	//  "dis_max" : {

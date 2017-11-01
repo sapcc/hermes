@@ -29,7 +29,7 @@ func (q *ScriptQuery) QueryName(queryName string) *ScriptQuery {
 	return q
 }
 
-// Source returns JSON for the query.
+// ObserverType returns JSON for the query.
 func (q *ScriptQuery) Source() (interface{}, error) {
 	if q.script == nil {
 		return nil, errors.New("ScriptQuery expected a script")

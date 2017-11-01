@@ -53,7 +53,7 @@ func (q *RegexpQuery) QueryName(queryName string) *RegexpQuery {
 	return q
 }
 
-// Source returns the JSON-serializable query data.
+// ObserverType returns the JSON-serializable query data.
 func (q *RegexpQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	query := make(map[string]interface{})

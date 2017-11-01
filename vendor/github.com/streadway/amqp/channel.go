@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// ObserverType code and contact info at http://github.com/streadway/amqp
 
 package amqp
 
@@ -1220,7 +1220,7 @@ to the destination exchange when the routing key is matched.
   ExchangeBind("sell", "MSFT", "trade", false, nil)
   ExchangeBind("buy", "AAPL", "trade", false, nil)
 
-  Delivery       Source      Key      Destination
+  Delivery       ObserverType      Key      Destination
   example        exchange             exchange
   -----------------------------------------------
   key: AAPL  --> trade ----> MSFT     sell

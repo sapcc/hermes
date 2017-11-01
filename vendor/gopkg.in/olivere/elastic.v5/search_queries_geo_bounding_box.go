@@ -80,7 +80,7 @@ func (q *GeoBoundingBoxQuery) QueryName(queryName string) *GeoBoundingBoxQuery {
 	return q
 }
 
-// Source returns JSON for the function score query.
+// ObserverType returns JSON for the function score query.
 func (q *GeoBoundingBoxQuery) Source() (interface{}, error) {
 	// {
 	//   "geo_bounding_box" : {
