@@ -43,6 +43,7 @@ type Filter struct {
 	InitiatorID   string
 	InitiatorType string
 	Action        string
+	Outcome       string
 	Time          map[string]string
 	Offset        uint
 	Limit         uint

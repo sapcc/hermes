@@ -70,6 +70,7 @@ be found in the PDF
 | initiator\_id | string | Selects all events caused by this initiator (usually an OpenStack user ID) |
 | initiator\_type | string | Selects all events caused by this initiator type (user or system) |
 | action | string | Selects all events representing activities of this type. |
+| outcome | string | Selects all events based on the activity result (e.g. failed) |
 | time | string | Date filter to select all events with _eventTime_ matching the specified criteria. See Date Filters below for more detail. |
 | offset | integer | The starting index within the total list of the events that you would like to retrieve. |
 | limit | integer | The maximum number of records to return (up to 100). The default limit is 10. |
@@ -102,7 +103,8 @@ GET /v1/events?time=gte:2017-05-01T00:00:00,lt:2017-06-01T00:00:00
 **Sorting:**
 
 The value of the sort parameter is a comma-separated list of sort keys. Supported 
-sort keys include `time`, `observer_type`, `target_type`, `target_id`, `initiator_type`, `initiator_id` and `action`.
+sort keys include `time`, `observer_type`, `target_type`, `target_id`, `initiator_type`, `initiator_id`, `outcome` and
+ `action`.
 
 Each sort key may also include a direction. Supported directions are `:asc` for 
 ascending and `:desc` for descending. The service will use `:asc` for every key 

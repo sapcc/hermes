@@ -67,6 +67,7 @@ type Filter struct {
 	InitiatorID   string
 	InitiatorType string
 	Action        string
+	Outcome       string
 	Time          map[string]string
 	Offset        uint
 	Limit         uint
@@ -114,6 +115,7 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 		TargetType:    filter.TargetType,
 		TargetID:      filter.TargetID,
 		Action:        filter.Action,
+		Outcome:       filter.Outcome,
 		Time:          filter.Time,
 		Offset:        filter.Offset,
 		Limit:         filter.Limit,

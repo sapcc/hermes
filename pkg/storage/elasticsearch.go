@@ -27,6 +27,7 @@ var esFieldMapping = map[string]string{
 
 	// new names
 	"action":         "action",
+	"outcome":        "outcome",
 	"observer_id":    "observer.id",
 	"observer_type":  "observer.typeURI",
 	"target_id":      "target.id",
@@ -82,6 +83,9 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantID string) ([]*EventDeta
 	}
 	if filter.Action != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.Action))
+	}
+	if filter.Outcome != "" {
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("outcome", filter.Outcome))
 	}
 	if filter.Time != nil && len(filter.Time) > 0 {
 		for key, value := range filter.Time {

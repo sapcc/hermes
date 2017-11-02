@@ -60,7 +60,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 	sortSpec := []hermes.FieldOrder{}
 	validSortTopics := map[string]bool{"time": true, "initiator_id": true, "observer_type": true, "target_type": true,
-		"target_id": true, "action": true,
+		"target_id": true, "action": true, "outcome": true,
 		// deprecated
 		"source": true, "resource_type": true, "resource_name": true, "event_type": true}
 	validSortDirection := map[string]bool{"asc": true, "desc": true}
@@ -146,6 +146,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		InitiatorID:   req.FormValue("initiator_id") + req.FormValue("user_name"),
 		InitiatorType: req.FormValue("initiator_type"),
 		Action:        req.FormValue("action") + req.FormValue("event_type"),
+		Outcome:       req.FormValue("outcome"),
 		Time:          timeRange,
 		Offset:        uint(offset),
 		Limit:         uint(limit),
