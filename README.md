@@ -102,7 +102,7 @@ GET /v1/events?time=gte:2017-05-01T00:00:00,lt:2017-06-01T00:00:00
 **Sorting:**
 
 The value of the sort parameter is a comma-separated list of sort keys. Supported 
-sort keys include `time`, `observer_type`, `target_type`, and `action`.
+sort keys include `time`, `observer_type`, `target_type`, `target_id`, `initiator_type`, `initiator_id` and `action`.
 
 Each sort key may also include a direction. Supported directions are `:asc` for 
 ascending and `:desc` for descending. The service will use `:asc` for every key 
