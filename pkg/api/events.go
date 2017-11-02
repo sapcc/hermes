@@ -59,7 +59,10 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	//slice of a struct, key and direction.
 
 	sortSpec := []hermes.FieldOrder{}
-	validSortTopics := map[string]bool{"time": true, "source": true, "resource_type": true, "resource_name": true, "event_type": true}
+	validSortTopics := map[string]bool{"time": true, "initiator_id": true, "observer_type": true, "target_type": true,
+		"target_id": true, "action": true,
+		// deprecated
+		"source": true, "resource_type": true, "resource_name": true, "event_type": true}
 	validSortDirection := map[string]bool{"asc": true, "desc": true}
 	sortParam := req.FormValue("sort")
 
@@ -137,15 +140,16 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	util.LogDebug("api.ListEvents: Create filter")
 	filter := hermes.Filter{
 		// TODO: remove append of deprecated parameters
-		ObserverType: req.FormValue("observer_type") + req.FormValue("source"),
-		TargetType:   req.FormValue("target_type") + req.FormValue("resource_type"),
-		TargetID:     req.FormValue("target_id"),
-		OriginatorID: req.FormValue("originator_id") + req.FormValue("user_name"),
-		Action:       req.FormValue("action") + req.FormValue("event_type"),
-		Time:         timeRange,
-		Offset:       uint(offset),
-		Limit:        uint(limit),
-		Sort:         sortSpec,
+		ObserverType:  req.FormValue("observer_type") + req.FormValue("source"),
+		TargetType:    req.FormValue("target_type") + req.FormValue("resource_type"),
+		TargetID:      req.FormValue("target_id"),
+		InitiatorID:   req.FormValue("initiator_id") + req.FormValue("user_name"),
+		InitiatorType: req.FormValue("initiator_type"),
+		Action:        req.FormValue("action") + req.FormValue("event_type"),
+		Time:          timeRange,
+		Offset:        uint(offset),
+		Limit:         uint(limit),
+		Sort:          sortSpec,
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")

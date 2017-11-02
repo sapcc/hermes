@@ -22,7 +22,6 @@ package storage
 // Storage is an interface that wraps the underlying event storage mechanism.
 // Because it is an interface, the real implementation can be mocked away in unit tests.
 type Storage interface {
-
 	/********** requests to ElasticSearch **********/
 	GetEvents(filter *Filter, tenantID string) ([]*EventDetail, int, error)
 	GetEvent(eventId string, tenantID string) (*EventDetail, error)
@@ -38,15 +37,16 @@ type FieldOrder struct {
 
 // This Filter is similar to hermes.Filter, but using IDs instead of names
 type Filter struct {
-	ObserverType string
-	TargetType   string
-	TargetID     string
-	OriginatorID string
-	Action       string
-	Time         map[string]string
-	Offset       uint
-	Limit        uint
-	Sort         []FieldOrder
+	ObserverType  string
+	TargetType    string
+	TargetID      string
+	InitiatorID   string
+	InitiatorType string
+	Action        string
+	Time          map[string]string
+	Offset        uint
+	Limit         uint
+	Sort          []FieldOrder
 }
 
 // Thanks to the tool at https://mholt.github.io/json-to-go/

@@ -61,15 +61,16 @@ type FieldOrder struct {
 
 // Filter maps to the filtering/paging/sorting allowed by the API
 type Filter struct {
-	ObserverType string
-	TargetType   string
-	TargetID     string
-	OriginatorID string
-	Action       string
-	Time         map[string]string
-	Offset       uint
-	Limit        uint
-	Sort         []FieldOrder
+	ObserverType  string
+	TargetType    string
+	TargetID      string
+	InitiatorID   string
+	InitiatorType string
+	Action        string
+	Time          map[string]string
+	Offset        uint
+	Limit         uint
+	Sort          []FieldOrder
 }
 
 // GetEvents returns a list of matching events (with filtering)
@@ -107,15 +108,16 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 		panic("Could not copy storage field order.")
 	}
 	storageFilter := storage.Filter{
-		ObserverType: filter.ObserverType,
-		OriginatorID: filter.OriginatorID,
-		TargetType:   filter.TargetType,
-		TargetID:     filter.TargetID,
-		Action:       filter.Action,
-		Time:         filter.Time,
-		Offset:       filter.Offset,
-		Limit:        filter.Limit,
-		Sort:         storageFieldOrder,
+		ObserverType:  filter.ObserverType,
+		InitiatorID:   filter.InitiatorID,
+		InitiatorType: filter.InitiatorType,
+		TargetType:    filter.TargetType,
+		TargetID:      filter.TargetID,
+		Action:        filter.Action,
+		Time:          filter.Time,
+		Offset:        filter.Offset,
+		Limit:         filter.Limit,
+		Sort:          storageFieldOrder,
 	}
 	// TODO: double-check if we really want to do this (think of all the different resource types out there)
 	// IMHO (jobrs) resolving IDs into names can be done on the UI and on request of the user
@@ -124,13 +126,13 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 	//	// TODO: make sure there is a resource type, then look up the corresponding name
 	//	//storageFilter.TargetID = resourceId
 	//}
-	//if filter.OriginatorID != "" {
-	//	util.LogDebug("Filtering on OriginatorID: %s", filter.OriginatorID)
-	//	//userId, err := keystoneDriver.OriginatorID(filter.OriginatorID)
+	//if filter.InitiatorID != "" {
+	//	util.LogDebug("Filtering on InitiatorID: %s", filter.InitiatorID)
+	//	//userId, err := keystoneDriver.InitiatorID(filter.InitiatorID)
 	//	//if err != nil {
-	//	//	util.LogError("Could not find user ID &s for name %s", userId, filter.OriginatorID)
+	//	//	util.LogError("Could not find user ID &s for name %s", userId, filter.InitiatorID)
 	//	//}
-	//	storageFilter.OriginatorID = filter.OriginatorID
+	//	storageFilter.InitiatorID = filter.InitiatorID
 	//}
 	return &storageFilter, nil
 }
@@ -181,7 +183,7 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 		//
 		//	//event.Initiator.DomainName = nameMap["init_user_domain"]
 		//	//event.Initiator.ProjectName = nameMap["init_user_project"]
-		//	//event.Initiator.OriginatorID = nameMap["init_user"]
+		//	//event.Initiator.InitiatorID = nameMap["init_user"]
 		//	event.ResourceName = nameMap["target"]
 		//}
 		events = append(events, &event)
@@ -212,10 +214,10 @@ func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity,
 
 			event.Initiator.DomainName = nameMap["init_user_domain"]
 			event.Initiator.ProjectName = nameMap["init_user_project"]
-			event.Initiator.OriginatorID = nameMap["init_user"]
+			event.Initiator.InitiatorID = nameMap["init_user"]
 			event.Target.Name = nameMap["target"]
 			event.ProjectName = nameMap["project"]
-			event.OriginatorID = nameMap["user"]
+			event.InitiatorID = nameMap["user"]
 			event.GroupName = nameMap["group"]
 			event.RoleName = nameMap["role"]
 		}
@@ -254,7 +256,7 @@ func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targ
 	}
 	iUserID := idMap["init_user"]
 	if iUserID != "" {
-		nameMap["init_user"], err = keystoneDriver.OriginatorID(iUserID)
+		nameMap["init_user"], err = keystoneDriver.InitiatorID(iUserID)
 		if err != nil {
 			log.Printf("Error looking up user name for user '%s'", iUserID)
 		}
@@ -268,7 +270,7 @@ func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targ
 	}
 	userID := idMap["user"]
 	if userID != "" {
-		nameMap["user"], err = keystoneDriver.OriginatorID(userID)
+		nameMap["user"], err = keystoneDriver.InitiatorID(userID)
 		if err != nil {
 			log.Printf("Error looking up user name for user '%s'", userID)
 		}
@@ -294,7 +296,7 @@ func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targ
 		nameMap["target"], err = keystoneDriver.ProjectName(idMap["target"])
 	case "service/security/account/user":
 	// doesn't work for users - a UUID is used for some reason, which can't be looked up
-	//	nameMap["target"], err = keystoneDriver.OriginatorID(idMap["target"])
+	//	nameMap["target"], err = keystoneDriver.InitiatorID(idMap["target"])
 	default:
 		log.Printf("Unhandled payload type \"%s\", cannot look up name.", targetType)
 	}

@@ -39,7 +39,7 @@ type Identity interface {
 	DomainName(id string) (string, error)
 	ProjectName(id string) (string, error)
 	UserName(id string) (string, error)
-	UserId(name string) (string, error)
+	UserID(name string) (string, error)
 	RoleName(id string) (string, error)
 	GroupName(id string) (string, error)
 }

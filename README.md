@@ -66,7 +66,9 @@ be found in the PDF
 | --- | --- | --- |
 | observer_type | string | Selects all events with source similar to this value. |
 | target\_type | string | Selects all events related to this resource type. |
-| originator\_id | string | Selects all events caused by this originator (usually an OpenStack user ID) |
+| target\_id | string | Selects all events related to this specific resource instance. |
+| initiator\_id | string | Selects all events caused by this initiator (usually an OpenStack user ID) |
+| initiator\_type | string | Selects all events caused by this initiator type (user or system) |
 | action | string | Selects all events representing activities of this type. |
 | time | string | Date filter to select all events with _eventTime_ matching the specified criteria. See Date Filters below for more detail. |
 | offset | integer | The starting index within the total list of the events that you would like to retrieve. |
@@ -216,7 +218,11 @@ event, e.g.:
 
 **GET /v1/attributes/<attribute_name>**
 
-Returns the unique attributes from ElasticSearch for a given attribute name.
+Returns the unique values of a given attribute, so that you can e.g. have users select from them.
+
+`GET /v1/attributes/action`
+
+returns
 
 ```json 
 [

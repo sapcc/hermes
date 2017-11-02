@@ -58,9 +58,9 @@ type keystoneTokenThingInDomain struct {
 	Domain keystoneTokenThing `json:"domain"`
 }
 
-//keystoneNameId describes just the name and id of a Identity object.
+//keystoneNameID describes just the name and id of a Identity object.
 //  The JSON mappings here are for parsing Keystone responses
-type keystoneNameId struct {
+type keystoneNameID struct {
 	UUID string `json:"id"`
 	Name string `json:"name"`
 }
@@ -162,7 +162,7 @@ func (d Keystone) DomainName(id string) (string, error) {
 	}
 
 	var data struct {
-		Domain keystoneNameId `json:"domain"`
+		Domain keystoneNameID `json:"domain"`
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
@@ -190,7 +190,7 @@ func (d Keystone) ProjectName(id string) (string, error) {
 	}
 
 	var data struct {
-		Project keystoneNameId `json:"project"`
+		Project keystoneNameID `json:"project"`
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
@@ -218,18 +218,18 @@ func (d Keystone) UserName(id string) (string, error) {
 	}
 
 	var data struct {
-		User keystoneNameId `json:"user"`
+		User keystoneNameID `json:"user"`
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
 		updateCache(userNameCache, id, data.User.Name)
-		updateCache(userIdCache, data.User.Name, id)
+		updateCache(userIDCache, data.User.Name, id)
 	}
 	return data.User.Name, err
 }
 
-func (d Keystone) UserId(name string) (string, error) {
-	cachedID, hit := getFromCache(userIdCache, name)
+func (d Keystone) UserID(name string) (string, error) {
+	cachedID, hit := getFromCache(userIDCache, name)
 	if hit {
 		return cachedID, nil
 	}
@@ -247,24 +247,24 @@ func (d Keystone) UserId(name string) (string, error) {
 	}
 
 	var data struct {
-		User []keystoneNameId `json:"user"`
+		User []keystoneNameID `json:"user"`
 	}
 	err = result.ExtractInto(&data)
-	userId := ""
+	userID := ""
 	if err == nil {
 		switch len(data.User) {
 		case 0:
 			err = errors.Errorf("No user found with name %s", name)
 		case 1:
-			userId = data.User[0].UUID
+			userID = data.User[0].UUID
 		default:
 			util.LogWarning("Multiple users found with name %s - returning the first one", name)
-			userId = data.User[0].UUID
+			userID = data.User[0].UUID
 		}
-		updateCache(userIdCache, name, userId)
-		updateCache(userNameCache, userId, name)
+		updateCache(userIDCache, name, userID)
+		updateCache(userNameCache, userID, name)
 	}
-	return userId, err
+	return userID, err
 }
 
 func (d Keystone) RoleName(id string) (string, error) {
@@ -286,7 +286,7 @@ func (d Keystone) RoleName(id string) (string, error) {
 	}
 
 	var data struct {
-		Role keystoneNameId `json:"role"`
+		Role keystoneNameID `json:"role"`
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
@@ -314,7 +314,7 @@ func (d Keystone) GroupName(id string) (string, error) {
 	}
 
 	var data struct {
-		Group keystoneNameId `json:"group"`
+		Group keystoneNameID `json:"group"`
 	}
 	err = result.ExtractInto(&data)
 	if err == nil {
@@ -336,7 +336,7 @@ func (d Keystone) updateCaches(token *keystoneToken, tokenStr string) {
 	}
 	if token.User.ID != "" && token.User.Name != "" {
 		updateCache(userNameCache, token.User.ID, token.User.Name)
-		updateCache(userIdCache, token.User.Name, token.User.ID)
+		updateCache(userIDCache, token.User.Name, token.User.ID)
 	}
 	for _, role := range token.Roles {
 		if role.ID != "" && role.Name != "" {

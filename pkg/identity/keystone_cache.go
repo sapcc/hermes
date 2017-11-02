@@ -21,7 +21,7 @@ var providerClient *gophercloud.ProviderClient
 var domainNameCache *cache
 var projectNameCache *cache
 var userNameCache *cache
-var userIdCache *cache
+var userIDCache *cache
 var roleNameCache *cache
 var groupNameCache *cache
 
@@ -45,7 +45,7 @@ func init() {
 	domainNameCache = &cache{m: make(map[string]string)}
 	projectNameCache = &cache{m: make(map[string]string)}
 	userNameCache = &cache{m: make(map[string]string)}
-	userIdCache = &cache{m: make(map[string]string)}
+	userIDCache = &cache{m: make(map[string]string)}
 	roleNameCache = &cache{m: make(map[string]string)}
 	groupNameCache = &cache{m: make(map[string]string)}
 	tokenCache = &keystoneTokenCache{
@@ -115,10 +115,10 @@ func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
 	for _, elem := range elemsToRemove {
 		cache.eList.Remove(elem) // Remove the cached expiry time from the sorted list
 		time := (elem.Value).(time.Time)
-		tokenIds := cache.eMap[time]
+		tokenIDs := cache.eMap[time]
 		delete(cache.eMap, time) // Remove the cached expiry time from the time:tokenIDs map
-		for _, tokenId := range tokenIds {
-			delete(cache.tMap, tokenId) // Remove all the cached tokens
+		for _, tokenID := range tokenIDs {
+			delete(cache.tMap, tokenID) // Remove all the cached tokens
 		}
 	}
 	cacheSize := len(cache.tMap)

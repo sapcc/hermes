@@ -14,6 +14,27 @@ type ElasticSearch struct {
 	esClient *elastic.Client
 }
 
+// Mapping for attributes based on return values to API
+var esFieldMapping = map[string]string{
+	"time": "eventTime",
+
+	// old names
+	"source":        "observer.typeURI",
+	"resource_type": "target.typeURI",
+	"resource_name": "target.id",
+	"event_type":    "action",
+	"user_name":     "initiator.id",
+
+	// new names
+	"action":         "action",
+	"observer_id":    "observer.id",
+	"observer_type":  "observer.typeURI",
+	"target_id":      "target.id",
+	"target_type":    "target.typeURI",
+	"initiator_id":   "initiator.id",
+	"initiator_type": "initiator.typeURI",
+}
+
 func (es *ElasticSearch) client() *elastic.Client {
 	// Lazy initialisation - don't connect to ElasticSearch until we need to
 	if es.esClient == nil {
@@ -38,8 +59,8 @@ func (es *ElasticSearch) init() {
 }
 
 // GetEvents grabs events for a given tenantID with filtering.
-func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
-	index := indexName(tenantId)
+func (es ElasticSearch) GetEvents(filter *Filter, tenantID string) ([]*EventDetail, int, error) {
+	index := indexName(tenantID)
 	util.LogDebug("Looking for events in index %s", index)
 
 	query := elastic.NewBoolQuery()
@@ -53,8 +74,11 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 	if filter.TargetID != "" {
 		query = query.Filter(elastic.NewTermQuery("target.id", filter.TargetID))
 	}
-	if filter.OriginatorID != "" {
-		query = query.Filter(elastic.NewTermQuery("initiator.id", filter.OriginatorID))
+	if filter.InitiatorType != "" {
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("initiator.typeURI", filter.InitiatorType))
+	}
+	if filter.InitiatorID != "" {
+		query = query.Filter(elastic.NewTermQuery("initiator.id", filter.InitiatorID))
 	}
 	if filter.Action != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.Action))
@@ -73,15 +97,6 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 				query = query.Filter(elastic.NewRangeQuery(timeField).Gte(value))
 			}
 		}
-	}
-
-	// Fields are mapped differently in ES, must maintain a mapping to json.
-	esFieldMapping := map[string]string{
-		"time":          "eventTime",
-		"source":        "observer.typeURI",
-		"resource_type": "target.typeURI",
-		"resource_name": "target.id",
-		"event_type":    "action",
 	}
 
 	esSearch := es.client().Search().
@@ -126,12 +141,12 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantId string) ([]*EventDeta
 }
 
 // GetEvent Returns EventDetail for a single event.
-func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
-	index := indexName(tenantId)
-	util.LogDebug("Looking for event %s in index %s", eventId, index)
+func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*EventDetail, error) {
+	index := indexName(tenantID)
+	util.LogDebug("Looking for event %s in index %s", eventID, index)
 
 	// TODO: what is the meaning of this .raw suffix? without it there are now results
-	query := elastic.NewTermQuery("id.raw", eventId)
+	query := elastic.NewTermQuery("id.raw", eventID)
 	esSearch := es.client().Search().
 		Index(index).
 		Query(query)
@@ -155,32 +170,12 @@ func (es ElasticSearch) GetEvent(eventId string, tenantId string) (*EventDetail,
 
 // GetAttributes Return all unique attributes available for filtering
 // Possible queries, event_type, dns, identity, etc..
-func (es ElasticSearch) GetAttributes(queryName string, tenantId string) ([]string, error) {
-	index := indexName(tenantId)
+func (es ElasticSearch) GetAttributes(queryName string, tenantID string) ([]string, error) {
+	index := indexName(tenantID)
 
 	util.LogDebug("Looking for unique attributes for %s in index %s", queryName, index)
 
-	// Mapping for attributes based on return values to API
 	// ObserverType in this case is not the cadf source, but instead the first part of event_type
-	esFieldMapping := map[string]string{
-		// old names
-		"time":          "eventTime",
-		"source":        "observer.typeURI",
-		"resource_type": "target.typeURI",
-		"resource_name": "target.id",
-		"event_type":    "action",
-		"user_name":     "originator.id",
-
-		// new names
-		"action":          "action",
-		"source_id":       "observer.id",
-		"source_type":     "observer.typeURI",
-		"target_type":     "target.typeURI",
-		"target_name":     "target.id",
-		"originator_id":   "originator.id",
-		"originator_type": "originator.type",
-	}
-
 	var esName string
 	// Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
 	if val, ok := esFieldMapping[queryName]; ok {
@@ -251,12 +246,12 @@ func (es ElasticSearch) MaxLimit() uint {
 	return uint(viper.GetInt("elasticsearch.max_result_window"))
 }
 
-// indexName Generates the index name for a given TenantId. If no tenantId defaults to audit-*
+// indexName Generates the index name for a given TenantId. If no tenantID defaults to audit-*
 // Records for audit-* will not be accessible from a given Tenant.
-func indexName(tenantId string) string {
+func indexName(tenantID string) string {
 	index := "audit-*"
-	if tenantId != "" {
-		index = fmt.Sprintf("audit-%s-*", tenantId)
+	if tenantID != "" {
+		index = fmt.Sprintf("audit-%s-*", tenantID)
 	}
 	return index
 }
