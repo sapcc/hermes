@@ -28,6 +28,7 @@ import (
 
 	"log"
 
+	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
