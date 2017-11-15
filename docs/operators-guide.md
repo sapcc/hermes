@@ -31,7 +31,6 @@ An example configuration file is located in etc/ which can help you get started.
 \[hermes\]
 * PolicyFilePath - Location of [OpenStack policy file](https://docs.openstack.org/security-guide/identity/policies.html) - policy.json file for which roles are required to access audit events. 
 Example located in `etc/policy.json`
-* enrich_keystone_events - Defaults to false, will optionally change UUIDs to real names.
 
 #### ElasticSearch configuration
 Any data served by Hermes requires an underlying Elasticsearch installation to act as the Datastore.

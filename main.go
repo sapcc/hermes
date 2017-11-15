@@ -28,7 +28,6 @@ import (
 
 	"log"
 
-	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
@@ -67,7 +66,6 @@ func setDefaultConfig() {
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
 	viper.SetDefault("hermes.configdb_driver", "mysql")
-	viper.SetDefault("hermes.enrich_keystone_events", "False")
 	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
 	viper.SetDefault("elasticsearch.url", "localhost:9200")

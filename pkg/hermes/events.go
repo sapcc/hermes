@@ -121,21 +121,6 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 		Limit:         filter.Limit,
 		Sort:          storageFieldOrder,
 	}
-	// TODO: double-check if we really want to do this (think of all the different resource types out there)
-	// IMHO (jobrs) resolving IDs into names can be done on the UI and on request of the user
-	//// Translate hermes.Filter to storage.Filter by filling in IDs for names
-	//if filter.ResourceName != "" {
-	//	// TODO: make sure there is a resource type, then look up the corresponding name
-	//	//storageFilter.TargetID = resourceId
-	//}
-	//if filter.InitiatorID != "" {
-	//	util.LogDebug("Filtering on InitiatorID: %s", filter.InitiatorID)
-	//	//userId, err := keystoneDriver.InitiatorID(filter.InitiatorID)
-	//	//if err != nil {
-	//	//	util.LogError("Could not find user ID &s for name %s", userId, filter.InitiatorID)
-	//	//}
-	//	storageFilter.InitiatorID = filter.InitiatorID
-	//}
 	return &storageFilter, nil
 }
 
@@ -174,20 +159,6 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 			return nil, err
 		}
 
-		// TODO: adapt and reactivate if needed
-		//if viper.GetBool("hermes.enrich_keystone_events") {
-		//	nameMap := namesForIds(keystoneDriver, map[string]string{
-		//		"init_user_domain":  event.Initiator.DomainID,
-		//		"init_user_project": event.Initiator.ProjectID,
-		//		"init_user":         event.Initiator.UserID,
-		//		"target":            event.TargetID,
-		//	}, event.TargetType)
-		//
-		//	//event.Initiator.DomainName = nameMap["init_user_domain"]
-		//	//event.Initiator.ProjectName = nameMap["init_user_project"]
-		//	//event.Initiator.InitiatorID = nameMap["init_user"]
-		//	event.ResourceName = nameMap["target"]
-		//}
 		events = append(events, &event)
 	}
 	return events, nil
@@ -197,34 +168,6 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.EventDetail, error) {
 	event, err := eventStore.GetEvent(eventID, tenantID)
 
-	/* TODO: think about whether this makes sense. In CADF, arbitrary resources are referenced by typeURI and ID.
-	Should we attempt to resolve these IDs into names or leave this up to the UI layer? The UI layer should have that
-	functionality and corresponding caching mechanism already. Also names are not unique and can change, so they cannot
-	be used safely for anything but presentation.
-	if viper.GetBool("hermes.enrich_keystone_events") {
-		if event != nil {
-			nameMap := namesForIds(keystoneDriver, map[string]string{
-				"init_user_domain":  event.Payload.Initiator.DomainID,
-				"init_user_project": event.Payload.Initiator.ProjectID,
-				"init_user":         event.Payload.Initiator.UserID,
-				"target":            event.Payload.Target.ID,
-				"project":           event.Payload.Project,
-				"user":              event.Payload.User,
-				"group":             event.Payload.Group,
-				"role":              event.Payload.Role,
-			}, event.Payload.Target.TypeURI)
-
-			event.Initiator.DomainName = nameMap["init_user_domain"]
-			event.Initiator.ProjectName = nameMap["init_user_project"]
-			event.Initiator.InitiatorID = nameMap["init_user"]
-			event.Target.Name = nameMap["target"]
-			event.ProjectName = nameMap["project"]
-			event.InitiatorID = nameMap["user"]
-			event.GroupName = nameMap["group"]
-			event.RoleName = nameMap["role"]
-		}
-	}
-	*/
 	return event, err
 }
 
@@ -234,78 +177,3 @@ func GetAttributes(queryName string, tenantID string, eventStore storage.Storage
 
 	return attribute, err
 }
-
-// TODO: remove or extend for all those Nova, Neutron, ... resource types
-/*
-func namesForIds(keystoneDriver identity.Identity, idMap map[string]string, targetType string) map[string]string {
-	nameMap := map[string]string{}
-	var err error
-
-	// Now add the names for IDs in the event to the nameMap
-	iUserDomainID := idMap["init_user_domain"]
-	if iUserDomainID != "" {
-		nameMap["init_user_domain"], err = keystoneDriver.DomainName(iUserDomainID)
-		if err != nil {
-			log.Printf("Error looking up domain name for domain '%s'", iUserDomainID)
-		}
-	}
-	iUserProjectID := idMap["init_user_project"]
-	if iUserProjectID != "" {
-		nameMap["init_user_project"], err = keystoneDriver.ProjectName(iUserProjectID)
-		if err != nil {
-			log.Printf("Error looking up project name for project '%s'", iUserProjectID)
-		}
-	}
-	iUserID := idMap["init_user"]
-	if iUserID != "" {
-		nameMap["init_user"], err = keystoneDriver.InitiatorID(iUserID)
-		if err != nil {
-			log.Printf("Error looking up user name for user '%s'", iUserID)
-		}
-	}
-	projectID := idMap["project"]
-	if projectID != "" {
-		nameMap["project"], err = keystoneDriver.ProjectName(projectID)
-		if err != nil {
-			log.Printf("Error looking up project name for project '%s'", projectID)
-		}
-	}
-	userID := idMap["user"]
-	if userID != "" {
-		nameMap["user"], err = keystoneDriver.InitiatorID(userID)
-		if err != nil {
-			log.Printf("Error looking up user name for user '%s'", userID)
-		}
-	}
-	groupID := idMap["group"]
-	if groupID != "" {
-		nameMap["group"], err = keystoneDriver.GroupName(groupID)
-		if err != nil {
-			log.Printf("Error looking up user name for group '%s'", groupID)
-		}
-	}
-	roleID := idMap["role"]
-	if roleID != "" {
-		nameMap["role"], err = keystoneDriver.RoleName(roleID)
-		if err != nil {
-			log.Printf("Error looking up user name for role '%s'", roleID)
-		}
-	}
-
-	// Depending on the type of the target, we need to look up the name in different services
-	switch targetType {
-	case "data/security/project":
-		nameMap["target"], err = keystoneDriver.ProjectName(idMap["target"])
-	case "service/security/account/user":
-	// doesn't work for users - a UUID is used for some reason, which can't be looked up
-	//	nameMap["target"], err = keystoneDriver.InitiatorID(idMap["target"])
-	default:
-		log.Printf("Unhandled payload type \"%s\", cannot look up name.", targetType)
-	}
-	if err != nil {
-		log.Printf("Error looking up name for %s '%s'", targetType, idMap["target"])
-	}
-
-	return nameMap
-}
-*/

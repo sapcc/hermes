@@ -137,7 +137,7 @@ This example shows the audit events for creating & deleting a project.
 ## GET /v1/events/:event_id
 
 Returns the full CADF payload for an individual
-event, enriched with names for IDs where relevant, e.g.:
+event, e.g.:
 
 ```json
 {
