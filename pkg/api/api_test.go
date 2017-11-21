@@ -77,7 +77,7 @@ func Test_APIGetEventDetails(t *testing.T) {
 
 	test.APIRequest{
 		Method:           "GET",
-		Path:             "/v1/events/d5eed458-6666-58ec-ad06-8d3cf6bafca1",
+		Path:             "/v1/events/7be6c4ff-b761-5f1f-b234-f5d41616c2cd",
 		ExpectStatusCode: 200,
 		ExpectJSON:       "fixtures/event-details.json",
 	}.Check(t, router)

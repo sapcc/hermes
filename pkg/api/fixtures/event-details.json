@@ -1,34 +1,24 @@
 {
-  "publisher_id": "identity.keystone-2031324599-gujvn",
-  "event_type": "identity.project.deleted",
-  "payload": {
-    "observer": {
-      "typeURI": "service/security",
-      "id": "493f1d6d-af50-5a4b-813b-488ecdfb1010"
-    },
-    "resource_info": "b3b70c8271a845709f9a03030e705da7",
-    "typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
-    "initiator": {
-      "typeURI": "service/security/account/user",
-      "project_id": "6a030751147a45c0863c3b5bde32c744",
-      "user_id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
-      "host": {
-        "agent": "python-keystoneclient",
-        "address": "100.65.0.11"
-      },
-      "id": "4a70d16f08b05d038c1e5ee7a5ee554e"
-    },
-    "eventTime": "2017-05-02T12:02:46.726056+0000",
-    "action": "deleted.project",
-    "eventType": "activity",
-    "id": "d5eed458-6666-58ec-ad06-8d3cf6bafca1",
-    "outcome": "success",
-    "target": {
-      "typeURI": "data/security/project",
-      "id": "b3b70c8271a845709f9a03030e705da7"
+  "typeURI": "",
+  "id": "7be6c4ff-b761-5f1f-b234-f5d41616c2cd",
+  "eventTime": "2017-11-17T08:53:32.667973+0000",
+  "action": "create/role_assignment",
+  "eventType": "",
+  "outcome": "success",
+  "initiator": {
+    "typeURI": "service/security/account/user",
+    "id": "5d847cb1e75047a29aa9dee2cabcce9b",
+    "host": {
+      "agent": "",
+      "address": ""
     }
   },
-  "message_id": "5a32c2f3-2996-4f46-819c-6197cf06037e",
-  "priority": "info",
-  "timestamp": "2017-05-02 12:02:46.726619"
+  "target": {
+    "typeURI": "service/security/account/user",
+    "id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac"
+  },
+  "observer": {
+    "typeURI": "service/security",
+    "id": "a02d5699-4967-522f-8092-c286aea2deab"
+  }
 }
