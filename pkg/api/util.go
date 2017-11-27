@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -29,8 +30,8 @@ type versionLinkData struct {
 //The `code` argument specifies the HTTP response code, usually 200.
 func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
 	payload, err := json.MarshalIndent(&data, "", "  ")
-	// TODO: @Arno, what is this used for?
-	//payload = bytes.Replace(payload, []byte("\\u0026"), []byte("&"), -1)
+	// Replaces & symbols properly in json within urls.
+	payload = bytes.Replace(payload, []byte("\\u0026"), []byte("&"), -1)
 	if err == nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(code)

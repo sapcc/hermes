@@ -73,7 +73,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			sortfield := keyVal[0]
 			if !validSortTopics[sortfield] {
 				err := fmt.Errorf("Not a valid topic: %s, Valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
-				http.Error(res, err.Error(), 400)
+				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 
@@ -82,7 +82,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 				sortDirection := keyVal[1]
 				if !validSortDirection[sortDirection] {
 					err := fmt.Errorf("sort direction %s is invalid, must be asc or desc", sortDirection)
-					http.Error(res, err.Error(), 400)
+					http.Error(res, err.Error(), http.StatusBadRequest)
 					return
 				}
 				defsortorder = sortDirection
@@ -104,18 +104,18 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			operator := keyVal[0]
 			if !validOperators[operator] {
 				err := fmt.Errorf("time operator %s is not valid. Must be lt, lte, gt or gte", operator)
-				http.Error(res, err.Error(), 400)
+				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 			_, exists := timeRange[operator]
 			if exists {
 				err := fmt.Errorf("Time operator %s can only occur once", operator)
-				http.Error(res, err.Error(), 400)
+				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 			if len(keyVal) != 2 {
 				err := fmt.Errorf("Time operator %s missing :<timestamp>", operator)
-				http.Error(res, err.Error(), 400)
+				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 			validTimeFormats := []string{time.RFC3339, "2006-01-02T15:04:05-0700", "2006-01-02T15:04:05"}
@@ -130,7 +130,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			}
 			if !isValidTimeFormat {
 				err := fmt.Errorf("Invalid time format: %s", timeStr)
-				http.Error(res, err.Error(), 400)
+				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 			timeRange[operator] = timeStr
@@ -179,8 +179,9 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
-	ReturnJSON(res, 200, eventList)
+	ReturnJSON(res, http.StatusOK, eventList)
 }
+
 func getProtocol(req *http.Request) string {
 	protocol := "http"
 	if req.TLS != nil || req.Header.Get("X-Forwarded-Proto") == "https" {
@@ -208,10 +209,10 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	}
 	if event == nil {
 		err := fmt.Errorf("Event %s could not be found in tenant %s", eventID, tenantID)
-		http.Error(res, err.Error(), 404)
+		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
-	ReturnJSON(res, 200, event)
+	ReturnJSON(res, http.StatusOK, event)
 }
 
 //GetAttributes handles GET /v1/attributes/:attribute_name
@@ -236,10 +237,10 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	}
 	if attribute == nil {
 		err := fmt.Errorf("Attribute %s could not be found in tenant %s", attribute, tenantID)
-		http.Error(res, err.Error(), 404)
+		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
-	ReturnJSON(res, 200, attribute)
+	ReturnJSON(res, http.StatusOK, attribute)
 }
 
 func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
@@ -257,7 +258,7 @@ func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, 
 	if domainID != "" {
 		if projectID != "" {
 			err := errors.New("domain_id and project_id cannot both be specified")
-			http.Error(w, err.Error(), 400)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return "", err
 		}
 		tenantID = domainID
