@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
@@ -28,18 +29,22 @@ func Server(keystone identity.Identity, storage storage.Storage, configdb config
 		allVersions := struct {
 			Versions []versionData `json:"versions"`
 		}{[]versionData{v1VersionData}}
-		ReturnJSON(w, 300, allVersions)
+		ReturnJSON(w, http.StatusMultipleChoices, allVersions)
 	})
+	// instrumentation
+	mainRouter.Handle("/metrics", promhttp.Handler())
 
 	http.Handle("/", mainRouter)
 
-	//start HTTP server with CORS support
-	util.LogInfo("listening on " + viper.GetString("API.ListenAddress"))
+	//start HTTP server
+	listenaddress := viper.GetString("API.ListenAddress")
+	util.LogInfo("listening on %s", listenaddress)
+	//enable cors support
 	c := cors.New(cors.Options{
 		AllowedHeaders: []string{"X-Auth-Token", "Content-Type", "Accept"},
 		AllowedMethods: []string{"GET", "HEAD"},
 		MaxAge:         600,
 	})
 	handler := c.Handler(mainRouter)
-	return http.ListenAndServe(viper.GetString("API.ListenAddress"), handler)
+	return http.ListenAndServe(listenaddress, handler)
 }
