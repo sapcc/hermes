@@ -22,7 +22,6 @@ package api
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
@@ -42,6 +41,7 @@ type v1Provider struct {
 //version advertisement on "GET /".
 func NewV1Router(keystone identity.Identity, storage storage.Storage, configdb configdb.Driver) (http.Handler, versionData) {
 	r := mux.NewRouter()
+
 	p := &v1Provider{
 		keystone: keystone,
 		storage:  storage,
@@ -73,8 +73,7 @@ func NewV1Router(keystone identity.Identity, storage storage.Storage, configdb c
 	r.Methods("GET").Path("/v1/attributes/{attribute_name}").HandlerFunc(p.GetAttributes)
 	r.Methods("GET").Path("/v1/audit").HandlerFunc(p.GetAudit)
 	r.Methods("PUT").Path("/v1/audit").HandlerFunc(p.PutAudit)
-	// instrumentation
-	r.Handle("/metrics", promhttp.Handler())
+
 	return r, p.versionData
 }
 
