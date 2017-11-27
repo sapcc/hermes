@@ -38,7 +38,7 @@ func setupRouter(keystone identity.Identity, storage storage.Storage, configdb c
 	mainRouter := mux.NewRouter()
 	//hook up the v1 API (this code is structured so that a newer API version can
 	//be added easily later)
-	v1Router, v1VersionData := NewV1Router(keystone, storage, configdb)
+	v1Router, v1VersionData := NewV1Handler(keystone, storage, configdb)
 	mainRouter.PathPrefix("/v1/").Handler(v1Router)
 
 	//add the version advertisement that lists all available API versions
