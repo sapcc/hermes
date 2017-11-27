@@ -72,7 +72,7 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 //is returned.
 func (t *Token) Require(w http.ResponseWriter, rule string) bool {
 	if t.err != nil {
-		http.Error(w, t.err.Error(), 401)
+		http.Error(w, t.err.Error(), http.StatusUnauthorized)
 		return false
 	}
 
@@ -80,7 +80,7 @@ func (t *Token) Require(w http.ResponseWriter, rule string) bool {
 		t.context.Logger = log.Printf //or any other function with the same signature
 	}
 	if !t.enforcer.Enforce(rule, t.context) {
-		http.Error(w, "Unauthorized", 403)
+		http.Error(w, "Unauthorized", http.StatusForbidden)
 		return false
 	}
 	return true
