@@ -19,6 +19,42 @@
 
 package storage
 
+// Status contains Prometheus status strings
+type Status string
+
+const (
+	// StatusSuccess means success
+	StatusSuccess Status = "success"
+	// StatusError means error
+	StatusError = "error"
+)
+
+// ErrorType enumerates different Prometheus error types
+type ErrorType string
+
+const (
+	// ErrorNone means no error
+	ErrorNone ErrorType = ""
+	// ErrorTimeout means that a timeout occured while processing the request
+	ErrorTimeout = "timeout"
+	// ErrorCanceled means that the query was cancelled (to protect the service from malicious requests)
+	ErrorCanceled = "canceled"
+	// ErrorExec means unspecified error happened during query execution
+	ErrorExec = "execution"
+	// ErrorBadData means the API parameters where invalid
+	ErrorBadData = "bad_data"
+	// ErrorInternal means some unspecified internal error happened
+	ErrorInternal = "internal"
+)
+
+// Response encapsulates a generic response of a Prometheus API
+type Response struct {
+	Status    Status        `json:"status"`
+	Data      []interface{} `json:"data,omitempty"`
+	ErrorType ErrorType     `json:"errorType,omitempty"`
+	Error     string        `json:"error,omitempty"`
+}
+
 // Storage is an interface that wraps the underlying event storage mechanism.
 // Because it is an interface, the real implementation can be mocked away in unit tests.
 type Storage interface {

@@ -20,32 +20,15 @@
 package api
 
 import (
-	"encoding/json"
-	"net/http"
-	"strings"
-
-	"bytes"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
+	"net/http"
+	"strings"
 )
-
-//versionData is used by version advertisement handlers.
-type versionData struct {
-	Status string            `json:"status"`
-	ID     string            `json:"id"`
-	Links  []versionLinkData `json:"links"`
-}
-
-//versionLinkData is used by version advertisement handlers, as part of the
-//versionData struct.
-type versionLinkData struct {
-	URL      string `json:"href"`
-	Relation string `json:"rel"`
-	Type     string `json:"type,omitempty"`
-}
 
 type v1Provider struct {
 	keystone    identity.Identity
@@ -90,43 +73,9 @@ func NewV1Router(keystone identity.Identity, storage storage.Storage, configdb c
 	r.Methods("GET").Path("/v1/attributes/{attribute_name}").HandlerFunc(p.GetAttributes)
 	r.Methods("GET").Path("/v1/audit").HandlerFunc(p.GetAudit)
 	r.Methods("PUT").Path("/v1/audit").HandlerFunc(p.PutAudit)
+	// instrumentation
+	r.Handle("/metrics", promhttp.Handler())
 	return r, p.versionData
-}
-
-//ReturnJSON is a convenience function for HTTP handlers returning JSON data.
-//The `code` argument specifies the HTTP response code, usually 200.
-func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
-	escapedJSON, err := json.MarshalIndent(&data, "", "  ")
-	jsonData := bytes.Replace(escapedJSON, []byte("\\u0026"), []byte("&"), -1)
-	if err == nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		w.Write(jsonData)
-	} else {
-		http.Error(w, err.Error(), 500)
-	}
-}
-
-//ReturnError produces an error response with HTTP status code 500 if the given
-//error is non-nil. Otherwise, nothing is done and false is returned.
-func ReturnError(w http.ResponseWriter, err error) bool {
-	if err == nil {
-		return false
-	}
-
-	http.Error(w, err.Error(), 500)
-	return true
-}
-
-//RequireJSON will parse the request body into the given data structure, or
-//write an error response if that fails.
-func RequireJSON(w http.ResponseWriter, r *http.Request, data interface{}) bool {
-	err := json.NewDecoder(r.Body).Decode(data)
-	if err != nil {
-		http.Error(w, "request body is not valid JSON: "+err.Error(), 400)
-		return false
-	}
-	return true
 }
 
 //Path constructs a full URL for a given URL path below the /v1/ endpoint.
