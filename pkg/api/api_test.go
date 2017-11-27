@@ -56,7 +56,7 @@ func setupTest(t *testing.T) http.Handler {
 	keystone := identity.Mock{}
 	storage := storage.Mock{}
 	configdb := configdb.Mock{}
-	router, _ := NewV1Router(keystone, storage, configdb)
+	router, _ := NewV1Handler(keystone, storage, configdb)
 	return router
 }
 

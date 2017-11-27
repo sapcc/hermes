@@ -36,10 +36,10 @@ type v1Provider struct {
 	versionData versionData
 }
 
-//NewV1Router creates a http.Handler that serves the Hermes v1 API.
+//NewV1Handler creates a http.Handler that serves the Hermes v1 API.
 //It also returns the versionData for this API version which is needed for the
 //version advertisement on "GET /".
-func NewV1Router(keystone identity.Identity, storage storage.Storage, configdb configdb.Driver) (http.Handler, versionData) {
+func NewV1Handler(keystone identity.Identity, storage storage.Storage, configdb configdb.Driver) (http.Handler, versionData) {
 	r := mux.NewRouter()
 
 	p := &v1Provider{
@@ -68,9 +68,12 @@ func NewV1Router(keystone identity.Identity, storage storage.Storage, configdb c
 		ReturnJSON(res, 200, map[string]interface{}{"version": p.versionData})
 	})
 
-	r.Methods("GET").Path("/v1/events").HandlerFunc(p.ListEvents)
-	r.Methods("GET").Path("/v1/events/{event_id}").HandlerFunc(p.GetEventDetails)
-	r.Methods("GET").Path("/v1/attributes/{attribute_name}").HandlerFunc(p.GetAttributes)
+	r.Methods("GET").Path("/v1/events").HandlerFunc(
+		observeDuration(observeResponseSize(p.ListEvents, "ListEvents"), "ListEvents"))
+	r.Methods("GET").Path("/v1/events/{event_id}").HandlerFunc(
+		observeDuration(observeResponseSize(p.GetEventDetails, "GetEventDetails"), "GetEventDetails"))
+	r.Methods("GET").Path("/v1/attributes/{attribute_name}").HandlerFunc(
+		observeDuration(observeResponseSize(p.GetAttributes, "GetAttributes"), "GetAttributes"))
 	r.Methods("GET").Path("/v1/audit").HandlerFunc(p.GetAudit)
 	r.Methods("PUT").Path("/v1/audit").HandlerFunc(p.PutAudit)
 
