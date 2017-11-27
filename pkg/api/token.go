@@ -21,13 +21,12 @@ package api
 
 import (
 	"errors"
-	"net/http"
-
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 	"log"
+	"net/http"
 	"os"
 )
 
