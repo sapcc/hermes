@@ -17,22 +17,7 @@ import (
 // Server Set up and start the API server, hooking it up to the API router
 func Server(keystone identity.Identity, storage storage.Storage, configdb configdb.Driver) error {
 	fmt.Println("API")
-	mainRouter := mux.NewRouter()
-
-	//hook up the v1 API (this code is structured so that a newer API version can
-	//be added easily later)
-	v1Router, v1VersionData := NewV1Router(keystone, storage, configdb)
-	mainRouter.PathPrefix("/v1/").Handler(v1Router)
-
-	//add the version advertisement that lists all available API versions
-	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		allVersions := struct {
-			Versions []versionData `json:"versions"`
-		}{[]versionData{v1VersionData}}
-		ReturnJSON(w, http.StatusMultipleChoices, allVersions)
-	})
-	// instrumentation
-	mainRouter.Handle("/metrics", promhttp.Handler())
+	mainRouter := setupRouter(keystone, storage, configdb)
 
 	http.Handle("/", mainRouter)
 
@@ -47,4 +32,25 @@ func Server(keystone identity.Identity, storage storage.Storage, configdb config
 	})
 	handler := c.Handler(mainRouter)
 	return http.ListenAndServe(listenaddress, handler)
+}
+
+func setupRouter(keystone identity.Identity, storage storage.Storage, configdb configdb.Driver) http.Handler {
+	mainRouter := mux.NewRouter()
+	//hook up the v1 API (this code is structured so that a newer API version can
+	//be added easily later)
+	v1Router, v1VersionData := NewV1Router(keystone, storage, configdb)
+	mainRouter.PathPrefix("/v1/").Handler(v1Router)
+
+	//add the version advertisement that lists all available API versions
+	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		allVersions := struct {
+			Versions []versionData `json:"versions"`
+		}{[]versionData{v1VersionData}}
+		ReturnJSON(w, http.StatusMultipleChoices, allVersions)
+	})
+
+	// instrumentation
+	mainRouter.Handle("/metrics", promhttp.Handler())
+
+	return gaugeInflight(mainRouter)
 }
