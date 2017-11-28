@@ -86,6 +86,7 @@ func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	)
 }
 
+//Client for Keystone connection
 func (d Keystone) Client() *gophercloud.ProviderClient {
 	var kc Keystone
 
@@ -97,6 +98,7 @@ func (d Keystone) Client() *gophercloud.ProviderClient {
 	return nil
 }
 
+//ValidateToken checks a token with Keystone
 func (d Keystone) ValidateToken(token string) (policy.Context, error) {
 	cachedToken := getCachedToken(tokenCache, token)
 	if cachedToken != nil {
@@ -124,6 +126,7 @@ func (d Keystone) ValidateToken(token string) (policy.Context, error) {
 	return tokenData.ToContext(), nil
 }
 
+//Authenticate with Keystone
 func (d Keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error) {
 	client, err := d.keystoneClient()
 	if err != nil {
@@ -143,6 +146,7 @@ func (d Keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Con
 	return tokenData.ToContext(), nil
 }
 
+//DomainName with caching
 func (d Keystone) DomainName(id string) (string, error) {
 	cachedName, hit := getFromCache(domainNameCache, id)
 	if hit {
@@ -171,6 +175,7 @@ func (d Keystone) DomainName(id string) (string, error) {
 	return data.Domain.Name, err
 }
 
+//ProjectName with caching
 func (d Keystone) ProjectName(id string) (string, error) {
 	cachedName, hit := getFromCache(projectNameCache, id)
 	if hit {
@@ -199,6 +204,7 @@ func (d Keystone) ProjectName(id string) (string, error) {
 	return data.Project.Name, err
 }
 
+//UserName with Caching
 func (d Keystone) UserName(id string) (string, error) {
 	cachedName, hit := getFromCache(userNameCache, id)
 	if hit {
@@ -228,6 +234,7 @@ func (d Keystone) UserName(id string) (string, error) {
 	return data.User.Name, err
 }
 
+//UserID with caching
 func (d Keystone) UserID(name string) (string, error) {
 	cachedID, hit := getFromCache(userIDCache, name)
 	if hit {
@@ -267,6 +274,7 @@ func (d Keystone) UserID(name string) (string, error) {
 	return userID, err
 }
 
+//RoleName with caching
 func (d Keystone) RoleName(id string) (string, error) {
 	cachedName, hit := getFromCache(roleNameCache, id)
 	if hit {
@@ -295,6 +303,7 @@ func (d Keystone) RoleName(id string) (string, error) {
 	return data.Role.Name, err
 }
 
+//GroupName with caching
 func (d Keystone) GroupName(id string) (string, error) {
 	cachedName, hit := getFromCache(groupNameCache, id)
 	if hit {
@@ -323,6 +332,7 @@ func (d Keystone) GroupName(id string) (string, error) {
 	return data.Group.Name, err
 }
 
+//updateCaches fills caches for Keystone lookups
 func (d Keystone) updateCaches(token *keystoneToken, tokenStr string) {
 	addTokenToCache(tokenCache, tokenStr, token)
 	if token.DomainScope.ID != "" && token.DomainScope.Name != "" {
@@ -345,6 +355,7 @@ func (d Keystone) updateCaches(token *keystoneToken, tokenStr string) {
 	}
 }
 
+//ToContext
 func (t *keystoneToken) ToContext() policy.Context {
 	c := policy.Context{
 		Roles: make([]string, 0, len(t.Roles)),
@@ -426,6 +437,7 @@ func (d Keystone) RefreshToken() error {
 	return nil
 }
 
+//AuthOptions fills in Keystone options with hermes config values
 func (d Keystone) AuthOptions() *gophercloud.AuthOptions {
 	return &gophercloud.AuthOptions{
 		IdentityEndpoint: viper.GetString("Keystone.auth_url"),

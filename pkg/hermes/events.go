@@ -27,6 +27,7 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 )
 
+//ResourceRef is an embedded struct for ListEvents (eg. Initiator, Target, Observer)
 type ResourceRef struct {
 	TypeURI string `json:"typeURI"`
 	ID      string `json:"id"`
@@ -40,7 +41,7 @@ type ListEvent struct {
 	IDDeprecated           string `json:"event_id"`                // id
 	TypeDeprecated         string `json:"event_type"`              // action
 	TimeDeprecated         string `json:"event_time"`              // eventType
-	ResourceIdDeprecated   string `json:"resource_id"`             // target.id
+	ResourceIDDeprecated   string `json:"resource_id"`             // target.id
 	ResourceTypeDeprecated string `json:"resource_type"`           // target.typeURI
 	ResourceNameDeprecated string `json:"resource_name,omitempty"` // drop
 	// NEW:
@@ -134,7 +135,7 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 			IDDeprecated:           storageEvent.ID,
 			TypeDeprecated:         storageEvent.Action,
 			TimeDeprecated:         storageEvent.EventTime,
-			ResourceIdDeprecated:   storageEvent.Target.ID,
+			ResourceIDDeprecated:   storageEvent.Target.ID,
 			ResourceTypeDeprecated: storageEvent.Target.TypeURI,
 			// new attributes
 			Initiator: ResourceRef{

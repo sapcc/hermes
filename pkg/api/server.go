@@ -44,8 +44,8 @@ func setupRouter(keystone identity.Identity, storage storage.Storage, configdb c
 	//add the version advertisement that lists all available API versions
 	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		allVersions := struct {
-			Versions []versionData `json:"versions"`
-		}{[]versionData{v1VersionData}}
+			Versions []VersionData `json:"versions"`
+		}{[]VersionData{v1VersionData}}
 		ReturnJSON(w, http.StatusMultipleChoices, allVersions)
 	})
 

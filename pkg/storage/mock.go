@@ -7,7 +7,8 @@ import (
 // Mock elasticsearch driver with static data
 type Mock struct{}
 
-func (m Mock) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, error) {
+//GetEvents mock with static data
+func (m Mock) GetEvents(filter *Filter, tenantID string) ([]*EventDetail, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 
@@ -20,18 +21,21 @@ func (m Mock) GetEvents(filter *Filter, tenantId string) ([]*EventDetail, int, e
 	return events, detailedEvents.Total, nil
 }
 
-func (m Mock) GetEvent(eventId string, tenantId string) (*EventDetail, error) {
+//GetEvent Mock with static data
+func (m Mock) GetEvent(eventID string, tenantID string) (*EventDetail, error) {
 	var parsedEvent EventDetail
 	err := json.Unmarshal(mockEvent, &parsedEvent)
 	return &parsedEvent, err
 }
 
+//MaxLimit Mock with static data
 func (m Mock) MaxLimit() uint {
 	return 100
 }
 
+//GetAttributes Mock - Needs fixing, and documented FIXME
 //TODO: This isn't testing anything. FIXME
-func (m Mock) GetAttributes(queryName string, tenantId string) ([]string, error) {
+func (m Mock) GetAttributes(queryName string, tenantID string) ([]string, error) {
 	var parsedAttribute []string
 	err := json.Unmarshal(mockEvent, &parsedAttribute)
 	return parsedAttribute, err

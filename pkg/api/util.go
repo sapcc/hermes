@@ -5,21 +5,20 @@ import (
 	"encoding/json"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/sapcc/hermes/pkg/storage"
 	"net/http"
 )
 
 // utility functionality
 
-//versionData is used by version advertisement handlers.
-type versionData struct {
+//VersionData is used by version advertisement handlers.
+type VersionData struct {
 	Status string            `json:"status"`
 	ID     string            `json:"id"`
 	Links  []versionLinkData `json:"links"`
 }
 
 //versionLinkData is used by version advertisement handlers, as part of the
-//versionData struct.
+//VersionData struct.
 type versionLinkData struct {
 	URL      string `json:"href"`
 	Relation string `json:"rel"`
@@ -50,28 +49,6 @@ func ReturnError(w http.ResponseWriter, err error) bool {
 
 	http.Error(w, err.Error(), 500)
 	return true
-}
-
-//ReturnPromError produces a Prometheus error Response with HTTP Status code
-func ReturnPromError(w http.ResponseWriter, err error, code int) {
-	if code >= 500 {
-		storageErrorsCounter.Add(1)
-	}
-
-	var errorType storage.ErrorType
-	switch code {
-	case http.StatusBadRequest:
-		errorType = storage.ErrorBadData
-	case http.StatusUnprocessableEntity:
-		errorType = storage.ErrorExec
-	case http.StatusServiceUnavailable:
-		errorType = storage.ErrorTimeout
-	default:
-		errorType = storage.ErrorInternal
-	}
-
-	jsonErr := storage.Response{Status: storage.StatusError, ErrorType: errorType, Error: err.Error()}
-	ReturnJSON(w, code, jsonErr)
 }
 
 var authErrorsCounter = prometheus.NewCounter(prometheus.CounterOpts{

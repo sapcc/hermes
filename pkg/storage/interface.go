@@ -61,7 +61,7 @@ type Response struct {
 type Storage interface {
 	/********** requests to ElasticSearch **********/
 	GetEvents(filter *Filter, tenantID string) ([]*EventDetail, int, error)
-	GetEvent(eventId string, tenantID string) (*EventDetail, error)
+	GetEvent(eventID string, tenantID string) (*EventDetail, error)
 	GetAttributes(queryName string, tenantID string) ([]string, error)
 	MaxLimit() uint
 }
@@ -72,7 +72,7 @@ type FieldOrder struct {
 	Order     string //asc or desc
 }
 
-// This Filter is similar to hermes.Filter, but using IDs instead of names
+// Filter is similar to hermes.Filter, but using IDs instead of names
 type Filter struct {
 	ObserverType  string
 	TargetType    string
@@ -133,8 +133,10 @@ type EventDetail struct {
 	// TODO: attachments for additional parameters
 }
 
+//AttributeValueList is used for holding unique attributes
 type AttributeValueList []AttributeValue
 
+//AttributeValue contains the attribute, and the number of hits.
 type AttributeValue struct {
 	Value string `json:"value"`
 	count int64  `json:"count"` // Removing export due to desire to not include it in JSON return

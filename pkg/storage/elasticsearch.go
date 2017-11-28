@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+//ElasticSearch struct holds esclient
 type ElasticSearch struct {
 	esClient *elastic.Client
 }
@@ -55,6 +56,7 @@ func (es *ElasticSearch) init() {
 	es.esClient, err = elastic.NewClient(elastic.SetURL(url), elastic.SetSniff(false))
 	//es.esClient, err = elastic.NewClient(elastic.SetURL(url))
 	if err != nil {
+		//TODO - Add instrumentation here for failed elasticsearch connection
 		panic(err)
 	}
 }

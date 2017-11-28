@@ -5,6 +5,7 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 )
 
+//AuditDetail is the information we hold for configuration
 type AuditDetail struct {
 	Enabled  bool   `json:"enabled"`
 	TenantID string `json:"TenantID"`
