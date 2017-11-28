@@ -30,9 +30,10 @@ func (m Mock) MaxLimit() uint {
 	return 100
 }
 
+//TODO: This isn't testing anything. FIXME
 func (m Mock) GetAttributes(queryName string, tenantId string) ([]string, error) {
 	var parsedAttribute []string
-	err := json.Unmarshal(mockEvent, parsedAttribute)
+	err := json.Unmarshal(mockEvent, &parsedAttribute)
 	return parsedAttribute, err
 }
 
