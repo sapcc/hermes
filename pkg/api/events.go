@@ -55,7 +55,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32)
 	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
 
-	// Parse the sort querystring
+	// Parse the sort query string
 	//slice of a struct, key and direction.
 
 	sortSpec := []hermes.FieldOrder{}
@@ -109,12 +109,12 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			}
 			_, exists := timeRange[operator]
 			if exists {
-				err := fmt.Errorf("Time operator %s can only occur once", operator)
+				err := fmt.Errorf("time operator %s can only occur once", operator)
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 			if len(keyVal) != 2 {
-				err := fmt.Errorf("Time operator %s missing :<timestamp>", operator)
+				err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
@@ -129,7 +129,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 				}
 			}
 			if !isValidTimeFormat {
-				err := fmt.Errorf("Invalid time format: %s", timeStr)
+				err := fmt.Errorf("invalid time format: %s", timeStr)
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
@@ -161,6 +161,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	events, total, err := hermes.GetEvents(&filter, tenantID, p.keystone, p.storage)
 	if ReturnError(res, err) {
 		util.LogError("api.ListEvents: error %s", err)
+		storageErrorsCounter.Add(1)
 		return
 	}
 
@@ -205,10 +206,12 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	event, err := hermes.GetEvent(eventID, tenantID, p.keystone, p.storage)
 
 	if ReturnError(res, err) {
+		util.LogError("error getting events from Storage: %s", err)
+		storageErrorsCounter.Add(1)
 		return
 	}
 	if event == nil {
-		err := fmt.Errorf("Event %s could not be found in tenant %s", eventID, tenantID)
+		err := fmt.Errorf("event %s could not be found in tenant %s", eventID, tenantID)
 		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -233,10 +236,12 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	attribute, err := hermes.GetAttributes(queryName, tenantID, p.storage)
 
 	if ReturnError(res, err) {
+		util.LogError("could not get attributes from Storage: %s", err)
+		storageErrorsCounter.Add(1)
 		return
 	}
 	if attribute == nil {
-		err := fmt.Errorf("Attribute %s could not be found in tenant %s", attribute, tenantID)
+		err := fmt.Errorf("attribute %s could not be found in tenant %s", attribute, tenantID)
 		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -249,7 +254,7 @@ func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, 
 	if tenantID == "" {
 		tenantID = token.context.Auth["domain_id"]
 	}
-	// Tenant id can be overriden with a query parameter
+	// Tenant id can be overridden with a query parameter
 	projectID := r.FormValue("project_id")
 	domainID := r.FormValue("domain_id")
 	if projectID != "" {
