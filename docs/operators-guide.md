@@ -86,7 +86,7 @@ Hermes has prometheus integration located at the /metrics endpoint. Custom metri
 
 | **Name** | **Description** | 
 | --- | --- | 
-| hermes_request_duration_seconds** | Duration of a Hermes request | 
+| hermes_request_duration_seconds | Duration of a Hermes request | 
 | hermes_requests_inflight |  Number of inflight HTTP requests served by Hermes |
 | hermes_response_size_bytes | Size of the Hermes response (e.g. to retrieve events) | 
 | hermes_storage_errors_count | Number of technical errors occurred when accessing underlying storage | 
