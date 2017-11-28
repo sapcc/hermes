@@ -20,6 +20,7 @@
 package storage
 
 // Status contains Prometheus status strings
+// TODO: Determine if we want a similar setup for Elasticsearch.
 type Status string
 
 const (
