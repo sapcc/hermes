@@ -39,7 +39,7 @@ func TestParentIdQueryTest(t *testing.T) {
 	for i, tt := range tests {
 		src, err := tt.Query.Source()
 		if err != nil {
-			t.Fatalf("#%d: encoding ObserverType failed: %v", i, err)
+			t.Fatalf("#%d: encoding Source failed: %v", i, err)
 		}
 		data, err := json.Marshal(src)
 		if err != nil {

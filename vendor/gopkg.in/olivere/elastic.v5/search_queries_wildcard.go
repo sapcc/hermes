@@ -47,7 +47,7 @@ func (q *WildcardQuery) QueryName(queryName string) *WildcardQuery {
 	return q
 }
 
-// ObserverType returns the JSON serializable body of this query.
+// Source returns the JSON serializable body of this query.
 func (q *WildcardQuery) Source() (interface{}, error) {
 	// {
 	//	"wildcard" : {

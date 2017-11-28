@@ -251,7 +251,7 @@ func (q *QueryStringQuery) Escape(escape bool) *QueryStringQuery {
 	return q
 }
 
-// ObserverType returns JSON for the query.
+// Source returns JSON for the query.
 func (q *QueryStringQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	query := make(map[string]interface{})

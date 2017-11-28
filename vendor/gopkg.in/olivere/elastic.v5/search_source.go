@@ -316,7 +316,7 @@ func (s *SearchSource) Collapse(collapse *CollapseBuilder) *SearchSource {
 	return s
 }
 
-// ObserverType returns the serializable JSON for the source builder.
+// Source returns the serializable JSON for the source builder.
 func (s *SearchSource) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 

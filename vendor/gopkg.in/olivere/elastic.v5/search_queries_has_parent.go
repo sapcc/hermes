@@ -55,7 +55,7 @@ func (q *HasParentQuery) InnerHit(innerHit *InnerHit) *HasParentQuery {
 	return q
 }
 
-// ObserverType returns JSON for the function score query.
+// Source returns JSON for the function score query.
 func (q *HasParentQuery) Source() (interface{}, error) {
 	// {
 	//   "has_parent" : {

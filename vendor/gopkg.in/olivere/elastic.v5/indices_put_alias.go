@@ -91,7 +91,7 @@ func (a *AliasAddAction) Validate() error {
 	return nil
 }
 
-// ObserverType returns the JSON-serializable data.
+// Source returns the JSON-serializable data.
 func (a *AliasAddAction) Source() (interface{}, error) {
 	a.removeBlankIndexNames()
 	if err := a.Validate(); err != nil {
@@ -170,7 +170,7 @@ func (a *AliasRemoveAction) Validate() error {
 	return nil
 }
 
-// ObserverType returns the JSON-serializable data.
+// Source returns the JSON-serializable data.
 func (a *AliasRemoveAction) Source() (interface{}, error) {
 	a.removeBlankIndexNames()
 	if err := a.Validate(); err != nil {

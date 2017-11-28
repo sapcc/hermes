@@ -52,7 +52,7 @@ func (t *TermsLookup) Routing(routing string) *TermsLookup {
 	return t
 }
 
-// ObserverType creates the JSON source of the builder.
+// Source creates the JSON source of the builder.
 func (t *TermsLookup) Source() (interface{}, error) {
 	src := make(map[string]interface{})
 	if t.index != "" {

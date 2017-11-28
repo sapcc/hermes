@@ -184,7 +184,7 @@ func (r *BulkUpdateRequest) getSourceAsString(data interface{}) (string, error) 
 	}
 }
 
-// ObserverType returns the on-wire representation of the update request,
+// Source returns the on-wire representation of the update request,
 // split into an action-and-meta-data line and an (optional) source line.
 // See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-bulk.html
 // for details.

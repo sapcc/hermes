@@ -28,7 +28,7 @@ func TestGet(t *testing.T) {
 		t.Errorf("expected Found = true; got %v", res.Found)
 	}
 	if res.Source == nil {
-		t.Errorf("expected ObserverType != nil; got %v", res.Source)
+		t.Errorf("expected Source != nil; got %v", res.Source)
 	}
 
 	// Get non existent document 99
@@ -62,7 +62,7 @@ func TestGetWithSourceFiltering(t *testing.T) {
 		t.Errorf("expected Found = true; got %v", res.Found)
 	}
 	if res.Source != nil {
-		t.Errorf("expected ObserverType == nil; got %v", res.Source)
+		t.Errorf("expected Source == nil; got %v", res.Source)
 	}
 
 	// Get document 1, exclude Message field
@@ -75,7 +75,7 @@ func TestGetWithSourceFiltering(t *testing.T) {
 		t.Errorf("expected Found = true; got %v", res.Found)
 	}
 	if res.Source == nil {
-		t.Errorf("expected ObserverType != nil; got %v", res.Source)
+		t.Errorf("expected Source != nil; got %v", res.Source)
 	}
 	var tw tweet
 	err = json.Unmarshal(*res.Source, &tw)

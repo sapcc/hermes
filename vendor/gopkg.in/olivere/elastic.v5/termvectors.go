@@ -392,7 +392,7 @@ func (fs *TermvectorsFilterSettings) MaxWordLength(value int64) *TermvectorsFilt
 	return fs
 }
 
-// ObserverType returns JSON for the query.
+// Source returns JSON for the query.
 func (fs *TermvectorsFilterSettings) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if fs.maxNumTerms != nil {

@@ -416,7 +416,7 @@ func (s *MultiTermvectorItem) TermStatistics(termStatistics bool) *MultiTermvect
 	return s
 }
 
-// ObserverType returns the serialized JSON to be sent to Elasticsearch as
+// Source returns the serialized JSON to be sent to Elasticsearch as
 // part of a MultiTermvector.
 func (s *MultiTermvectorItem) Source() interface{} {
 	source := make(map[string]interface{})

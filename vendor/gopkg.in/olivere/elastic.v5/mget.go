@@ -80,7 +80,7 @@ func (s *MgetService) Add(items ...*MultiGetItem) *MgetService {
 	return s
 }
 
-// ObserverType returns the request body, which will be serialized into JSON.
+// Source returns the request body, which will be serialized into JSON.
 func (s *MgetService) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	items := make([]interface{}, len(s.items))
@@ -208,7 +208,7 @@ func (item *MultiGetItem) FetchSource(fetchSourceContext *FetchSourceContext) *M
 	return item
 }
 
-// ObserverType returns the serialized JSON to be sent to Elasticsearch as
+// Source returns the serialized JSON to be sent to Elasticsearch as
 // part of a MultiGet search.
 func (item *MultiGetItem) Source() (interface{}, error) {
 	source := make(map[string]interface{})

@@ -18,7 +18,7 @@ func NewRawStringQuery(q string) RawStringQuery {
 	return RawStringQuery(q)
 }
 
-// ObserverType returns the JSON encoded body
+// Source returns the JSON encoded body
 func (q RawStringQuery) Source() (interface{}, error) {
 	var f interface{}
 	err := json.Unmarshal([]byte(q), &f)

@@ -194,7 +194,7 @@ func (q *MoreLikeThisQuery) QueryName(queryName string) *MoreLikeThisQuery {
 	return q
 }
 
-// ObserverType creates the source for the MLT query.
+// Source creates the source for the MLT query.
 // It may return an error if the caller forgot to specify any documents to
 // be "liked" in the MoreLikeThisQuery.
 func (q *MoreLikeThisQuery) Source() (interface{}, error) {
@@ -368,7 +368,7 @@ func (item *MoreLikeThisQueryItem) VersionType(versionType string) *MoreLikeThis
 	return item
 }
 
-// ObserverType returns the JSON-serializable fragment of the entity.
+// Source returns the JSON-serializable fragment of the entity.
 func (item *MoreLikeThisQueryItem) Source() (interface{}, error) {
 	if item.likeText != "" {
 		return item.likeText, nil

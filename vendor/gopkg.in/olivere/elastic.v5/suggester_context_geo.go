@@ -43,7 +43,7 @@ func (q *SuggesterGeoMapping) FieldName(fieldName string) *SuggesterGeoMapping {
 	return q
 }
 
-// ObserverType returns a map that will be used to serialize the context query as JSON.
+// Source returns a map that will be used to serialize the context query as JSON.
 func (q *SuggesterGeoMapping) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
@@ -101,7 +101,7 @@ func (q *SuggesterGeoQuery) Precision(precision ...string) *SuggesterGeoQuery {
 	return q
 }
 
-// ObserverType returns a map that will be used to serialize the context query as JSON.
+// Source returns a map that will be used to serialize the context query as JSON.
 func (q *SuggesterGeoQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 

@@ -16,7 +16,7 @@ func NewTypeQuery(typ string) *TypeQuery {
 	return &TypeQuery{typ: typ}
 }
 
-// ObserverType returns JSON for the query.
+// Source returns JSON for the query.
 func (q *TypeQuery) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	params := make(map[string]interface{})

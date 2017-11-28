@@ -59,7 +59,7 @@ type CreateOptsBuilder interface {
 }
 
 // CreateOpts is passed to Create to create a flavor
-// ObserverType:
+// Source:
 // https://github.com/openstack/nova/blob/stable/newton/nova/api/openstack/compute/schemas/flavor_manage.py#L20
 type CreateOpts struct {
 	Name string `json:"name" required:"true"`

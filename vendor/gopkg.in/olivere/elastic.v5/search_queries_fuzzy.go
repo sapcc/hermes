@@ -72,7 +72,7 @@ func (q *FuzzyQuery) QueryName(queryName string) *FuzzyQuery {
 	return q
 }
 
-// ObserverType returns JSON for the function score query.
+// Source returns JSON for the function score query.
 func (q *FuzzyQuery) Source() (interface{}, error) {
 	// {
 	//	"fuzzy" : {

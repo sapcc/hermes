@@ -199,7 +199,7 @@ func Example() {
 		for _, hit := range searchResult.Hits.Hits {
 			// hit.Index contains the name of the index
 
-			// Deserialize hit.ObserverType into a Tweet (could also be just a map[string]interface{}).
+			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
 			err := json.Unmarshal(*hit.Source, &t)
 			if err != nil {
@@ -373,7 +373,7 @@ func ExampleSearchService() {
 		for _, hit := range searchResult.Hits.Hits {
 			// hit.Index contains the name of the index
 
-			// Deserialize hit.ObserverType into a Tweet (could also be just a map[string]interface{}).
+			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
 			err := json.Unmarshal(*hit.Source, &t)
 			if err != nil {
@@ -469,7 +469,7 @@ func ExampleSearchResult() {
 		for _, hit := range searchResult.Hits.Hits {
 			// hit.Index contains the name of the index
 
-			// Deserialize hit.ObserverType into a Tweet (could also be just a map[string]interface{}).
+			// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 			var t Tweet
 			err := json.Unmarshal(*hit.Source, &t)
 			if err != nil {

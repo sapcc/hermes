@@ -37,7 +37,7 @@ func (s *SliceQuery) Max(max int) *SliceQuery {
 	return s
 }
 
-// ObserverType returns the JSON body.
+// Source returns the JSON body.
 func (s *SliceQuery) Source() (interface{}, error) {
 	m := make(map[string]interface{})
 	if s.field != "" {

@@ -183,7 +183,7 @@ type phraseSuggesterRequest struct {
 	Phrase interface{} `json:"phrase"`
 }
 
-// ObserverType generates the source for the phrase suggester.
+// Source generates the source for the phrase suggester.
 func (q *PhraseSuggester) Source(includeName bool) (interface{}, error) {
 	ps := &phraseSuggesterRequest{}
 

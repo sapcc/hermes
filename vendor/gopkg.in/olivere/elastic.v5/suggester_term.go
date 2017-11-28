@@ -135,7 +135,7 @@ type termSuggesterRequest struct {
 	Term interface{} `json:"term"`
 }
 
-// ObserverType generates the source for the term suggester.
+// Source generates the source for the term suggester.
 func (q *TermSuggester) Source(includeName bool) (interface{}, error) {
 	// "suggest" : {
 	//   "my-suggest-1" : {

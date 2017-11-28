@@ -72,7 +72,7 @@ func (q *PercolatorQuery) IndexedDocumentVersion(version int64) *PercolatorQuery
 	return q
 }
 
-// ObserverType returns JSON for the percolate query.
+// Source returns JSON for the percolate query.
 func (q *PercolatorQuery) Source() (interface{}, error) {
 	if len(q.field) == 0 {
 		return nil, errors.New("elastic: Field is required in PercolatorQuery")

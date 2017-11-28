@@ -1,6 +1,6 @@
 // Package yaml implements YAML support for the Go language.
 //
-// ObserverType code and other details for the project are available at GitHub:
+// Source code and other details for the project are available at GitHub:
 //
 //   https://github.com/go-yaml/yaml
 //

@@ -37,7 +37,7 @@ func (b *CollapseBuilder) MaxConcurrentGroupRequests(max int) *CollapseBuilder {
 	return b
 }
 
-// ObserverType generates the JSON serializable fragment for the CollapseBuilder.
+// Source generates the JSON serializable fragment for the CollapseBuilder.
 func (b *CollapseBuilder) Source() (interface{}, error) {
 	// {
 	//   "field": "user",

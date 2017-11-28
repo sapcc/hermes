@@ -67,7 +67,7 @@ func (a *FiltersAggregation) Meta(metaData map[string]interface{}) *FiltersAggre
 	return a
 }
 
-// ObserverType returns the a JSON-serializable interface.
+// Source returns the a JSON-serializable interface.
 // If the aggregation is invalid, an error is returned. This may e.g. happen
 // if you mixed named and unnamed filters.
 func (a *FiltersAggregation) Source() (interface{}, error) {

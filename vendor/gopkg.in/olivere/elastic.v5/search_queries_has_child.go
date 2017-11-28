@@ -79,7 +79,7 @@ func (q *HasChildQuery) InnerHit(innerHit *InnerHit) *HasChildQuery {
 	return q
 }
 
-// ObserverType returns JSON for the function score query.
+// Source returns JSON for the function score query.
 func (q *HasChildQuery) Source() (interface{}, error) {
 	// {
 	//   "has_child" : {

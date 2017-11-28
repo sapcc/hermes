@@ -148,7 +148,7 @@ func (q *MatchQuery) QueryName(queryName string) *MatchQuery {
 	return q
 }
 
-// ObserverType returns JSON for the function score query.
+// Source returns JSON for the function score query.
 func (q *MatchQuery) Source() (interface{}, error) {
 	// {"match":{"name":{"query":"value","type":"boolean/phrase"}}}
 	source := make(map[string]interface{})

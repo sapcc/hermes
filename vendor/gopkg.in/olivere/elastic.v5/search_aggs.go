@@ -15,7 +15,7 @@ import (
 // For more details about aggregations, visit:
 // https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-aggregations.html
 type Aggregation interface {
-	// ObserverType returns a JSON-serializable aggregation that is a fragment
+	// Source returns a JSON-serializable aggregation that is a fragment
 	// of the request sent to Elasticsearch.
 	Source() (interface{}, error)
 }

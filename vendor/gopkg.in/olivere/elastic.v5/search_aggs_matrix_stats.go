@@ -62,7 +62,7 @@ func (a *MatrixStatsAggregation) Meta(metaData map[string]interface{}) *MatrixSt
 	return a
 }
 
-// ObserverType returns the JSON to serialize into the request, or an error.
+// Source returns the JSON to serialize into the request, or an error.
 func (a *MatrixStatsAggregation) Source() (interface{}, error) {
 	// Example:
 	//	{

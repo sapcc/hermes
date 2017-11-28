@@ -198,7 +198,7 @@ func (sh *ChiSquareSignificanceHeuristic) IncludeNegatives(includeNegatives bool
 	return sh
 }
 
-// ObserverType returns the parameters that need to be added to the REST parameters.
+// Source returns the parameters that need to be added to the REST parameters.
 func (sh *ChiSquareSignificanceHeuristic) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if sh.backgroundIsSuperset != nil {
@@ -240,7 +240,7 @@ func (sh *GNDSignificanceHeuristic) BackgroundIsSuperset(backgroundIsSuperset bo
 	return sh
 }
 
-// ObserverType returns the parameters that need to be added to the REST parameters.
+// Source returns the parameters that need to be added to the REST parameters.
 func (sh *GNDSignificanceHeuristic) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if sh.backgroundIsSuperset != nil {
@@ -265,7 +265,7 @@ func (sh *JLHScoreSignificanceHeuristic) Name() string {
 	return "jlh"
 }
 
-// ObserverType returns the parameters that need to be added to the REST parameters.
+// Source returns the parameters that need to be added to the REST parameters.
 func (sh *JLHScoreSignificanceHeuristic) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	return source, nil
@@ -309,7 +309,7 @@ func (sh *MutualInformationSignificanceHeuristic) IncludeNegatives(includeNegati
 	return sh
 }
 
-// ObserverType returns the parameters that need to be added to the REST parameters.
+// Source returns the parameters that need to be added to the REST parameters.
 func (sh *MutualInformationSignificanceHeuristic) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if sh.backgroundIsSuperset != nil {
@@ -338,7 +338,7 @@ func (sh *PercentageScoreSignificanceHeuristic) Name() string {
 	return "percentage"
 }
 
-// ObserverType returns the parameters that need to be added to the REST parameters.
+// Source returns the parameters that need to be added to the REST parameters.
 func (sh *PercentageScoreSignificanceHeuristic) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	return source, nil
@@ -375,7 +375,7 @@ func (sh *ScriptSignificanceHeuristic) Script(script *Script) *ScriptSignificanc
 	return sh
 }
 
-// ObserverType returns the parameters that need to be added to the REST parameters.
+// Source returns the parameters that need to be added to the REST parameters.
 func (sh *ScriptSignificanceHeuristic) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if sh.script != nil {

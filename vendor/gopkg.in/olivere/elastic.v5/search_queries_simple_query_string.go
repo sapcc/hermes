@@ -116,7 +116,7 @@ func (q *SimpleQueryStringQuery) MinimumShouldMatch(minimumShouldMatch string) *
 	return q
 }
 
-// ObserverType returns JSON for the query.
+// Source returns JSON for the query.
 func (q *SimpleQueryStringQuery) Source() (interface{}, error) {
 	// {
 	//    "simple_query_string" : {

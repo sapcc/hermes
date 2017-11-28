@@ -335,7 +335,7 @@ func (t *TestCase) search() {
 			for _, hit := range searchResult.Hits.Hits {
 				// hit.Index contains the name of the index
 
-				// Deserialize hit.ObserverType into a Tweet (could also be just a map[string]interface{}).
+				// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
 				var tweet Tweet
 				err := json.Unmarshal(*hit.Source, &tweet)
 				if err != nil {

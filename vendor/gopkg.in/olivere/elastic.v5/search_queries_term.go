@@ -34,7 +34,7 @@ func (q *TermQuery) QueryName(queryName string) *TermQuery {
 	return q
 }
 
-// ObserverType returns JSON for the query.
+// Source returns JSON for the query.
 func (q *TermQuery) Source() (interface{}, error) {
 	// {"term":{"name":"value"}}
 	source := make(map[string]interface{})

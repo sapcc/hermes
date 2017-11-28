@@ -57,10 +57,10 @@ func TestIndexLifecycle(t *testing.T) {
 		t.Errorf("expected GetResult.Id %q; got %q", "1", getResult.Id)
 	}
 	if getResult.Source == nil {
-		t.Errorf("expected GetResult.ObserverType to be != nil; got nil")
+		t.Errorf("expected GetResult.Source to be != nil; got nil")
 	}
 
-	// Decode the ObserverType field
+	// Decode the Source field
 	var tweetGot tweet
 	err = json.Unmarshal(*getResult.Source, &tweetGot)
 	if err != nil {
@@ -142,10 +142,10 @@ func TestIndexLifecycleWithAutomaticIDGeneration(t *testing.T) {
 		t.Errorf("expected GetResult.Id %q; got %q", id, getResult.Id)
 	}
 	if getResult.Source == nil {
-		t.Errorf("expected GetResult.ObserverType to be != nil; got nil")
+		t.Errorf("expected GetResult.Source to be != nil; got nil")
 	}
 
-	// Decode the ObserverType field
+	// Decode the Source field
 	var tweetGot tweet
 	err = json.Unmarshal(*getResult.Source, &tweetGot)
 	if err != nil {

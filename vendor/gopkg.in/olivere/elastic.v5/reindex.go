@@ -78,7 +78,7 @@ func (s *ReindexService) Pretty(pretty bool) *ReindexService {
 	return s
 }
 
-// ObserverType specifies the source of the reindexing process.
+// Source specifies the source of the reindexing process.
 func (s *ReindexService) Source(source *ReindexSource) *ReindexService {
 	s.source = source
 	return s
@@ -195,10 +195,10 @@ func (s *ReindexService) Validate() error {
 		return nil
 	}
 	if s.source == nil {
-		invalid = append(invalid, "ObserverType")
+		invalid = append(invalid, "Source")
 	} else {
 		if len(s.source.indices) == 0 {
-			invalid = append(invalid, "ObserverType.Index")
+			invalid = append(invalid, "Source.Index")
 		}
 	}
 	if s.destination == nil {
@@ -280,7 +280,7 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 	return ret, nil
 }
 
-// -- ObserverType of Reindex --
+// -- Source of Reindex --
 
 // ReindexSource specifies the source of a Reindex process.
 type ReindexSource struct {
@@ -365,7 +365,7 @@ func (s *ReindexSource) SortBy(sorter ...Sorter) *ReindexSource {
 	return s
 }
 
-// ObserverType returns a serializable JSON request for the request.
+// Source returns a serializable JSON request for the request.
 func (r *ReindexSource) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 
@@ -524,7 +524,7 @@ func (r *ReindexDestination) VersionType(versionType string) *ReindexDestination
 	return r
 }
 
-// ObserverType returns a serializable JSON request for the request.
+// Source returns a serializable JSON request for the request.
 func (r *ReindexDestination) Source() (interface{}, error) {
 	source := make(map[string]interface{})
 	if r.index != "" {

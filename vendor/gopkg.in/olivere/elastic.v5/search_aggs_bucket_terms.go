@@ -340,7 +340,7 @@ type TermsOrder struct {
 	Ascending bool
 }
 
-// ObserverType returns serializable JSON of the TermsOrder.
+// Source returns serializable JSON of the TermsOrder.
 func (order *TermsOrder) Source() (interface{}, error) {
 	source := make(map[string]string)
 	if order.Ascending {
