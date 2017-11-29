@@ -26,11 +26,9 @@ Via Makefule:
 # Using Hermes
 
 Hermes can be used via our [Converged Cloud Dashboard Elektra](https://github.com/sapcc/elektra) 
-via "Auditing" or as an API.
+via "Auditing" or directly as web API.
 
-Enter `hermes --help` to see a list of commands and options
-
-Please refer to the Hermes user guide (TODO) for more instructions
+The Hermes binary is for running the server. There is no client binary for connecting to Hermes.
 
 # Operating Hermes
 
