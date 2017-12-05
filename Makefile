@@ -4,19 +4,19 @@ DATE    ?= $(shell date +%FT%T%z)
 VERSION ?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || \
 			cat $(CURDIR)/.version 2> /dev/null || echo v0)
 GOPATH   = $(CURDIR)/.gopath
+GO      = GOPATH=$(CURDIR)/.gopath GOBIN=$(CURDIR)/build go
 BIN      = $(GOPATH)/bin
 BASE     = $(GOPATH)/src/$(PKG)
 PKGS     = $(or $(PKG),$(shell cd $(BASE) && env GOPATH=$(GOPATH) $(GO) list ./... | grep -v "^$(PKG)/vendor/"))
 TESTPKGS = $(shell env GOPATH=$(GOPATH) $(GO) list -f '{{ if or .TestGoFiles .XTestGoFiles }}{{ .ImportPath }}{{ end }}' $(PKGS))
 
-GO      = GOPATH=$(CURDIR)/.gopath GOBIN=$(CURDIR)/build go
 GODOC   = godoc
 GOFMT   = gofmt
 #GLIDE   = glide
 TIMEOUT = 15
 V = 0
 # Quiets info, comment out to debug
-Q = $(if $(filter 1,$V),,@)
+#Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m▶\033[0m")
 
 
@@ -34,7 +34,7 @@ $(BASE): ; $(info $(M) setting GOPATH…)
 # which packages to measure coverage for?
 GO_COVERPKGS := $(shell go list $(PKG)/pkg/... | grep -v plugins)
 # output files from `go test`
-GO_COVERFILES := $(patsubst %,build/%.cover.out,$(subst /,_,$(GO_TESTPKGS)))
+GO_COVERFILES := $(patsubst %,build/%.cover.out,$(subst /,_,$(TESTPKGS)))
 
 check: all static-check build/cover.html FORCE
 	@echo -e "\e[1;32m>> All tests successful.\e[0m"
@@ -85,7 +85,7 @@ $(TEST_TARGETS): NAME=$(MAKECMDGOALS:test-%=%)
 $(TEST_TARGETS): test
 #check test tests: fmt lint vendor | $(BASE) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests
 check test tests: fmt | $(BASE) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests
-	$Q cd $(BASE) && $(GO) test -timeout $(TIMEOUT)s $(ARGS) $(TESTPKGS)
+	$Q cd $(BASE) && $(GO) test ./... -timeout $(TIMEOUT)s $(ARGS) $(TESTPKGS)
 
 test-xml: fmt lint vendor | $(BASE) $(GO2XUNIT) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests with xUnit output
 	$Q cd $(BASE) && 2>&1 $(GO) test -timeout 20s -v $(TESTPKGS) | tee test/tests.output
