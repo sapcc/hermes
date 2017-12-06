@@ -20,17 +20,17 @@
 package api
 
 import (
-	"net/http"
-	"testing"
-
 	"encoding/json"
 	"github.com/databus23/goslo.policy"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
 	"github.com/spf13/viper"
 	"io/ioutil"
+	"net/http"
+	"testing"
 )
 
 type object map[string]interface{}
@@ -56,6 +56,8 @@ func setupTest(t *testing.T) http.Handler {
 	keystone := identity.Mock{}
 	storage := storage.Mock{}
 	configdb := configdb.Mock{}
+
+	prometheus.DefaultRegisterer = prometheus.NewPedanticRegistry()
 	router, _ := NewV1Handler(keystone, storage, configdb)
 	return router
 }
