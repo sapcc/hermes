@@ -72,7 +72,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			//`time`, `source`, `resource_type`, `resource_name`, and `event_type`.
 			sortfield := keyVal[0]
 			if !validSortTopics[sortfield] {
-				err := fmt.Errorf("Not a valid topic: %s, Valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
+				err := fmt.Errorf("not a valid topic: %s, valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
@@ -219,7 +219,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 }
 
 //GetAttributes handles GET /v1/attributes/:attribute_name
-// Todo - Add hirearchical queries for attributes. Name depth accept, 1-4. Default to 1.
+// Todo - Add hirearchical queries for attributes. Name max_depth accept, 1-4. Default to 1.
 func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	token := p.CheckToken(req)
 	if !token.Require(res, "event:show") {
@@ -233,10 +233,9 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		return
 	}
-	depth := req.FormValue("depth")
-	if depth != "" {
-		fmt.Printf("hi")
-	}
+	maxdepth, _ := strconv.ParseUint(req.FormValue("max_depth"), 10, 32)
+
+	fmt.Printf("maxdepth: %d\n", maxdepth)
 
 	attribute, err := hermes.GetAttributes(queryName, tenantID, p.storage)
 

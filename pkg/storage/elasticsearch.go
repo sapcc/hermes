@@ -74,8 +74,9 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantID string) ([]*EventDeta
 	if filter.TargetType != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("target.typeURI", filter.TargetType))
 	}
+	// Adding .raw because it's tokenizing the ID in searches, and won't match. .raw is not analyzed, and not tokenized.
 	if filter.TargetID != "" {
-		query = query.Filter(elastic.NewTermQuery("target.id", filter.TargetID))
+		query = query.Filter(elastic.NewTermQuery("target.id.raw", filter.TargetID))
 	}
 	if filter.InitiatorType != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("initiator.typeURI", filter.InitiatorType))
