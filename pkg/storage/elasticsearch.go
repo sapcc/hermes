@@ -193,7 +193,8 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantID string) ([]stri
 
 	queryAgg := elastic.NewTermsAggregation().Field(esName)
 
-	esSearch := es.client().Search().Index(index).Aggregation("attributes", queryAgg)
+	// Size set to 50 until Elektra UI can handle more, then increase to 1000.
+	esSearch := es.client().Search().Index(index).Size(50).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
 	if err != nil {
 		return nil, err
