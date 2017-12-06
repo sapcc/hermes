@@ -82,7 +82,7 @@ func (es ElasticSearch) GetEvents(filter *Filter, tenantID string) ([]*EventDeta
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("initiator.typeURI", filter.InitiatorType))
 	}
 	if filter.InitiatorID != "" {
-		query = query.Filter(elastic.NewTermQuery("initiator.id", filter.InitiatorID))
+		query = query.Filter(elastic.NewTermQuery("initiator.id.raw", filter.InitiatorID))
 	}
 	if filter.Action != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.Action))
@@ -152,7 +152,7 @@ func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*EventDetail,
 	index := indexName(tenantID)
 	util.LogDebug("Looking for event %s in index %s", eventID, index)
 
-	// TODO: what is the meaning of this .raw suffix? without it there are now results
+	// we use .raw on ID fields because Elasticsearch tokenizes fields with - in them. .raw is not tokenized.
 	query := elastic.NewTermQuery("id.raw", eventID)
 	esSearch := es.client().Search().
 		Index(index).
