@@ -226,10 +226,47 @@ returns
 
 ```json 
 [
-  "identity.role_assignment.created",
-  "identity.OS-TRUST:trust.created"
+  "update/add/floatingip",
+  "update/remove/floatingip"
 ]
 ```
+**Parameters**
+
+| **Name** | **Type** | **Description** | **Default** |
+| --- | --- | --- |
+| max_depth | integer | max. depth / level of detail of hierarchical values (ingnored for
+non-hierarchical attributes) | infinity / unlimited |
+
+### Hierarchical Values
+
+To support adjustable levels of detail, _type URIs_ and _actions_ in the CADF taxonomy are organized in hierarchies. Classifiers start with the most general classification followed by a theoretically unlimited number of sub-classifications, separated by slashes `/`.
+
+Examples:
+* `update/add/floatingip`
+* `network/firewall/rules`
+
+To limit the amount of classifier values exposed to a client, the level of detail of hierarchical attributes can be limited using the `max_depth` parameter. (Sub-)hierarchies that have been collapsed that way are marked with a asterisk `*`.
+
+Example:
+
+Given the following list of actual values for the `action` attribute, the `attributes` API will have a different result, depending on the `max_depth` parameter.
+
+List:
+* `create`
+* `delete`
+* `update`
+* `update/add/floatingip`
+* `update/add/security-group`
+* `update/remove/floatingip`
+* `update/remove/security-group`
+* `start`
+* `stop`
+
+| max_depth | values |
+|-----------|---------------------------------------|
+| 1         | `create, delete, update*, start, stop  |
+| 2         | `create, delete, update, update/add*, update/remove*, start, stop |
+| 3         | full list (see above) |
 
 ## Audit Config
 
