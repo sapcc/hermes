@@ -8,7 +8,7 @@ import (
 type Mock struct{}
 
 //GetEvents mock with static data
-func (m Mock) GetEvents(filter *Filter, tenantID string) ([]*EventDetail, int, error) {
+func (m Mock) GetEvents(filter *EventFilter, tenantID string) ([]*EventDetail, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 
@@ -35,7 +35,7 @@ func (m Mock) MaxLimit() uint {
 
 //GetAttributes Mock - Needs fixing, and documented FIXME
 //TODO: This isn't testing anything. FIXME
-func (m Mock) GetAttributes(queryName string, tenantID string) ([]string, error) {
+func (m Mock) GetAttributes(filter *AttributeFilter, tenantID string) ([]string, error) {
 	var parsedAttribute []string
 	err := json.Unmarshal(mockEvent, &parsedAttribute)
 	return parsedAttribute, err

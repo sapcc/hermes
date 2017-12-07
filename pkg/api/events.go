@@ -49,9 +49,8 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Figure out the data.Filter to use, based on the request parameters
-
-	// First off, parse the integers for offset & limit
+	// QueryParams
+	// Parse the integers for offset & limit
 	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32)
 	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
 
@@ -138,7 +137,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 
 	util.LogDebug("api.ListEvents: Create filter")
-	filter := hermes.Filter{
+	filter := hermes.EventFilter{
 		// TODO: remove append of deprecated parameters
 		ObserverType:  req.FormValue("observer_type") + req.FormValue("source"),
 		TargetType:    req.FormValue("target_type") + req.FormValue("resource_type"),
@@ -219,25 +218,36 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 }
 
 //GetAttributes handles GET /v1/attributes/:attribute_name
-// Todo - Add hirearchical queries for attributes. Name max_depth accept, 1-4. Default to 1.
+// TODO - Add hirearchical queries for attributes. Name max_depth accept, 1-4. Default to 1.
 func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	token := p.CheckToken(req)
 	if !token.Require(res, "event:show") {
 		return
 	}
+
+	// Handle QueryParams
 	queryName := mux.Vars(req)["attribute_name"]
 	if queryName == "" {
 		fmt.Errorf("QueryName not found")
 	}
+	maxdepth, _ := strconv.ParseUint(req.FormValue("max_depth"), 10, 32)
+	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+
+	util.LogDebug("api.GetAttributes: Create filter")
+	filter := hermes.AttributeFilter{
+		QueryName: queryName,
+		MaxDepth:  uint(maxdepth),
+		Limit:     uint(limit),
+	}
+
 	tenantID, err := getTenantID(token, req, res)
 	if err != nil {
 		return
 	}
-	maxdepth, _ := strconv.ParseUint(req.FormValue("max_depth"), 10, 32)
 
 	fmt.Printf("maxdepth: %d\n", maxdepth)
 
-	attribute, err := hermes.GetAttributes(queryName, tenantID, p.storage)
+	attribute, err := hermes.GetAttributes(&filter, tenantID, p.storage)
 
 	if ReturnError(res, err) {
 		util.LogError("could not get attributes from Storage: %s", err)

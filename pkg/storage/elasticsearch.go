@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
-	"gopkg.in/olivere/elastic.v5"
+	elastic "gopkg.in/olivere/elastic.v5"
 	"strings"
 )
 
@@ -62,7 +62,7 @@ func (es *ElasticSearch) init() {
 }
 
 // GetEvents grabs events for a given tenantID with filtering.
-func (es ElasticSearch) GetEvents(filter *Filter, tenantID string) ([]*EventDetail, int, error) {
+func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*EventDetail, int, error) {
 	index := indexName(tenantID)
 	util.LogDebug("Looking for events in index %s", index)
 
@@ -177,25 +177,24 @@ func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*EventDetail,
 
 // GetAttributes Return all unique attributes available for filtering
 // Possible queries, event_type, dns, identity, etc..
-func (es ElasticSearch) GetAttributes(queryName string, tenantID string) ([]string, error) {
+func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) ([]string, error) {
 	index := indexName(tenantID)
 
-	util.LogDebug("Looking for unique attributes for %s in index %s", queryName, index)
+	util.LogDebug("Looking for unique attributes for %s in index %s", filter.QueryName, index)
 
 	// ObserverType in this case is not the cadf source, but instead the first part of event_type
 	var esName string
 	// Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
-	if val, ok := esFieldMapping[queryName]; ok {
+	if val, ok := esFieldMapping[filter.QueryName]; ok {
 		esName = val + ".raw"
 	} else {
-		esName = queryName + ".raw"
+		esName = filter.QueryName + ".raw"
 	}
-	util.LogDebug("Mapped Queryname: %s --> %s", queryName, esName)
+	util.LogDebug("Mapped Queryname: %s --> %s", filter.QueryName, esName)
 
 	queryAgg := elastic.NewTermsAggregation().Field(esName)
 
-	// Size set to 50 until Elektra UI can handle more, then increase to 1000.
-	esSearch := es.client().Search().Index(index).Size(50).Aggregation("attributes", queryAgg)
+	esSearch := es.client().Search().Index(index).Size(int(filter.Limit)).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
 	if err != nil {
 		return nil, err
@@ -222,12 +221,24 @@ func (es ElasticSearch) GetAttributes(queryName string, tenantID string) ([]stri
 	var unique []string
 	for _, bucket := range termsAggRes.Buckets {
 		util.LogDebug("key: %s count: %d", bucket.Key, bucket.DocCount)
-		if queryName == "source" {
-			source := strings.SplitN(bucket.Key.(string), ".", 2)[0]
-			unique = append(unique, source)
-		} else {
-			unique = append(unique, bucket.Key.(string))
+		attribute := bucket.Key.(string)
+
+		// Hierarchical Depth Handling
+		var att string
+		if filter.MaxDepth != 0 && strings.Contains(attribute, "/") {
+			s := strings.Split(attribute, "/")
+			l := len(s)
+			for i := 0; i < int(filter.MaxDepth) && i < l; i++ {
+				if i != 0 {
+					att += "/"
+				}
+				att += s[i]
+			}
+			attribute = att
 		}
+
+		unique = append(unique, attribute)
+
 	}
 
 	unique = SliceUniqMap(unique)

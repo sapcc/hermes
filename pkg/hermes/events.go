@@ -60,8 +60,8 @@ type FieldOrder struct {
 	Order     string //asc or desc
 }
 
-// Filter maps to the filtering/paging/sorting allowed by the API
-type Filter struct {
+// EventFilter maps to the filtering/paging/sorting allowed by the API for Events
+type EventFilter struct {
 	ObserverType  string
 	TargetType    string
 	TargetID      string
@@ -75,8 +75,15 @@ type Filter struct {
 	Sort          []FieldOrder
 }
 
+// AttributeFilter maps to the filtering allowed by the API for Attributes
+type AttributeFilter struct {
+	QueryName string
+	MaxDepth  uint
+	Limit     uint
+}
+
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *Filter, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*ListEvent, int, error) {
+func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*ListEvent, int, error) {
 	storageFilter, err := storageFilter(filter, keystoneDriver, eventStore)
 	if err != nil {
 		return nil, 0, err
@@ -93,7 +100,7 @@ func GetEvents(filter *Filter, tenantID string, keystoneDriver identity.Identity
 	return events, total, err
 }
 
-func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.Filter, error) {
+func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.EventFilter, error) {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
@@ -109,7 +116,7 @@ func storageFilter(filter *Filter, keystoneDriver identity.Identity, eventStore 
 	if err != nil {
 		panic("Could not copy storage field order.")
 	}
-	storageFilter := storage.Filter{
+	storageFilter := storage.EventFilter{
 		ObserverType:  filter.ObserverType,
 		InitiatorID:   filter.InitiatorID,
 		InitiatorType: filter.InitiatorType,
@@ -173,8 +180,13 @@ func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity,
 }
 
 //GetAttributes No Logic here, but handles mock implementation for eventStore
-func GetAttributes(queryName string, tenantID string, eventStore storage.Storage) ([]string, error) {
-	attribute, err := eventStore.GetAttributes(queryName, tenantID)
+func GetAttributes(filter *AttributeFilter, tenantID string, eventStore storage.Storage) ([]string, error) {
+	attributeFilter := storage.AttributeFilter{
+		QueryName: filter.QueryName,
+		MaxDepth:  filter.MaxDepth,
+		Limit:     filter.Limit,
+	}
+	attribute, err := eventStore.GetAttributes(&attributeFilter, tenantID)
 
 	return attribute, err
 }

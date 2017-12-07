@@ -60,9 +60,9 @@ type Response struct {
 // Because it is an interface, the real implementation can be mocked away in unit tests.
 type Storage interface {
 	/********** requests to ElasticSearch **********/
-	GetEvents(filter *Filter, tenantID string) ([]*EventDetail, int, error)
+	GetEvents(filter *EventFilter, tenantID string) ([]*EventDetail, int, error)
 	GetEvent(eventID string, tenantID string) (*EventDetail, error)
-	GetAttributes(queryName string, tenantID string) ([]string, error)
+	GetAttributes(filter *AttributeFilter, tenantID string) ([]string, error)
 	MaxLimit() uint
 }
 
@@ -72,8 +72,8 @@ type FieldOrder struct {
 	Order     string //asc or desc
 }
 
-// Filter is similar to hermes.Filter, but using IDs instead of names
-type Filter struct {
+// EventFilter is similar to hermes.EventFilter, but using IDs instead of names
+type EventFilter struct {
 	ObserverType  string
 	TargetType    string
 	TargetID      string
@@ -85,6 +85,13 @@ type Filter struct {
 	Offset        uint
 	Limit         uint
 	Sort          []FieldOrder
+}
+
+// AttributeFilter
+type AttributeFilter struct {
+	QueryName string
+	MaxDepth  uint
+	Limit     uint
 }
 
 // Thanks to the tool at https://mholt.github.io/json-to-go/
