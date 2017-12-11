@@ -233,9 +233,8 @@ returns
 **Parameters**
 
 | **Name** | **Type** | **Description** | **Default** |
-| --- | --- | --- |
-| max_depth | integer | max. depth / level of detail of hierarchical values (ingnored for
-non-hierarchical attributes) | infinity / unlimited |
+| --- | --- | --- | --- | 
+| max_depth | integer | max. depth / level of detail of hierarchical values | infinity / unlimited |
 | limit | integer | limit of values returned | 50 | 
 
 ### Hierarchical Values
