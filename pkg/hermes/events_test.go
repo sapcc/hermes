@@ -34,3 +34,10 @@ func Test_GetEvents(t *testing.T) {
 	assert.NotEqual(t, events[0].ID, events[1].ID)
 	assert.NotEqual(t, events[0].ID, events[2].ID)
 }
+
+func Test_GetAttributes(t *testing.T) {
+	attributes, err := GetAttributes(&AttributeFilter{}, "", storage.Mock{})
+	require.Nil(t, err)
+	require.NotNil(t, attributes)
+	assert.Equal(t, len(attributes), 6)
+}

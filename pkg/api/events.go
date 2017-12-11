@@ -248,8 +248,6 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Printf("maxdepth: %d\n", maxdepth)
-
 	attribute, err := hermes.GetAttributes(&filter, tenantID, p.storage)
 
 	if ReturnError(res, err) {

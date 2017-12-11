@@ -25,3 +25,12 @@ func Test_MockStorage_Events(t *testing.T) {
 	assert.Equal(t, "f6f0ebf3-bf59-553a-9e38-788f714ccc46", eventsList[1].ID)
 	assert.Equal(t, "2017-11-06T10:15:56.984390+0000", eventsList[2].EventTime)
 }
+
+func Test_MockStorage__Attributes(t *testing.T) {
+	attributesList, error := Mock{}.GetAttributes(&AttributeFilter{}, "b3b70c8271a845709f9a03030e705da7")
+
+	assert.Nil(t, error)
+	assert.Equal(t, len(attributesList), 6)
+	assert.Equal(t, "compute/server", attributesList[0])
+	assert.Equal(t, "network/floatingip", attributesList[4])
+}
