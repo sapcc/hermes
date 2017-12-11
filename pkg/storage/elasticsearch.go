@@ -192,7 +192,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	}
 	util.LogDebug("Mapped Queryname: %s --> %s", filter.QueryName, esName)
 
-	queryAgg := elastic.NewTermsAggregation().Field(esName)
+	queryAgg := elastic.NewTermsAggregation().Size(int(filter.Limit)).Field(esName)
 
 	esSearch := es.client().Search().Index(index).Size(int(filter.Limit)).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
