@@ -218,7 +218,6 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 }
 
 //GetAttributes handles GET /v1/attributes/:attribute_name
-// TODO - Add hirearchical queries for attributes. Name max_depth accept, 1-4. Default to 1.
 func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	token := p.CheckToken(req)
 	if !token.Require(res, "event:show") {
@@ -232,6 +231,10 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	}
 	maxdepth, _ := strconv.ParseUint(req.FormValue("max_depth"), 10, 32)
 	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+	// Default Limit of 50 if not specified by queryparam
+	if limit == 0 {
+		limit = 50
+	}
 
 	util.LogDebug("api.GetAttributes: Create filter")
 	filter := hermes.AttributeFilter{
