@@ -33,11 +33,10 @@ func (m Mock) MaxLimit() uint {
 	return 100
 }
 
-//GetAttributes Mock - Needs fixing, and documented FIXME
-//TODO: This isn't testing anything. FIXME
+//GetAttributes Mock
 func (m Mock) GetAttributes(filter *AttributeFilter, tenantID string) ([]string, error) {
 	var parsedAttribute []string
-	err := json.Unmarshal(mockEvent, &parsedAttribute)
+	err := json.Unmarshal(mockAttributes, &parsedAttribute)
 	return parsedAttribute, err
 }
 
@@ -170,4 +169,15 @@ var mockEvents = []byte(`
   ],
   "total": 4
 }
+`)
+
+var mockAttributes = []byte(`
+[
+  "compute/server",
+  "compute/server/volume-attachment",
+  "compute/keypair",
+  "network/port",
+  "network/floatingip",
+  "compute/keypairs"
+]
 `)

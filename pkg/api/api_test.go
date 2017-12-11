@@ -62,38 +62,31 @@ func setupTest(t *testing.T) http.Handler {
 	return router
 }
 
-func Test_APIMetadata(t *testing.T) {
-	router := setupTest(t)
+func Test_API(t *testing.T) {
+	tt := []struct {
+		name       string
+		method     string
+		path       string
+		statuscode int
+		json       string
+	}{
+		{"Metadata", "GET", "/v1/", 200, "fixtures/api-metadata.json"},
+		{"EventDetails", "GET", "/v1/events/7be6c4ff-b761-5f1f-b234-f5d41616c2cd", 200, "fixtures/event-details.json"},
+		{"EventList", "GET", "/v1/events?event_type=identity.project.deleted&offset=10", 200, "fixtures/event-list.json"},
+		{"Attributes", "GET", "/v1/attributes/resource_type", 200, "fixtures/attributes.json"},
+	}
 
-	test.APIRequest{
-		Method:           "GET",
-		Path:             "/v1/",
-		ExpectStatusCode: 200,
-		ExpectJSON:       "fixtures/api-metadata.json",
-	}.Check(t, router)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			router := setupTest(t)
 
-}
-
-func Test_APIGetEventDetails(t *testing.T) {
-	router := setupTest(t)
-
-	test.APIRequest{
-		Method:           "GET",
-		Path:             "/v1/events/7be6c4ff-b761-5f1f-b234-f5d41616c2cd",
-		ExpectStatusCode: 200,
-		ExpectJSON:       "fixtures/event-details.json",
-	}.Check(t, router)
-
-}
-
-func Test_APIGetEventList(t *testing.T) {
-	router := setupTest(t)
-
-	test.APIRequest{
-		Method:           "GET",
-		Path:             "/v1/events?event_type=identity.project.deleted&offset=10",
-		ExpectStatusCode: 200,
-		ExpectJSON:       "fixtures/event-list.json",
-	}.Check(t, router)
+			test.APIRequest{
+				Method:           tc.method,
+				Path:             tc.path,
+				ExpectStatusCode: tc.statuscode,
+				ExpectJSON:       tc.json,
+			}.Check(t, router)
+		})
+	}
 
 }
