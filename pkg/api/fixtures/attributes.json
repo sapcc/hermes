@@ -1,0 +1,8 @@
+[
+  "compute/server",
+  "compute/server/volume-attachment",
+  "compute/keypair",
+  "network/port",
+  "network/floatingip",
+  "compute/keypairs"
+]
