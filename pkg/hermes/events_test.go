@@ -21,7 +21,7 @@ func Test_GetEvent(t *testing.T) {
 }
 
 func Test_GetEvents(t *testing.T) {
-	events, total, err := GetEvents(&Filter{}, "", identity.Mock{}, storage.Mock{})
+	events, total, err := GetEvents(&EventFilter{}, "", identity.Mock{}, storage.Mock{})
 	require.Nil(t, err)
 	require.NotNil(t, events)
 	assert.Equal(t, len(events), 4)
