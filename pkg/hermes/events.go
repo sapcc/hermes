@@ -36,15 +36,6 @@ type ResourceRef struct {
 // ListEvent contains high-level data about an event, intended as a list item
 //  The JSON annotations here are for the JSON to be returned by the API
 type ListEvent struct {
-	// TODO: Remove these deprecations
-	SourceDeprecated       string `json:"source"`                  // observer.typeURI
-	IDDeprecated           string `json:"event_id"`                // id
-	TypeDeprecated         string `json:"event_type"`              // action
-	TimeDeprecated         string `json:"event_time"`              // eventType
-	ResourceIDDeprecated   string `json:"resource_id"`             // target.id
-	ResourceTypeDeprecated string `json:"resource_type"`           // target.typeURI
-	ResourceNameDeprecated string `json:"resource_name,omitempty"` // drop
-	// NEW:
 	ID        string      `json:"id"`
 	Time      string      `json:"eventTime"`
 	Action    string      `json:"action"`
@@ -137,14 +128,6 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		event := ListEvent{
-			// TODO: remove old attribute names
-			SourceDeprecated:       storageEvent.Observer.TypeURI,
-			IDDeprecated:           storageEvent.ID,
-			TypeDeprecated:         storageEvent.Action,
-			TimeDeprecated:         storageEvent.EventTime,
-			ResourceIDDeprecated:   storageEvent.Target.ID,
-			ResourceTypeDeprecated: storageEvent.Target.TypeURI,
-			// new attributes
 			Initiator: ResourceRef{
 				TypeURI: storageEvent.Initiator.TypeURI,
 				ID:      storageEvent.Initiator.ID,

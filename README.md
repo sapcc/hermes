@@ -182,34 +182,42 @@ event, e.g.:
 ```json
 {
   "typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
-  "id": "d3f6695e-8a55-5db1-895c-9f7f0910b7a5",
-  "eventTime": "2017-11-01T12:28:58.660965+0000",
-  "action": "created.role_assignment",
+  "id": "7189ce80-6e73-5ad9-bdc5-dcc47f176378",
+  "eventTime": "2017-12-18T18:27:32.352893+00:00",
+  "action": "create",
   "eventType": "activity",
   "outcome": "success",
+  "requestpath": "/v2.0/ports.json",
+  "reason": {
+    "reasoncode": "201",
+    "reasontype": "HTTP"
+  },
   "initiator": {
     "typeURI": "service/security/account/user",
-    "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
-    "project_id": "6a030751147a45c0863c3b5bde32c744",
+    "id": "ba8304b657fb4568addf7116f41b4a16",
+    "name": "neutron",
+    "project_id": "ba8304b657fb4568addf7116f41b4a16",
     "host": {
-      "agent": "Ruby",
-      "address": "100.65.1.2"
+      "agent": "python-neutronclient",
+      "address": "127.0.0.1"
     }
   },
   "target": {
-    "typeURI": "service/security/account/user",
-    "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
+    "typeURI": "network/port",
+    "id": "7189ce80-6e73-5ad9-bdc5-dcc47f176378",
+    "DomainID": "",
     "attachments": [
       {
-        "content": "e381a86296f54267afe05b96560e8e14",
-        "contentType": "/data/security/project",
+        "content": "ba8304b657fb4568addf7116f41b4a16",
+        "contentType": "data/security/project",
         "name": "project_id"
       }
     ]
   },
   "observer": {
-    "typeURI": "service/security",
-    "id": "0e8a00bf-e36c-5a51-9418-2d56d59c8887"
+    "typeURI": "service/network",
+    "name": "neutron",
+    "id": "7189ce80-6e73-5ad9-bdc5-dcc47f176378"
   }
 }
 ```

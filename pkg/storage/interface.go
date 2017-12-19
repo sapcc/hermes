@@ -105,38 +105,50 @@ type eventListWithTotal struct {
 // EventDetail contains the CADF payload, enhanced with names for IDs
 //  The JSON annotations are for parsing the result from ElasticSearch AND for generating the Hermes API response
 type EventDetail struct {
-	TypeURI   string `json:"typeURI"`
-	ID        string `json:"id"`
-	EventTime string `json:"eventTime"`
-	Action    string `json:"action"`
-	EventType string `json:"eventType"`
-	Outcome   string `json:"outcome"`
+	TypeURI     string `json:"typeURI"`
+	ID          string `json:"id"`
+	EventTime   string `json:"eventTime"`
+	Action      string `json:"action"`
+	EventType   string `json:"eventType"`
+	Outcome     string `json:"outcome"`
+	RequestPath string `json:"requestpath,omitempty"`
+	Reason      struct {
+		//TODO - ReasonCode is a string? Validate in Kibana
+		ReasonType string `json:"reasontype"`
+		ReasonCode string `json:"reasoncode"`
+	} `json:"reason,omitempty"`
 	Initiator struct {
 		TypeURI   string `json:"typeURI"`
+		Name      string `json:"name,omitempty"`
 		ID        string `json:"id"`
-		DomainID  string `json:"domain_id,omitempty"`
 		ProjectID string `json:"project_id,omitempty"`
+		DomainID  string `json:"domain_id,omitempty"`
 		Host      struct {
 			Agent   string `json:"agent"`
 			Address string `json:"address"`
 		} `json:"host,omitempty"`
 	} `json:"initiator"`
 	Target struct {
-		TypeURI     string `json:"typeURI"`
-		ID          string `json:"id"`
-		Name        string `json:"name,omitempty"`
-		ProjectID   string `json:"project_id,omitempty"`
-		DomainID    string `json:"domain_id,omitempty"`
+		TypeURI   string `json:"typeURI"`
+		Name      string `json:"name,omitempty"`
+		ID        string `json:"id"`
+		ProjectID string `json:"project_id,omitempty"`
+		DomainID  string
+		Addresses []struct {
+			URL string `json:"url"`
+		} `json:"addresses,omitempty"`
 		Attachments []struct {
-			Content     string `json:"content"`
-			ContentType string `json:"contentType"`
 			Name        string `json:"name,omitempty"`
+			ContentType string `json:"contentType"`
+			Content     string `json:"content"`
 		} `json:"attachments,omitempty"`
 	} `json:"target"`
 	Observer struct {
 		TypeURI string `json:"typeURI"`
+		Name    string `json:"name,omitempty"`
 		ID      string `json:"id"`
 	} `json:"observer"`
+
 	// TODO: attachments for additional parameters
 }
 

@@ -138,7 +138,6 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 	util.LogDebug("api.ListEvents: Create filter")
 	filter := hermes.EventFilter{
-		// TODO: remove append of deprecated parameters
 		ObserverType:  req.FormValue("observer_type") + req.FormValue("source"),
 		TargetType:    req.FormValue("target_type") + req.FormValue("resource_type"),
 		TargetID:      req.FormValue("target_id"),

@@ -54,15 +54,38 @@ var mockEvent = []byte(`
   "outcome": "success",
   "initiator": {
 	"typeURI": "service/security/account/user",
-	"id": "5d847cb1e75047a29aa9dee2cabcce9b"
+	  "project_id": "a759dcc2a2384a76b0386bb985952373",
+      "host": {
+        "agent": "openstacksdk/0.9.16 keystoneauth1/2.20.0 python-requests/2.13.0 CPython/2.7.13",
+        "address": "127.0.0.1"
+      },
+      "name": "test_admin",
+      "id": "bfa90acd1cad19d456bd101b5b4febf7444ee08d53dd7679ce35b322525776b2"
   },
   "target": {
+	"addresses": [
+        {
+          "url": "https://network-3.example.com/v2.0/security-group-rules/uuid"
+        }
+      ],
+	"attachments": [
+        {
+          "name": "project_id",
+          "contentType": "data/security/project",
+          "content": "a759dcc2a2384a76b0386bb985952373"
+        }
+      ],
 	"typeURI": "service/security/account/user",
 	"id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac"
   },
   "observer": {
 	"typeURI": "service/security",
-	"id": "a02d5699-4967-522f-8092-c286aea2deab"
+	"id": "a02d5699-4967-522f-8092-c286aea2deab",
+	"name": "neutron"
+  },
+  "reason": {
+      "reasonCode": "409",
+      "reasonType": "HTTP"
   }
 }
 `)

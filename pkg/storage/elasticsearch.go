@@ -19,14 +19,6 @@ type ElasticSearch struct {
 var esFieldMapping = map[string]string{
 	"time": "eventTime",
 
-	// old names
-	"source":        "observer.typeURI",
-	"resource_type": "target.typeURI",
-	"resource_name": "target.id",
-	"event_type":    "action",
-	"user_name":     "initiator.id",
-
-	// new names
 	"action":         "action",
 	"outcome":        "outcome",
 	"observer_id":    "observer.id",
