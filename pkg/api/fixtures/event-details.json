@@ -5,20 +5,40 @@
   "action": "create/role_assignment",
   "eventType": "",
   "outcome": "success",
+  "reason": {
+    "reasontype": "HTTP",
+    "reasoncode": "409"
+  },
   "initiator": {
     "typeURI": "service/security/account/user",
-    "id": "5d847cb1e75047a29aa9dee2cabcce9b",
+    "name": "test_admin",
+    "id": "bfa90acd1cad19d456bd101b5b4febf7444ee08d53dd7679ce35b322525776b2",
+    "project_id": "a759dcc2a2384a76b0386bb985952373",
     "host": {
-      "agent": "",
-      "address": ""
+      "agent": "openstacksdk/0.9.16 keystoneauth1/2.20.0 python-requests/2.13.0 CPython/2.7.13",
+      "address": "127.0.0.1"
     }
   },
   "target": {
     "typeURI": "service/security/account/user",
-    "id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac"
+    "id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac",
+    "DomainID": "",
+    "addresses": [
+      {
+        "url": "https://network-3.example.com/v2.0/security-group-rules/uuid"
+      }
+    ],
+    "attachments": [
+      {
+        "name": "project_id",
+        "contentType": "data/security/project",
+        "content": "a759dcc2a2384a76b0386bb985952373"
+      }
+    ]
   },
   "observer": {
     "typeURI": "service/security",
+    "name": "neutron",
     "id": "a02d5699-4967-522f-8092-c286aea2deab"
   }
 }
