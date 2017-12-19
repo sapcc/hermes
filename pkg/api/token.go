@@ -24,6 +24,7 @@ import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gorilla/mux"
+	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
@@ -49,9 +50,12 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 
 	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
 	t.context, t.err = p.keystone.ValidateToken(str)
-	switch t.err.(type) {
-	case gophercloud.ErrDefault404:
-		t.err = errors.New("X-Auth-Token is invalid or expired")
+	if t.err != nil {
+		util.LogDebug("Error connection to identity server %s", t.err)
+		switch t.err.(type) {
+		case gophercloud.ErrDefault404:
+			t.err = errors.New("X-Auth-Token is invalid or expired")
+		}
 	}
 	t.context.Request = mux.Vars(r)
 	if r.FormValue("domain_id") == "" {
@@ -80,7 +84,7 @@ func (t *Token) Require(w http.ResponseWriter, rule string) bool {
 		t.context.Logger = log.Printf //or any other function with the same signature
 	}
 	if !t.enforcer.Enforce(rule, t.context) {
-		http.Error(w, "Unauthorized", http.StatusForbidden)
+		http.Error(w, "Forbidden", http.StatusForbidden)
 		return false
 	}
 	return true
