@@ -253,7 +253,7 @@ Examples:
 * `update/add/floatingip`
 * `network/firewall/rules`
 
-To limit the amount of classifier values exposed to a client, the level of detail of hierarchical attributes can be limited using the `max_depth` parameter. (Sub-)hierarchies that have been collapsed that way are marked with a asterisk `*`.
+To limit the amount of classifier values exposed to a client, the level of detail of hierarchical attributes can be limited using the `max_depth` parameter. 
 
 Example:
 
@@ -272,32 +272,9 @@ List:
 
 | max_depth | values |
 |-----------|---------------------------------------|
-| 1         | `create, delete, update*, start, stop  |
-| 2         | `create, delete, update, update/add*, update/remove*, start, stop |
+| 1         | `create, delete, update, start, stop  |
+| 2         | `create, delete, update, update/add, update/remove, start, stop |
 | 3         | full list (see above) |
-
-## Audit Config
-
-**GET /v1/audit/**
-
-Returns the details of configuration for a given audit tenant, e.g.:
-
-```json 
-{
-    "enabled": true/false,
-}
-```
-
-**PUT /v1/audit/**
-
-Sets the details of configuration for a given audit tenant, e.g.:
-
-```json 
-{
-    "tenant_id": "openstack_tenant_string",
-    "enabled": true/false
-}
-```
 
 
 [![Build Status](https://travis-ci.org/sapcc/hermes.svg?branch=master)](https://travis-ci.org/sapcc/hermes)
