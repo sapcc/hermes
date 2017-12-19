@@ -133,7 +133,7 @@ type EventDetail struct {
 		Name      string `json:"name,omitempty"`
 		ID        string `json:"id"`
 		ProjectID string `json:"project_id,omitempty"`
-		DomainID  string
+		DomainID  string `json:"domain_id,omitempty"`
 		Addresses []struct {
 			URL string `json:"url"`
 		} `json:"addresses,omitempty"`
