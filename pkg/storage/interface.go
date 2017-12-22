@@ -102,54 +102,57 @@ type eventListWithTotal struct {
 	Events []EventDetail `json:"events"`
 }
 
-// EventDetail contains the CADF payload, enhanced with names for IDs
+type Resource struct {
+	TypeURI   string `json:"typeURI"`
+	Name      string `json:"name,omitempty"`
+	Domain    string `json:"domain,omitempty"`
+	ID        string `json:"id"`
+	Addresses []struct {
+		URL  string `json:"url"`
+		Name string `json:"name,omitempty"`
+	} `json:"addresses,omitempty"`
+	Host struct {
+		ID       string `json:"id,omitempty"`
+		Address  string `json:"address,omitempty"`
+		Agent    string `json:"agent,omitempty"`
+		Platform string `json:"platform,omitempty"`
+	}
+	Attachments []Attachment `json:"attachments,omitempty"`
+	// project_id and domain_id are OpenStack extensions (introduced by Keystone and keystone(audit)middleware)
+	ProjectID string `json:"project_id,omitempty"`
+	DomainID  string `json:"domain_id,omitempty"`
+}
+
+type Attachment struct {
+	// Note: name is optional in CADF spec. to permit unnamed attachments
+	Name string `json:"name,omitempty"`
+	// this is messed-up in the spec.: the schema says ContentType, the examples, too. Some sections refer to typeURI.
+	// Using typeURI would be more consistent. IBM finally has both, but forgot the name properly
+	ContentType string `json:"contentType"`
+	Content     string `json:"content"`
+}
+
+// EventDetail contains the CADF event according to CADF spec, section 6.6.1 Event (data)
+// Extensions: requestPath (OpenStack, IBM), initiator.project_id/domain_id
+// Omissions: everything that we do not use or not expose to API users
 //  The JSON annotations are for parsing the result from ElasticSearch AND for generating the Hermes API response
 type EventDetail struct {
-	TypeURI     string `json:"typeURI"`
-	ID          string `json:"id"`
-	EventTime   string `json:"eventTime"`
-	Action      string `json:"action"`
-	EventType   string `json:"eventType"`
-	Outcome     string `json:"outcome"`
-	RequestPath string `json:"requestpath,omitempty"`
+	TypeURI   string `json:"typeURI"`
+	ID        string `json:"id"`
+	EventTime string `json:"eventTime"`
+	Action    string `json:"action"`
+	EventType string `json:"eventType"`
+	Outcome   string `json:"outcome"`
+	// requestPath is an extension of OpenStack's pycadf which is supported by IBM as well
+	RequestPath string `json:"requestPath,omitempty"`
 	Reason      struct {
-		//TODO - ReasonCode is a string? Validate in Kibana
-		ReasonType string `json:"reasontype"`
-		ReasonCode string `json:"reasoncode"`
+		ReasonType string `json:"reasonType"`
+		ReasonCode string `json:"reasonCode"`
 	} `json:"reason,omitempty"`
-	Initiator struct {
-		TypeURI   string `json:"typeURI"`
-		Name      string `json:"name,omitempty"`
-		ID        string `json:"id"`
-		ProjectID string `json:"project_id,omitempty"`
-		DomainID  string `json:"domain_id,omitempty"`
-		Host      struct {
-			Agent   string `json:"agent"`
-			Address string `json:"address"`
-		} `json:"host,omitempty"`
-	} `json:"initiator"`
-	Target struct {
-		TypeURI   string `json:"typeURI"`
-		Name      string `json:"name,omitempty"`
-		ID        string `json:"id"`
-		ProjectID string `json:"project_id,omitempty"`
-		DomainID  string `json:"domain_id,omitempty"`
-		Addresses []struct {
-			URL string `json:"url"`
-		} `json:"addresses,omitempty"`
-		Attachments []struct {
-			Name        string `json:"name,omitempty"`
-			ContentType string `json:"contentType"`
-			Content     string `json:"content"`
-		} `json:"attachments,omitempty"`
-	} `json:"target"`
-	Observer struct {
-		TypeURI string `json:"typeURI"`
-		Name    string `json:"name,omitempty"`
-		ID      string `json:"id"`
-	} `json:"observer"`
-
-	// TODO: attachments for additional parameters
+	Initiator   Resource     `json:"initiator"`
+	Target      Resource     `json:"target"`
+	Observer    Resource     `json:"observer"`
+	Attachments []Attachment `json:"attachments,omitempty"`
 }
 
 //AttributeValueList is used for holding unique attributes
