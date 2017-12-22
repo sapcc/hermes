@@ -1,9 +1,7 @@
 # Fundamental requirements
 
-- expose OpenStack-like REST API
+- Expose OpenStack-like REST API
+- Use an Open Standards format for Auditing Events
+- Support Project and Domain level access control  
 
-# Basic structure
-
-
-## Usecase: Showing audit data in Elektra
 
