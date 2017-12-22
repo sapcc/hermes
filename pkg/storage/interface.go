@@ -104,10 +104,10 @@ type eventListWithTotal struct {
 
 // Resource contains attributes describing a (OpenStack-) Resource
 type Resource struct {
-	TypeURI string `json:"typeURI"`
-	Name    string `json:"name,omitempty"`
-	Domain  string `json:"domain,omitempty"`
-	ID      string `json:"id"`
+	TypeURI   string `json:"typeURI"`
+	Name      string `json:"name,omitempty"`
+	Domain    string `json:"domain,omitempty"`
+	ID        string `json:"id"`
 	Addresses []struct {
 		URL  string `json:"url"`
 		Name string `json:"name,omitempty"`
@@ -148,7 +148,7 @@ type EventDetail struct {
 	Action    string `json:"action"`
 	EventType string `json:"eventType"`
 	Outcome   string `json:"outcome"`
-	Reason struct {
+	Reason    struct {
 		ReasonType string `json:"reasonType"`
 		ReasonCode string `json:"reasonCode"`
 	} `json:"reason,omitempty"`

@@ -79,7 +79,7 @@ This example shows the audit events for creating & deleting a project.
     {
       "event_id": "3824e534-6cd4-53b2-93d4-33dc4ab50b8c",
       "event_name": "identity.project.created",
-      "event_time": "2017-04-20T11:27:15.834562+0000",
+      "event_time": "2017-04-20T11:27:15.834562+00:00",
       "resource_name": "temp_project",
       "resource_id": "3a7e3d2421384f56a8fb6cf082a8efab",
       "resource_type": "data/security/project",
@@ -98,7 +98,7 @@ This example shows the audit events for creating & deleting a project.
     {
       "event_id": "1ff4703a-d8c3-50f8-94d1-8ab382941e80",
       "event_name": "identity.project.deleted",
-      "event_time": "2017-04-20T11:28:32.521298+0000",
+      "event_time": "2017-04-20T11:28:32.521298+00:00",
       "resource_name": "temp_project",
       "resource_id": "3a7e3d2421384f56a8fb6cf082a8efab",
       "resource_type": "data/security/project",
@@ -162,7 +162,7 @@ event, e.g.:
          },
          "id": "493b9a5284675cbb9f3f6439bd222eb6"
       },
-      "eventTime": "2017-04-20T11:28:32.521298+0000",
+      "eventTime": "2017-04-20T11:28:32.521298+00:00",
       "action": "deleted.project",
       "eventType": "activity",
       "id": "1ff4703a-d8c3-50f8-94d1-8ab382941e80",

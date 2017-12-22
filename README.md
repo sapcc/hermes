@@ -135,7 +135,7 @@ This example shows the audit events for adding a role to a user.
   "events": [
     {
       "id": "d3f6695e-8a55-5db1-895c-9f7f0910b7a5",
-      "eventTime": "2017-11-01T12:28:58.660965+0000",
+      "eventTime": "2017-11-01T12:28:58.660965+00:00",
       "action": "created.role_assignment",
       "outcome": "success",
       "initiator": {
