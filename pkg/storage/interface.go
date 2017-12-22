@@ -87,7 +87,7 @@ type EventFilter struct {
 	Sort          []FieldOrder
 }
 
-// AttributeFilter
+// AttributeFilter contains parameters for filtering by attributes
 type AttributeFilter struct {
 	QueryName string
 	MaxDepth  uint
@@ -102,6 +102,7 @@ type eventListWithTotal struct {
 	Events []EventDetail `json:"events"`
 }
 
+// Resource contains attributes describing a (OpenStack-) Resource
 type Resource struct {
 	TypeURI   string `json:"typeURI"`
 	Name      string `json:"name,omitempty"`
@@ -123,6 +124,7 @@ type Resource struct {
 	DomainID  string `json:"domain_id,omitempty"`
 }
 
+// Attachment contains self-describing extensions to the event
 type Attachment struct {
 	// Note: name is optional in CADF spec. to permit unnamed attachments
 	Name string `json:"name,omitempty"`
