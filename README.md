@@ -1,10 +1,16 @@
 # Hermes
 
-**Hermes** is an OpenStack audit data retrieval service for accessing CADF audit events collected through Keystone middleware.   
- 
-At SAP we collect CADF audit events from our Converged Cloud platform and provide them as an auditing service for our users.  
+**Hermes** is an audit trail service for OpenStack. It is named after the Futurama character, not the Greek god.
 
-It is named after the Futurama character, not the Greek god.
+The audit trail is a stream of audit events produced by the various components of our converged cloud solution.
+Each audit event represents an audit-relevant activity in
+[CADF format](http://www.dmtf.org/sites/default/files/standards/documents/DSP0262_1.0.0.pdf).
+
+The website for CADF can be found [here](http://www.dmtf.org/standards/cadf).
+
+Related projects:
+* [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware)
+* [Keystone Event Notifications](https://docs.openstack.org/keystone/pike/advanced-topics/event_notifications.html)
 
 ## Features 
 
@@ -52,11 +58,6 @@ The list of events can be filtered by the parameters passed in via the URL.
 Only basic event data will be listed here (event id, event type, resource id,
 resource type, user name). Clients must make a separate call to retrieve the full 
 CADF payload data for each individual event.
-
-The website for CADF is [here](http://www.dmtf.org/standards/cadf).
-More details on the CADF format, with examples for each OpenStack service, can
-be found in the PDF 
-[here](http://www.dmtf.org/sites/default/files/standards/documents/DSP2038_1.1.0.pdf).
 
 **Parameters**
 
@@ -136,7 +137,7 @@ This example shows the audit events for adding a role to a user.
     {
       "id": "d3f6695e-8a55-5db1-895c-9f7f0910b7a5",
       "eventTime": "2017-11-01T12:28:58.660965+00:00",
-      "action": "created.role_assignment",
+      "action": "create/role_assignment",
       "outcome": "success",
       "initiator": {
         "typeURI": "service/security/account/user",
@@ -187,32 +188,26 @@ event, e.g.:
   "action": "create",
   "eventType": "activity",
   "outcome": "success",
-  "requestpath": "/v2.0/ports.json",
+  "requestPath": "/v2.0/ports.json",
   "reason": {
-    "reasoncode": "201",
-    "reasontype": "HTTP"
+    "reasonCode": "201",
+    "reasonType": "HTTP"
   },
   "initiator": {
     "typeURI": "service/security/account/user",
     "id": "ba8304b657fb4568addf7116f41b4a16",
     "name": "neutron",
+    "domain": "Default",
     "project_id": "ba8304b657fb4568addf7116f41b4a16",
     "host": {
-      "agent": "python-neutronclient",
-      "address": "127.0.0.1"
+      "address": "127.0.0.1",
+       "agent": "python-neutronclient"
     }
   },
   "target": {
     "typeURI": "network/port",
     "id": "7189ce80-6e73-5ad9-bdc5-dcc47f176378",
-    "DomainID": "",
-    "attachments": [
-      {
-        "content": "ba8304b657fb4568addf7116f41b4a16",
-        "contentType": "data/security/project",
-        "name": "project_id"
-      }
-    ]
+    "project_id": "ba8304b657fb4568addf7116f41b4a16"
   },
   "observer": {
     "typeURI": "service/network",
