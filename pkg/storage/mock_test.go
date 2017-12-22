@@ -6,6 +6,7 @@ import (
 )
 
 func Test_MockStorage_EventDetail(t *testing.T) {
+	// both params are ignored
 	eventDetail, error := Mock{}.GetEvent("d5eed458-6666-58ec-ad06-8d3cf6bafca1", "b3b70c8271a845709f9a03030e705da7")
 	assert.Nil(t, error)
 	tt := []struct {
