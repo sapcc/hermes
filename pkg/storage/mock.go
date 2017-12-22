@@ -42,37 +42,26 @@ func (m Mock) GetAttributes(filter *AttributeFilter, tenantID string) ([]string,
 
 var mockEvent = []byte(`
 {
-  "source": "service/security",
-  "event_id": "7be6c4ff-b761-5f1f-b234-f5d41616c2cd",
-  "event_type": "create/role_assignment",
-  "event_time": "2017-11-17T08:53:32.667973+0000",
-  "resource_id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac",
-  "resource_type": "service/security/account/user",
+
   "id": "7be6c4ff-b761-5f1f-b234-f5d41616c2cd",
-  "eventTime": "2017-11-17T08:53:32.667973+0000",
+  "eventTime": "2017-11-17T08:53:32.667973+00:00",
+  "eventType": "activity",
   "action": "create/role_assignment",
   "outcome": "success",
   "initiator": {
 	"typeURI": "service/security/account/user",
-	  "project_id": "a759dcc2a2384a76b0386bb985952373",
       "host": {
         "agent": "openstacksdk/0.9.16 keystoneauth1/2.20.0 python-requests/2.13.0 CPython/2.7.13",
         "address": "127.0.0.1"
       },
       "name": "test_admin",
       "id": "bfa90acd1cad19d456bd101b5b4febf7444ee08d53dd7679ce35b322525776b2"
+	  "project_id": "a759dcc2a2384a76b0386bb985952373",
   },
   "target": {
 	"addresses": [
         {
           "url": "https://network-3.example.com/v2.0/security-group-rules/uuid"
-        }
-      ],
-	"attachments": [
-        {
-          "name": "project_id",
-          "contentType": "data/security/project",
-          "content": "a759dcc2a2384a76b0386bb985952373"
         }
       ],
 	"typeURI": "service/security/account/user",
@@ -87,6 +76,13 @@ var mockEvent = []byte(`
       "reasonCode": "409",
       "reasonType": "HTTP"
   }
+"attachments": [
+	{
+	  "name": "project_id",
+	  "typeURI": "data/security/project",
+	  "content": "a759dcc2a2384a76b0386bb985952373"
+	}
+  ],
 }
 `)
 

@@ -104,10 +104,10 @@ type eventListWithTotal struct {
 
 // Resource contains attributes describing a (OpenStack-) Resource
 type Resource struct {
-	TypeURI   string `json:"typeURI"`
-	Name      string `json:"name,omitempty"`
-	Domain    string `json:"domain,omitempty"`
-	ID        string `json:"id"`
+	TypeURI string `json:"typeURI"`
+	Name    string `json:"name,omitempty"`
+	Domain  string `json:"domain,omitempty"`
+	ID      string `json:"id"`
 	Addresses []struct {
 		URL  string `json:"url"`
 		Name string `json:"name,omitempty"`
@@ -117,7 +117,7 @@ type Resource struct {
 		Address  string `json:"address,omitempty"`
 		Agent    string `json:"agent,omitempty"`
 		Platform string `json:"platform,omitempty"`
-	}
+	} `json:"host,omitempty"`
 	Attachments []Attachment `json:"attachments,omitempty"`
 	// project_id and domain_id are OpenStack extensions (introduced by Keystone and keystone(audit)middleware)
 	ProjectID string `json:"project_id,omitempty"`
@@ -128,10 +128,11 @@ type Resource struct {
 type Attachment struct {
 	// Note: name is optional in CADF spec. to permit unnamed attachments
 	Name string `json:"name,omitempty"`
-	// this is messed-up in the spec.: the schema says ContentType, the examples, too. Some sections refer to typeURI.
-	// Using typeURI would be more consistent. IBM finally has both, but forgot the name properly
-	ContentType string `json:"contentType"`
-	Content     string `json:"content"`
+	// this is messed-up in the spec.: the schema and examples says contentType. But the text often refers to typeURI.
+	// Using typeURI would surely be more consistent. OpenStack uses typeURI, IBM supports both
+	// (but forgot the name property)
+	typeURI string `json:"typeURI"`
+	Content string `json:"content"`
 }
 
 // EventDetail contains the CADF event according to CADF spec, section 6.6.1 Event (data)
@@ -145,9 +146,7 @@ type EventDetail struct {
 	Action    string `json:"action"`
 	EventType string `json:"eventType"`
 	Outcome   string `json:"outcome"`
-	// requestPath is an extension of OpenStack's pycadf which is supported by IBM as well
-	RequestPath string `json:"requestPath,omitempty"`
-	Reason      struct {
+	Reason struct {
 		ReasonType string `json:"reasonType"`
 		ReasonCode string `json:"reasonCode"`
 	} `json:"reason,omitempty"`
@@ -155,6 +154,8 @@ type EventDetail struct {
 	Target      Resource     `json:"target"`
 	Observer    Resource     `json:"observer"`
 	Attachments []Attachment `json:"attachments,omitempty"`
+	// requestPath is an extension of OpenStack's pycadf which is supported by IBM as well
+	RequestPath string `json:"requestPath,omitempty"`
 }
 
 //AttributeValueList is used for holding unique attributes

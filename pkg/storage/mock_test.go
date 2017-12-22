@@ -15,9 +15,10 @@ func Test_MockStorage_EventDetail(t *testing.T) {
 	}{
 		{"eventDetail.ID", eventDetail.ID, "7be6c4ff-b761-5f1f-b234-f5d41616c2cd"},
 		{"eventDetail.Action", eventDetail.Action, "create/role_assignment"},
-		{"eventDetail.EventTime", eventDetail.EventTime, "2017-11-17T08:53:32.667973+0000"},
+		{"eventDetail.EventTime", eventDetail.EventTime, "2017-11-17T08:53:32.667973+00:00"},
 		{"eventDetail.Outcome", eventDetail.Outcome, "success"},
-		{"eventDetail.Target.Attachments[0].Name", eventDetail.Target.Attachments[0].Name, "project_id"},
+		{"eventDetail.EventType", eventDetail.EventType, "activity"},
+		{"eventDetail.Attachments[0].Name", eventDetail.Target.Attachments[0].Name, "project_id"},
 		{"eventDetail.Reason.ReasonType", eventDetail.Reason.ReasonType, "HTTP"},
 		{"eventDetail.Reason.ReasonCode", eventDetail.Reason.ReasonCode, "409"},
 		{"eventDetail.Initiator.Name", eventDetail.Initiator.Name, "test_admin"},
@@ -39,7 +40,7 @@ func Test_MockStorage_Events(t *testing.T) {
 	assert.Equal(t, len(eventsList), 4)
 	assert.Equal(t, "success", eventsList[0].Outcome)
 	assert.Equal(t, "f6f0ebf3-bf59-553a-9e38-788f714ccc46", eventsList[1].ID)
-	assert.Equal(t, "2017-11-06T10:15:56.984390+0000", eventsList[2].EventTime)
+	assert.Equal(t, "2017-11-06T10:15:56.984390+00:00", eventsList[2].EventTime)
 }
 
 func Test_MockStorage__Attributes(t *testing.T) {
