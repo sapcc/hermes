@@ -3,7 +3,6 @@ package storage
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func Test_MockStorage_EventDetail(t *testing.T) {
@@ -17,7 +16,7 @@ func Test_MockStorage_EventDetail(t *testing.T) {
 	}{
 		{"eventDetail.ID", eventDetail.ID, "7be6c4ff-b761-5f1f-b234-f5d41616c2cd"},
 		{"eventDetail.Action", eventDetail.Action, "create/role_assignment"},
-		{"eventDetail.EventTime", eventDetail.EventTime.UTC().String(), "2017-11-17T08:53:32.667973+00:00"},
+		{"eventDetail.EventTime", eventDetail.EventTime, "2017-11-17T08:53:32.667973+00:00"},
 		{"eventDetail.Outcome", eventDetail.Outcome, "success"},
 		{"eventDetail.EventType", eventDetail.EventType, "activity"},
 		{"eventDetail.Attachments[0].Name", eventDetail.Attachments[0].Name, "role_id"},

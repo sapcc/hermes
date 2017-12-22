@@ -25,7 +25,6 @@ import (
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
-	"time"
 )
 
 //ResourceRef is an embedded struct for ListEvents (eg. Initiator, Target, Observer)
@@ -38,7 +37,7 @@ type ResourceRef struct {
 //  The JSON annotations here are for the JSON to be returned by the API
 type ListEvent struct {
 	ID        string      `json:"id"`
-	Time      time.Time   `json:"eventTime"`
+	Time      string      `json:"eventTime"`
 	Action    string      `json:"action"`
 	Outcome   string      `json:"outcome"`
 	Initiator ResourceRef `json:"initiator"`
