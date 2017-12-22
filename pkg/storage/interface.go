@@ -19,6 +19,8 @@
 
 package storage
 
+import "time"
+
 // Status contains Prometheus status strings
 // TODO: Determine if we want a similar setup for Elasticsearch.
 type Status string
@@ -104,10 +106,10 @@ type eventListWithTotal struct {
 
 // Resource contains attributes describing a (OpenStack-) Resource
 type Resource struct {
-	TypeURI   string `json:"typeURI"`
-	Name      string `json:"name,omitempty"`
-	Domain    string `json:"domain,omitempty"`
-	ID        string `json:"id"`
+	TypeURI string `json:"typeURI"`
+	Name    string `json:"name,omitempty"`
+	Domain  string `json:"domain,omitempty"`
+	ID      string `json:"id"`
 	Addresses []struct {
 		URL  string `json:"url"`
 		Name string `json:"name,omitempty"`
@@ -142,13 +144,13 @@ type Attachment struct {
 // Omissions: everything that we do not use or not expose to API users
 //  The JSON annotations are for parsing the result from ElasticSearch AND for generating the Hermes API response
 type EventDetail struct {
-	TypeURI   string `json:"typeURI"`
-	ID        string `json:"id"`
-	EventTime string `json:"eventTime"`
-	Action    string `json:"action"`
-	EventType string `json:"eventType"`
-	Outcome   string `json:"outcome"`
-	Reason    struct {
+	TypeURI   string    `json:"typeURI"`
+	ID        string    `json:"id"`
+	EventTime time.Time `json:"eventTime"`
+	Action    string    `json:"action"`
+	EventType string    `json:"eventType"`
+	Outcome   string    `json:"outcome"`
+	Reason struct {
 		ReasonType string `json:"reasonType"`
 		ReasonCode string `json:"reasonCode"`
 	} `json:"reason,omitempty"`
