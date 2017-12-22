@@ -51,8 +51,8 @@ var mockEvent = []byte(`
   "initiator": {
 	"typeURI": "service/security/account/user",
       "host": {
-        "agent": "openstacksdk/0.9.16 keystoneauth1/2.20.0 python-requests/2.13.0 CPython/2.7.13",
-        "address": "127.0.0.1"
+        "address": "127.0.0.1",
+        "agent": "openstacksdk/0.9.16 keystoneauth1/2.20.0 python-requests/2.13.0 CPython/2.7.13"
       },
       "name": "test_admin",
       "domain": "cc3test",

@@ -112,7 +112,7 @@ type Resource struct {
 		URL  string `json:"url"`
 		Name string `json:"name,omitempty"`
 	} `json:"addresses,omitempty"`
-	Host struct {
+	Host *struct {
 		ID       string `json:"id,omitempty"`
 		Address  string `json:"address,omitempty"`
 		Agent    string `json:"agent,omitempty"`

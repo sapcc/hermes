@@ -34,5 +34,12 @@
     "typeURI": "service/security",
     "name": "neutron",
     "id": "a02d5699-4967-522f-8092-c286aea2deab"
-  }
+  },
+  "attachments": [
+    {
+      "name": "role",
+      "typeURI": "data/security/role",
+      "content": "a759dcc2a2384a76b0386bb985952373"
+    }
+  ]
 }
