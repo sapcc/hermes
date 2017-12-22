@@ -131,7 +131,9 @@ type Attachment struct {
 	// this is messed-up in the spec.: the schema and examples says contentType. But the text often refers to typeURI.
 	// Using typeURI would surely be more consistent. OpenStack uses typeURI, IBM supports both
 	// (but forgot the name property)
-	typeURI string `json:"typeURI"`
+	TypeURI string `json:"typeURI"`
+	// Content contains the payload of the attachment. In theory this means any type.
+	// In practise we have to decide because otherwise ES does based one first value
 	Content string `json:"content"`
 }
 
