@@ -3,15 +3,16 @@
   "id": "7be6c4ff-b761-5f1f-b234-f5d41616c2cd",
   "eventTime": "2017-11-17T08:53:32.667973+0000",
   "action": "create/role_assignment",
-  "eventType": "",
+  "eventType": "activity",
   "outcome": "success",
   "reason": {
-    "reasontype": "HTTP",
-    "reasoncode": "409"
+    "reasonType": "HTTP",
+    "reasonCode": "409"
   },
   "initiator": {
     "typeURI": "service/security/account/user",
     "name": "test_admin",
+    "domain": "cc3test",
     "id": "bfa90acd1cad19d456bd101b5b4febf7444ee08d53dd7679ce35b322525776b2",
     "project_id": "a759dcc2a2384a76b0386bb985952373",
     "host": {
@@ -27,13 +28,7 @@
         "url": "https://network-3.example.com/v2.0/security-group-rules/uuid"
       }
     ],
-    "attachments": [
-      {
-        "name": "project_id",
-        "contentType": "data/security/project",
-        "content": "a759dcc2a2384a76b0386bb985952373"
-      }
-    ]
+    "project_id": "a759dcc2a2384a76b0386bb985952373"
   },
   "observer": {
     "typeURI": "service/security",
