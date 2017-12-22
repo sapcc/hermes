@@ -18,7 +18,7 @@ func Test_MockStorage_EventDetail(t *testing.T) {
 		{"eventDetail.EventTime", eventDetail.EventTime, "2017-11-17T08:53:32.667973+00:00"},
 		{"eventDetail.Outcome", eventDetail.Outcome, "success"},
 		{"eventDetail.EventType", eventDetail.EventType, "activity"},
-		{"eventDetail.Attachments[0].Name", eventDetail.Target.Attachments[0].Name, "project_id"},
+		{"eventDetail.Attachments[0].Name", eventDetail.Target.Attachments[0].Name, "role_id"},
 		{"eventDetail.Reason.ReasonType", eventDetail.Reason.ReasonType, "HTTP"},
 		{"eventDetail.Reason.ReasonCode", eventDetail.Reason.ReasonCode, "409"},
 		{"eventDetail.Initiator.Name", eventDetail.Initiator.Name, "test_admin"},

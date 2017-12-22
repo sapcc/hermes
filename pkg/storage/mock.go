@@ -55,8 +55,8 @@ var mockEvent = []byte(`
         "address": "127.0.0.1"
       },
       "name": "test_admin",
-      "id": "bfa90acd1cad19d456bd101b5b4febf7444ee08d53dd7679ce35b322525776b2"
-	  "project_id": "a759dcc2a2384a76b0386bb985952373",
+      "id": "bfa90acd1cad19d456bd101b5b4febf7444ee08d53dd7679ce35b322525776b2",
+	  "project_id": "a759dcc2a2384a76b0386bb985952373"
   },
   "target": {
 	"addresses": [
@@ -65,7 +65,8 @@ var mockEvent = []byte(`
         }
       ],
 	"typeURI": "service/security/account/user",
-	"id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac"
+	"id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac",
+    "project_id": "a759dcc2a2384a76b0386bb985952373"
   },
   "observer": {
 	"typeURI": "service/security",
@@ -75,14 +76,14 @@ var mockEvent = []byte(`
   "reason": {
       "reasonCode": "409",
       "reasonType": "HTTP"
-  }
-"attachments": [
-	{
-	  "name": "project_id",
-	  "typeURI": "data/security/project",
-	  "content": "a759dcc2a2384a76b0386bb985952373"
-	}
-  ],
+  },
+  "attachments": [
+    {
+      "name": "role",
+      "typeURI": "data/security/role",
+      "content": "a759dcc2a2384a76b0386bb985952373"
+    }
+  ]
 }
 `)
 
@@ -141,7 +142,7 @@ var mockEvents = []byte(`
       "source": "service/security",
       "event_id": "eae03aad-86ab-574e-b428-f9dd58e5a715",
       "event_type": "create/role_assignment",
-      "event_time": "2017-11-06T10:15:56.984390+0000",
+      "event_time": "2017-11-06T10:15:56.984390+00:00",
       "resource_id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
       "resource_type": "service/security/account/user",
       "id": "eae03aad-86ab-574e-b428-f9dd58e5a715",
@@ -165,7 +166,7 @@ var mockEvents = []byte(`
       "source": "service/security",
       "event_id": "49e2084a-b81c-51f1-9822-78cdd31d0944",
       "event_type": "create/role_assignment",
-      "event_time": "2017-11-06T10:11:21.605421+0000",
+      "event_time": "2017-11-06T10:11:21.605421+00:00",
       "resource_id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
       "resource_type": "service/security/account/user",
       "id": "49e2084a-b81c-51f1-9822-78cdd31d0944",
