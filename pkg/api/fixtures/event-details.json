@@ -15,8 +15,8 @@
     "domain": "cc3test",
     "id": "bfa90acd1cad19d456bd101b5b4febf7444ee08d53dd7679ce35b322525776b2",
     "host": {
-      "agent": "openstacksdk/0.9.16 keystoneauth1/2.20.0 python-requests/2.13.0 CPython/2.7.13",
-      "address": "127.0.0.1"
+      "address": "127.0.0.1",
+      "agent": "openstacksdk/0.9.16 keystoneauth1/2.20.0 python-requests/2.13.0 CPython/2.7.13"
     },
     "project_id": "a759dcc2a2384a76b0386bb985952373"
   },
