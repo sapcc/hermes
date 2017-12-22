@@ -13,7 +13,7 @@ what the request was, and when the request occurred.
 | source | OpenStack Service Origin (ex: identity) |
 | event_id | Unique ID for event within Auditing system |
 | event_type | Description of event (ex: identity.project.created) |
-| event_time | Timestamp event occured (ex: 2017-04-20T11:27:15.834562+0000) |
+| event_time | Timestamp event occured (ex: 2017-04-20T11:27:15.834562+00:00) |
 | resource_id | Unique ID for targeted resource  |
 | resource_type | Targeted service description (ex: data/security/project)  |
 | initiator.domain_id | Unique ID for the domain  |
@@ -32,7 +32,7 @@ what the request was, and when the request occurred.
       "source": "identity",
       "event_id": "3824e534-6cd4-53b2-93d4-33dc4ab50b8c",
       "event_type": "identity.project.created",
-      "event_time": "2017-04-20T11:27:15.834562+0000",
+      "event_time": "2017-04-20T11:27:15.834562+00:00",
       "resource_id": "3a7e3d2421384f56a8fb6cf082a8efab",
       "resource_type": "data/security/project",
       "initiator": {

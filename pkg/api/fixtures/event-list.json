@@ -3,7 +3,7 @@
   "events": [
     {
       "id": "7be6c4ff-b761-5f1f-b234-f5d41616c2cd",
-      "eventTime": "2017-11-17T08:53:32.667973+0000",
+      "eventTime": "2017-11-17T08:53:32.667973+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
       "initiator": {
@@ -21,7 +21,7 @@
     },
     {
       "id": "f6f0ebf3-bf59-553a-9e38-788f714ccc46",
-      "eventTime": "2017-11-07T11:46:19.448565+0000",
+      "eventTime": "2017-11-07T11:46:19.448565+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
       "initiator": {
@@ -39,7 +39,7 @@
     },
     {
       "id": "eae03aad-86ab-574e-b428-f9dd58e5a715",
-      "eventTime": "2017-11-06T10:15:56.984390+0000",
+      "eventTime": "2017-11-06T10:15:56.984390+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
       "initiator": {
@@ -57,7 +57,7 @@
     },
     {
       "id": "49e2084a-b81c-51f1-9822-78cdd31d0944",
-      "eventTime": "2017-11-06T10:11:21.605421+0000",
+      "eventTime": "2017-11-06T10:11:21.605421+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
       "initiator": {
