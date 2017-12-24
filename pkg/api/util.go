@@ -3,9 +3,11 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"net/http"
+	"github.com/sapcc/hermes/pkg/util"
 )
 
 // utility functionality
@@ -31,11 +33,14 @@ func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
 	payload, err := json.MarshalIndent(&data, "", "  ")
 	// Replaces & symbols properly in json within urls.
 	payload = bytes.Replace(payload, []byte("\\u0026"), []byte("&"), -1)
-	if err == nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		w.Write(payload)
-	} else {
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	_, err = w.Write(payload)
+	if err != nil {
+		util.LogDebug("Issue with writing payload when returning Json")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
