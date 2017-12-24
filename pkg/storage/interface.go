@@ -166,5 +166,5 @@ type AttributeValueList []AttributeValue
 //AttributeValue contains the attribute, and the number of hits.
 type AttributeValue struct {
 	Value string `json:"value"`
-	count int64  `json:"count"` // Removing export due to desire to not include it in JSON return
+	count int64  // Removing export due to desire to not include it in JSON return
 }
