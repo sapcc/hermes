@@ -22,7 +22,6 @@ package api
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"net/http"
@@ -32,20 +31,18 @@ import (
 type v1Provider struct {
 	keystone    identity.Identity
 	storage     storage.Storage
-	configdb    configdb.Driver
 	versionData VersionData
 }
 
 //NewV1Handler creates a http.Handler that serves the Hermes v1 API.
 //It also returns the VersionData for this API version which is needed for the
 //version advertisement on "GET /".
-func NewV1Handler(keystone identity.Identity, storage storage.Storage, configdb configdb.Driver) (http.Handler, VersionData) {
+func NewV1Handler(keystone identity.Identity, storage storage.Storage) (http.Handler, VersionData) {
 	r := mux.NewRouter()
 
 	p := &v1Provider{
 		keystone: keystone,
 		storage:  storage,
-		configdb: configdb,
 	}
 	p.versionData = VersionData{
 		Status: "CURRENT",
@@ -74,8 +71,6 @@ func NewV1Handler(keystone identity.Identity, storage storage.Storage, configdb 
 		observeDuration(observeResponseSize(p.GetEventDetails, "GetEventDetails"), "GetEventDetails"))
 	r.Methods("GET").Path("/v1/attributes/{attribute_name}").HandlerFunc(
 		observeDuration(observeResponseSize(p.GetAttributes, "GetAttributes"), "GetAttributes"))
-	r.Methods("GET").Path("/v1/audit").HandlerFunc(p.GetAudit)
-	r.Methods("PUT").Path("/v1/audit").HandlerFunc(p.PutAudit)
 
 	return r, p.versionData
 }
