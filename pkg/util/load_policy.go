@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/databus23/goslo.policy"
+	policy "github.com/databus23/goslo.policy"
 )
 
 // LoadPolicyFile used to Load the hermes policy.json file from disk.

@@ -22,14 +22,15 @@ package identity
 import (
 	"fmt"
 
-	"github.com/databus23/goslo.policy"
+	"sync"
+
+	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
 	"github.com/pkg/errors"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
-	"sync"
 )
 
 //Keystone Openstack Keystone implementation

@@ -21,12 +21,13 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
-	"net/http"
-	"strings"
 )
 
 type v1Provider struct {

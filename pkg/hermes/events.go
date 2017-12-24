@@ -21,6 +21,7 @@ package hermes
 
 import (
 	"fmt"
+
 	"github.com/jinzhu/copier"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
