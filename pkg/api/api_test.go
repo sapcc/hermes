@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"github.com/databus23/goslo.policy"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/sapcc/hermes/pkg/configdb"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
@@ -55,10 +54,9 @@ func setupTest(t *testing.T) http.Handler {
 	//create test driver with the domains and projects from start-data.sql
 	keystone := identity.Mock{}
 	storage := storage.Mock{}
-	configdb := configdb.Mock{}
 
 	prometheus.DefaultRegisterer = prometheus.NewPedanticRegistry()
-	router, _ := NewV1Handler(keystone, storage, configdb)
+	router, _ := NewV1Handler(keystone, storage)
 	return router
 }
 
