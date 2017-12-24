@@ -23,14 +23,15 @@ import (
 	"net/http"
 
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
-	"github.com/sapcc/hermes/pkg/hermes"
-	"github.com/sapcc/hermes/pkg/util"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+	"github.com/sapcc/hermes/pkg/hermes"
+	"github.com/sapcc/hermes/pkg/util"
 )
 
 // EventList is the model for JSON returned by the ListEvents API call
