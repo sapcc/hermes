@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 	elastic "gopkg.in/olivere/elastic.v5"
-	"strings"
 )
 
 //ElasticSearch struct holds esclient

@@ -1,7 +1,7 @@
 package identity
 
 import (
-	"github.com/databus23/goslo.policy"
+	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/spf13/viper"
 )

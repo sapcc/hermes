@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/databus23/goslo.policy"
+	policy "github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/stretchr/testify/assert"
 )
