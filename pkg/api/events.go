@@ -226,7 +226,8 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	// Handle QueryParams
 	queryName := mux.Vars(req)["attribute_name"]
 	if queryName == "" {
-		fmt.Errorf("QueryName not found")
+		util.LogDebug("attribute_name empty")
+		return
 	}
 	maxdepth, _ := strconv.ParseUint(req.FormValue("max_depth"), 10, 32)
 	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
