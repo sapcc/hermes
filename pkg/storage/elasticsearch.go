@@ -45,9 +45,8 @@ func (es *ElasticSearch) init() {
 	var err error
 	var url = viper.GetString("elasticsearch.url")
 	util.LogDebug("Using ElasticSearch URL: %s", url)
-	// Connect to Elasticsearch, elastic.SetSniff(false) can be used to help testing connections, but
-	// can cause problems on elasticsearch reconnection.
-	es.esClient, err = elastic.NewClient(elastic.SetURL(url))
+	// Connect to Elasticsearch, using simple client to reconnect each time for ip changes on load balancer.
+	es.esClient, err = elastic.NewSimpleClient(elastic.SetURL(url))
 	if err != nil {
 		// TODO - Add instrumentation here for failed elasticsearch connection
 		// If issues - https://github.com/olivere/elastic/wiki/Connection-Problems#how-to-figure-out-connection-problems
