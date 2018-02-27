@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"net/http"
 
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
@@ -45,8 +46,15 @@ func (es *ElasticSearch) init() {
 	var err error
 	var url = viper.GetString("elasticsearch.url")
 	util.LogDebug("Using ElasticSearch URL: %s", url)
-	// Connect to Elasticsearch, using simple client to reconnect each time for ip changes on load balancer.
-	es.esClient, err = elastic.NewSimpleClient(elastic.SetURL(url))
+
+	// Create our own http client with Transport set to deal with kubernetes lb and cached IP
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			DisableKeepAlives: true, // change to "false" for cached IP
+		},
+	}
+	// Connect to Elasticsearch, no sniffing due to load balancer. Custom client so no caching of IP.
+	es.esClient, err = elastic.NewClient(elastic.SetURL(url), elastic.SetHttpClient(httpClient), elastic.SetSniff(false))
 	if err != nil {
 		// TODO - Add instrumentation here for failed elasticsearch connection
 		// If issues - https://github.com/olivere/elastic/wiki/Connection-Problems#how-to-figure-out-connection-problems
