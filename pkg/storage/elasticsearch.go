@@ -47,14 +47,25 @@ func (es *ElasticSearch) init() {
 	var url = viper.GetString("elasticsearch.url")
 	util.LogDebug("Using ElasticSearch URL: %s", url)
 
+	// Kubernetes LB with Elasticsearch causes challenges with IP being held on connections.
+	// We can create our own custom http client, but then connections take awhile to be marked dead.
+	// Syntax below...
+
 	// Create our own http client with Transport set to deal with kubernetes lb and cached IP
-	httpClient := &http.Client{
-		Transport: &http.Transport{
-			DisableKeepAlives: true, // change to "false" for cached IP
-		},
-	}
+	// httpClient := &http.Client{
+	//	Transport: &http.Transport{
+	//		DisableKeepAlives: true, // change to "false" for cached IP
+	//	},
+	// }
 	// Connect to Elasticsearch, no sniffing due to load balancer. Custom client so no caching of IP.
-	es.esClient, err = elastic.NewClient(elastic.SetURL(url), elastic.SetHttpClient(httpClient), elastic.SetSniff(false))
+	// es.esClient, err = elastic.NewClient(elastic.SetURL(url), elastic.SetHttpClient(httpClient), elastic.SetSniff(false))
+
+	// However, that is slow to recover from a connection. We can be faster with simple client where we
+	// create the connection each time we want it. I expect this will end up slow at scale, and we'll
+	// have to revert to the above implementation.
+
+	es.esClient, err = elastic.NewSimpleClient(elastic.SetURL(url))
+
 	if err != nil {
 		// TODO - Add instrumentation here for failed elasticsearch connection
 		// If issues - https://github.com/olivere/elastic/wiki/Connection-Problems#how-to-figure-out-connection-problems
