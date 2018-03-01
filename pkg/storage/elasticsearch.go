@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"net/http"
 
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
