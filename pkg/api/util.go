@@ -1,13 +1,10 @@
 package api
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/sapcc/hermes/pkg/util"
 )
 
 // utility functionality
@@ -25,35 +22,6 @@ type versionLinkData struct {
 	URL      string `json:"href"`
 	Relation string `json:"rel"`
 	Type     string `json:"type,omitempty"`
-}
-
-//ReturnJSON is a convenience function for HTTP handlers returning JSON data.
-//The `code` argument specifies the HTTP response code, usually 200.
-func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
-	payload, err := json.MarshalIndent(&data, "", "  ")
-	// Replaces & symbols properly in json within urls.
-	payload = bytes.Replace(payload, []byte("\\u0026"), []byte("&"), -1)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	_, err = w.Write(payload)
-	if err != nil {
-		util.LogDebug("Issue with writing payload when returning Json")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-//ReturnError produces an error response with HTTP status code 500 if the given
-//error is non-nil. Otherwise, nothing is done and false is returned.
-func ReturnError(w http.ResponseWriter, err error) bool {
-	if err == nil {
-		return false
-	}
-
-	http.Error(w, err.Error(), 500)
-	return true
 }
 
 var authErrorsCounter = prometheus.NewCounter(prometheus.CounterOpts{

@@ -11,6 +11,7 @@ import (
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
+	"github.com/sapcc/go-bits/respondwith"
 )
 
 // Server Set up and start the API server, hooking it up to the API router
@@ -45,7 +46,7 @@ func setupRouter(keystone identity.Identity, storage storage.Storage) http.Handl
 		allVersions := struct {
 			Versions []VersionData `json:"versions"`
 		}{[]VersionData{v1VersionData}}
-		ReturnJSON(w, http.StatusMultipleChoices, allVersions)
+		respondwith.JSON(w, http.StatusMultipleChoices, allVersions)
 	})
 
 	// instrumentation

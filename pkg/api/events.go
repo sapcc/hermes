@@ -32,6 +32,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/util"
+	"github.com/sapcc/go-bits/respondwith"
 )
 
 // EventList is the model for JSON returned by the ListEvents API call
@@ -158,7 +159,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	events, total, err := hermes.GetEvents(&filter, tenantID, p.keystone, p.storage)
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		util.LogError("api.ListEvents: error %s", err)
 		storageErrorsCounter.Add(1)
 		return
@@ -179,7 +180,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
-	ReturnJSON(res, http.StatusOK, eventList)
+	respondwith.JSON(res, http.StatusOK, eventList)
 }
 
 func getProtocol(req *http.Request) string {
@@ -204,7 +205,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 
 	event, err := hermes.GetEvent(eventID, tenantID, p.keystone, p.storage)
 
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		util.LogError("error getting events from Storage: %s", err)
 		storageErrorsCounter.Add(1)
 		return
@@ -214,7 +215,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
-	ReturnJSON(res, http.StatusOK, event)
+	respondwith.JSON(res, http.StatusOK, event)
 }
 
 //GetAttributes handles GET /v1/attributes/:attribute_name
@@ -251,7 +252,7 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 
 	attribute, err := hermes.GetAttributes(&filter, tenantID, p.storage)
 
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		util.LogError("could not get attributes from Storage: %s", err)
 		storageErrorsCounter.Add(1)
 		return
@@ -261,7 +262,7 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
-	ReturnJSON(res, http.StatusOK, attribute)
+	respondwith.JSON(res, http.StatusOK, attribute)
 }
 
 func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {

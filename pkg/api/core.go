@@ -27,6 +27,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
+	"github.com/sapcc/go-bits/respondwith"
 )
 
 type v1Provider struct {
@@ -63,7 +64,7 @@ func NewV1Handler(keystone identity.Identity, storage storage.Storage) (http.Han
 
 	r.Methods("GET").Path("/v1/").HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		p.versionData.Links[0].URL = fmt.Sprintf("%s://%s%s/", getProtocol(req), req.Host, p.Path())
-		ReturnJSON(res, 200, map[string]interface{}{"version": p.versionData})
+		respondwith.JSON(res, 200, map[string]interface{}{"version": p.versionData})
 	})
 
 	r.Methods("GET").Path("/v1/events").HandlerFunc(
