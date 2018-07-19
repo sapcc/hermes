@@ -163,8 +163,8 @@ func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*EventDetail,
 	index := indexName(tenantID)
 	util.LogDebug("Looking for event %s in index %s", eventID, index)
 
-	// we use .keyword as we are searching an exact match
-	query := elastic.NewTermQuery("id.keyword", eventID)
+	// we use .raw on ID fields because Elasticsearch tokenizes fields with - in them. .raw is not tokenized.
+	query := elastic.NewTermQuery("id.raw", eventID)
 	esSearch := es.client().Search().
 		Index(index).
 		Query(query)
