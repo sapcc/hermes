@@ -32,7 +32,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/util"
-	"github.com/sapcc/go-bits/respondwith"
+	"github.com/notque/go-bits/respondwith"
 )
 
 // EventList is the model for JSON returned by the ListEvents API call

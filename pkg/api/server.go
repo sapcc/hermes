@@ -11,7 +11,7 @@ import (
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
-	"github.com/sapcc/go-bits/respondwith"
+	"github.com/notque/go-bits/respondwith"
 )
 
 // Server Set up and start the API server, hooking it up to the API router

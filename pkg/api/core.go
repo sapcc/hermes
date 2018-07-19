@@ -27,7 +27,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
-	"github.com/sapcc/go-bits/respondwith"
+	"github.com/notque/go-bits/respondwith"
 )
 
 type v1Provider struct {
