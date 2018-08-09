@@ -134,7 +134,8 @@ type Attachment struct {
 	TypeURI string `json:"typeURI"`
 	// Content contains the payload of the attachment. In theory this means any type.
 	// In practise we have to decide because otherwise ES does based one first value
-	Content string `json:"content"`
+	// An interface allows arrays of json content. This should be json in the content.
+	Content interface{} `json:"content"`
 }
 
 // EventDetail contains the CADF event according to CADF spec, section 6.6.1 Event (data)
