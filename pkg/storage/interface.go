@@ -167,5 +167,5 @@ type AttributeValueList []AttributeValue
 //AttributeValue contains the return values for an attribute call.
 type AttributeValue struct {
 	Value string `json:"value"`
-	Count int64  `json:"-"`  // Json to not include it in JSON return
+	Count int64  `json:"-"` // Json to not include it in JSON return
 }
