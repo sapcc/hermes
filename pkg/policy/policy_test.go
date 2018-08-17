@@ -125,8 +125,8 @@ func TestPolicy(t *testing.T) {
 		t.Error("Event Show check should have returned true")
 	}
 
-	if enforcer.Enforce("non_existant_rule", serviceContext) {
-		t.Error("Non existant rule should not pass")
+	if enforcer.Enforce("non_existent_rule", serviceContext) {
+		t.Error("Non existent rule should not pass")
 	}
 	//if !enforcer.Enforce("cloud_admin", adminContext) {
 	//	t.Error("cloud_admin check should pass")

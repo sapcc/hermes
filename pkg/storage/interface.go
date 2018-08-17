@@ -36,7 +36,7 @@ type ErrorType string
 const (
 	// ErrorNone means no error
 	ErrorNone ErrorType = ""
-	// ErrorTimeout means that a timeout occured while processing the request
+	// ErrorTimeout means that a timeout occurred while processing the request
 	ErrorTimeout = "timeout"
 	// ErrorCanceled means that the query was cancelled (to protect the service from malicious requests)
 	ErrorCanceled = "canceled"
