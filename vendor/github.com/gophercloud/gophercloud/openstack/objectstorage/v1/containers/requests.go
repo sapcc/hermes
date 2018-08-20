@@ -107,6 +107,7 @@ func Create(c *gophercloud.ServiceClient, containerName string, opts CreateOptsB
 	})
 	if resp != nil {
 		r.Header = resp.Header
+		resp.Body.Close()
 	}
 	r.Err = err
 	return
@@ -138,7 +139,7 @@ type UpdateOpts struct {
 	VersionsLocation       string `h:"X-Versions-Location"`
 }
 
-// ToContainerUpdateMap formats a CreateOpts into a map of headers.
+// ToContainerUpdateMap formats a UpdateOpts into a map of headers.
 func (opts UpdateOpts) ToContainerUpdateMap() (map[string]string, error) {
 	h, err := gophercloud.BuildHeaders(opts)
 	if err != nil {
@@ -180,7 +181,7 @@ func Update(c *gophercloud.ServiceClient, containerName string, opts UpdateOptsB
 // the custom metadata, pass the GetResult response to the ExtractMetadata
 // function.
 func Get(c *gophercloud.ServiceClient, containerName string) (r GetResult) {
-	resp, err := c.Request("HEAD", getURL(c, containerName), &gophercloud.RequestOpts{
+	resp, err := c.Head(getURL(c, containerName), &gophercloud.RequestOpts{
 		OkCodes: []int{200, 204},
 	})
 	if resp != nil {
