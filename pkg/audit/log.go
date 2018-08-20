@@ -27,6 +27,7 @@ import (
 	"github.com/sapcc/go-bits/logg"
 	"github.com/sapcc/go-bits/retry"
 	"github.com/satori/go.uuid"
+	"log"
 )
 
 func init() {
@@ -105,7 +106,7 @@ func (t *Trail) Add(event CADFEvent) {
 }
 
 //Commit sends the whole audit trail into the log. Call this after tx.Commit().
-func (t *Trail) Commit(clusterID string, config limes.CADFConfiguration) {
+func (t *Trail) Commit(clusterID string, config CADFConfiguration) {
 	if config.Enabled && len(t.events) != 0 {
 		events := t.events //take a copy to pass into the goroutine
 		go retry.ExponentialBackoff{
