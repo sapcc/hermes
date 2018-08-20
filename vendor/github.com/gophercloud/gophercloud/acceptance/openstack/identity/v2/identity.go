@@ -10,6 +10,7 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/identity/v2/extensions/admin/roles"
 	"github.com/gophercloud/gophercloud/openstack/identity/v2/tenants"
 	"github.com/gophercloud/gophercloud/openstack/identity/v2/users"
+	th "github.com/gophercloud/gophercloud/testhelper"
 )
 
 // AddUserRole will grant a role to a user in a tenant. An error will be
@@ -25,6 +26,35 @@ func AddUserRole(t *testing.T, client *gophercloud.ServiceClient, tenant *tenant
 	t.Logf("Granted user %s role %s in tenant %s", user.ID, role.ID, tenant.ID)
 
 	return nil
+}
+
+// CreateTenant will create a project with a random name.
+// It takes an optional createOpts parameter since creating a project
+// has so many options. An error will be returned if the project was
+// unable to be created.
+func CreateTenant(t *testing.T, client *gophercloud.ServiceClient, c *tenants.CreateOpts) (*tenants.Tenant, error) {
+	name := tools.RandomString("ACPTTEST", 8)
+	t.Logf("Attempting to create tenant: %s", name)
+
+	var createOpts tenants.CreateOpts
+	if c != nil {
+		createOpts = *c
+	} else {
+		createOpts = tenants.CreateOpts{}
+	}
+
+	createOpts.Name = name
+
+	tenant, err := tenants.Create(client, createOpts).Extract()
+	if err != nil {
+		return tenant, err
+	}
+
+	t.Logf("Successfully created project %s with ID %s", name, tenant.ID)
+
+	th.AssertEquals(t, name, tenant.Name)
+
+	return tenant, nil
 }
 
 // CreateUser will create a user with a random name and adds them to the given
@@ -46,7 +76,21 @@ func CreateUser(t *testing.T, client *gophercloud.ServiceClient, tenant *tenants
 		return user, err
 	}
 
+	th.AssertEquals(t, userName, user.Name)
+
 	return user, nil
+}
+
+// DeleteTenant will delete a tenant by ID. A fatal error will occur if
+// the tenant ID failed to be deleted. This works best when using it as
+// a deferred function.
+func DeleteTenant(t *testing.T, client *gophercloud.ServiceClient, tenantID string) {
+	err := tenants.Delete(client, tenantID).ExtractErr()
+	if err != nil {
+		t.Fatalf("Unable to delete tenant %s: %v", tenantID, err)
+	}
+
+	t.Logf("Deleted tenant: %s", tenantID)
 }
 
 // DeleteUser will delete a user. A fatal error will occur if the delete was
@@ -141,6 +185,8 @@ func UpdateUser(t *testing.T, client *gophercloud.ServiceClient, user *users.Use
 	if err != nil {
 		return newUser, err
 	}
+
+	th.AssertEquals(t, userName, newUser.Name)
 
 	return newUser, nil
 }

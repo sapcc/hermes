@@ -1,2 +1,2 @@
-// compute_images_v2
+// images unit tests
 package testing

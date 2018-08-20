@@ -70,7 +70,7 @@ func TestShareTypeExtraSpecs(t *testing.T) {
 	}
 
 	options := sharetypes.SetExtraSpecsOpts{
-		Specs: map[string]interface{}{"my_new_key": "my_value"},
+		ExtraSpecs: map[string]interface{}{"my_new_key": "my_value"},
 	}
 
 	_, err = sharetypes.SetExtraSpecs(client, shareType.ID, options).Extract()
@@ -139,6 +139,20 @@ func TestShareTypeAccess(t *testing.T) {
 
 	if access[0] != expected[0] {
 		t.Fatal("Share type access is not the same than expected")
+	}
+
+	err = sharetypes.RemoveAccess(client, shareType.ID, options).ExtractErr()
+	if err != nil {
+		t.Fatalf("Unable to remove an access from a share type: %v", err)
+	}
+
+	access, err = sharetypes.ShowAccess(client, shareType.ID).Extract()
+	if err != nil {
+		t.Fatalf("Unable to retrieve the access details for a share type: %v", err)
+	}
+
+	if len(access) > 0 {
+		t.Fatalf("No access should be left for the share type: %s", shareType.Name)
 	}
 
 	PrintShareType(t, shareType)

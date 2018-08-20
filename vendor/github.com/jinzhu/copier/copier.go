@@ -33,6 +33,10 @@ func Copy(toValue interface{}, fromValue interface{}) (err error) {
 	fromType := indirectType(from.Type())
 	toType := indirectType(to.Type())
 
+	if fromType.Kind() != reflect.Struct || toType.Kind() != reflect.Struct {
+		return
+	}
+
 	if to.Kind() == reflect.Slice {
 		isSlice = true
 		if from.Kind() == reflect.Slice {
@@ -154,7 +158,11 @@ func indirectType(reflectType reflect.Type) reflect.Type {
 func set(to, from reflect.Value) bool {
 	if from.IsValid() {
 		if to.Kind() == reflect.Ptr {
-			if to.IsNil() {
+			//set `to` to nil if from is nil
+			if from.Kind() == reflect.Ptr && from.IsNil() {
+				to.Set(reflect.Zero(to.Type()))
+				return true
+			} else if to.IsNil() {
 				to.Set(reflect.New(to.Type().Elem()))
 			}
 			to = to.Elem()
@@ -163,7 +171,10 @@ func set(to, from reflect.Value) bool {
 		if from.Type().ConvertibleTo(to.Type()) {
 			to.Set(from.Convert(to.Type()))
 		} else if scanner, ok := to.Addr().Interface().(sql.Scanner); ok {
-			scanner.Scan(from.Interface())
+			err := scanner.Scan(from.Interface())
+			if err != nil {
+				return false
+			}
 		} else if from.Kind() == reflect.Ptr {
 			return set(to, from.Elem())
 		} else {

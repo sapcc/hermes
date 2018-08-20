@@ -34,7 +34,7 @@ func TestLayer3RouterList(t *testing.T) {
 	}
 }
 
-func TestLayer3RouterCreateDelete(t *testing.T) {
+func TestLayer3ExternalRouterCreateDelete(t *testing.T) {
 	client, err := clients.NewNetworkV2Client()
 	if err != nil {
 		t.Fatalf("Unable to create a network client: %v", err)
@@ -77,7 +77,7 @@ func TestLayer3RouterInterface(t *testing.T) {
 		t.Fatalf("Unable to get choices: %v", err)
 	}
 
-	netid, err := networks.IDFromName(client, chocices.NetworkName)
+	netid, err := networks.IDFromName(client, choices.NetworkName)
 	if err != nil {
 		t.Fatalf("Unable to find network id: %v", err)
 	}
