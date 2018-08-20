@@ -2410,6 +2410,12 @@
 			"revisionTime": "2018-05-17T13:57:48Z"
 		},
 		{
+			"checksumSHA1": "hU0fcgf3AZjO/2f+JbSC87COU7E=",
+			"path": "gopkg.in/olivere/elastic.v5/config",
+			"revision": "b708306d715bea9b983685e94ab4602cdc9f988b",
+			"revisionTime": "2018-05-17T13:57:48Z"
+		},
+		{
 			"checksumSHA1": "pjUiLR/dqrNpLxFbRjvywCxuBVY=",
 			"path": "gopkg.in/olivere/elastic.v5/recipes/bulk_insert",
 			"revision": "b708306d715bea9b983685e94ab4602cdc9f988b",
