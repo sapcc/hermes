@@ -1863,6 +1863,12 @@
 			"revisionTime": "2018-07-16T11:22:56Z"
 		},
 		{
+			"checksumSHA1": "g7tXyPvvy6nMIp+TGgW29dtB+CY=",
+			"path": "github.com/sapcc/go-bits/retry",
+			"revision": "9ed525049ddf4b0aa7c5ee1a2f7c6dd74b3d0ea9",
+			"revisionTime": "2018-08-09T09:05:54Z"
+		},
+		{
 			"checksumSHA1": "QSFMbrLU8g5wr7UviJ0IwjQy/ds=",
 			"path": "github.com/satori/go.uuid",
 			"revision": "36e9d2ebbde5e3f13ab2e25625fd453271d6522e",
