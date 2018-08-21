@@ -46,20 +46,51 @@ type Trail struct {
 	events []CADFEvent
 }
 
-//CADFEvent contains the CADF event format according to CADF spec (section 6.6.1 Event)
-//and includes extensions for better auditing.
+// CADFEvent contains the CADF event according to CADF spec, section 6.6.1 Event (data)
+// Extensions: requestPath (OpenStack, IBM), initiator.project_id/domain_id
+// Omissions: everything that we do not use or not expose to API users
 type CADFEvent struct {
+	// CADF Event Schema 
 	TypeURI     string       `json:"typeURI"`
+
+	// CADF generated event id 
 	ID          string       `json:"id"`
+
+	// CADF generated timestamp
 	EventTime   string       `json:"eventTime"`
+
+	// Characterizes events: eg. activity
 	EventType   string       `json:"eventType"`
+
+	// CADF action mapping for GET call on an OpenStack REST API
 	Action      string       `json:"action"`
+
+	// Outcome of REST API call, eg. success/failure
 	Outcome     string       `json:"outcome"`
+
+	// Standard response for successful HTTP requests
 	Reason      Reason       `json:"reason,omitempty"`
+
+	// CADF component that contains the RESOURCE 
+	// that initiated, originated, or instigated the event's 
+	// ACTION, according to the OBSERVER
 	Initiator   Resource     `json:"initiator"`
+
+	// CADF component that contains the RESOURCE 
+	// against which the ACTION of a CADF Event 
+	// Record was performed, was attempted, or is 
+	// pending, according to the OBSERVER.
 	Target      Resource     `json:"target"`
+
+	// CADF component that contains the RESOURCE 
+	// that generates the CADF Event Record based on 
+	// its observation (directly or indirectly) of the Actual Event
 	Observer    Resource     `json:"observer"`
+
+	// Attachment contains self-describing extensions to the event
 	Attachments []Attachment `json:"attachments,omitempty"`
+
+	// Request path on the OpenStack service REST API call
 	RequestPath string       `json:"requestPath,omitempty"`
 }
 
