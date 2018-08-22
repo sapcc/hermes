@@ -28,11 +28,19 @@ Related projects:
 
 ## Features 
 
-* Architected as a managed service for Auditing
+* A managed service for Auditing in OpenStack
 * OpenStack Identity v3 authentication and authorization
 * Project and domain-level access control (scoping)
 * Compatible with other cloud based audit APIs 
 * Exposed Prometheus metrics
+
+## Supported Services
+* Nova
+* Neutron
+* Designate
+* Cinder
+* Manila
+* [Limes](https://github.com/sapcc/limes)
 
 # Documentation
 
