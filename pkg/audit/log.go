@@ -26,7 +26,6 @@ import (
 
 	"github.com/sapcc/go-bits/logg"
 	"github.com/sapcc/go-bits/retry"
-	"github.com/satori/go.uuid"
 	"log"
 )
 
@@ -35,63 +34,60 @@ func init() {
 	if os.Getenv("AUDIT_DEBUG") == "1" {
 		logg.ShowDebug = true
 	}
-	observerUUID = generateUUID()
 }
-
-var observerUUID string
 
 //Trail is a list of CADF formatted events with log level AUDIT. It has a separate interface
 //from the rest of the logging to allow to withhold the logging until DB changes are committed.
 type Trail struct {
-	events []CADFEvent
+	events []Event
 }
 
 // CADFEvent contains the CADF event according to CADF spec, section 6.6.1 Event (data)
 // Extensions: requestPath (OpenStack, IBM), initiator.project_id/domain_id
 // Omissions: everything that we do not use or not expose to API users
-type CADFEvent struct {
-	// CADF Event Schema 
-	TypeURI     string       `json:"typeURI"`
+type Event struct {
+	// CADF Event Schema
+	TypeURI string `json:"typeURI"`
 
-	// CADF generated event id 
-	ID          string       `json:"id"`
+	// CADF generated event id
+	ID string `json:"id"`
 
 	// CADF generated timestamp
-	EventTime   string       `json:"eventTime"`
+	EventTime string `json:"eventTime"`
 
 	// Characterizes events: eg. activity
-	EventType   string       `json:"eventType"`
+	EventType string `json:"eventType"`
 
 	// CADF action mapping for GET call on an OpenStack REST API
-	Action      string       `json:"action"`
+	Action string `json:"action"`
 
 	// Outcome of REST API call, eg. success/failure
-	Outcome     string       `json:"outcome"`
+	Outcome string `json:"outcome"`
 
 	// Standard response for successful HTTP requests
-	Reason      Reason       `json:"reason,omitempty"`
+	Reason Reason `json:"reason,omitempty"`
 
-	// CADF component that contains the RESOURCE 
-	// that initiated, originated, or instigated the event's 
+	// CADF component that contains the RESOURCE
+	// that initiated, originated, or instigated the event's
 	// ACTION, according to the OBSERVER
-	Initiator   Resource     `json:"initiator"`
+	Initiator Resource `json:"initiator"`
 
-	// CADF component that contains the RESOURCE 
-	// against which the ACTION of a CADF Event 
-	// Record was performed, was attempted, or is 
+	// CADF component that contains the RESOURCE
+	// against which the ACTION of a CADF Event
+	// Record was performed, was attempted, or is
 	// pending, according to the OBSERVER.
-	Target      Resource     `json:"target"`
+	Target Resource `json:"target"`
 
-	// CADF component that contains the RESOURCE 
-	// that generates the CADF Event Record based on 
+	// CADF component that contains the RESOURCE
+	// that generates the CADF Event Record based on
 	// its observation (directly or indirectly) of the Actual Event
-	Observer    Resource     `json:"observer"`
+	Observer Resource `json:"observer"`
 
 	// Attachment contains self-describing extensions to the event
 	Attachments []Attachment `json:"attachments,omitempty"`
 
 	// Request path on the OpenStack service REST API call
-	RequestPath string       `json:"requestPath,omitempty"`
+	RequestPath string `json:"requestPath,omitempty"`
 }
 
 //Resource is a substructure of CADFEvent and contains attributes describing a (OpenStack-) resource.
@@ -132,12 +128,12 @@ type Host struct {
 }
 
 //Add adds an event to the audit trail.
-func (t *Trail) Add(event CADFEvent) {
+func (t *Trail) Add(event Event) {
 	t.events = append(t.events, event)
 }
 
 //Commit sends the whole audit trail into the log. Call this after tx.Commit().
-func (t *Trail) Commit(clusterID string, config CADFConfiguration) {
+func (t *Trail) Commit(clusterID string, config Config) {
 	if config.Enabled && len(t.events) != 0 {
 		events := t.events //take a copy to pass into the goroutine
 		go retry.ExponentialBackoff{
@@ -151,10 +147,4 @@ func (t *Trail) Commit(clusterID string, config CADFConfiguration) {
 		logg.Other("AUDIT", string(msg))
 	}
 	t.events = nil //do not log these lines again
-}
-
-//Generate an UUID based on random numbers (RFC 4122).
-func generateUUID() string {
-	u := uuid.Must(uuid.NewV4())
-	return u.String()
 }

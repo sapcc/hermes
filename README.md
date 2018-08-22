@@ -6,7 +6,15 @@
 
 ----
 
-**Hermes** is an audit trail service for OpenStack. It is named after the Futurama character, not the Greek god.
+**Hermes** is an audit trail service for OpenStack, originally designed for SAP's internal Openstack Cloud. 
+
+It is named after the Futurama character, not the Greek god.
+
+# The idea: Audit trail for OpenStack
+
+OpenStack has an audit log, but no way for users to view these audit events. Hermes enables easy access 
+to audit events on a tenant basis, relying on the ELK stack for storage. Now users can view their project level
+audit events through an API, or as a module in [Elektra](https://github.com/sapcc/elektra) an OpenStack Dashboard.
 
 It enables easy access for audit relevant events that occur from OpenStack in an Open Standards CADF Format.
 * [CADF Format](http://www.dmtf.org/sites/default/files/standards/documents/DSP0262_1.0.0.pdf)
@@ -24,8 +32,15 @@ Related projects:
 * OpenStack Identity v3 authentication and authorization
 * Project and domain-level access control (scoping)
 * Compatible with other cloud based audit APIs 
+* Exposed Prometheus metrics
 
-## Documentation
-* [Hermes API Reference](docs/hermes-api-reference.md)
-* [Hermes Operators Guide](./docs/operators-guide.md)
-* [Hermes Users Guide](./docs/users-guide.md)
+# Documentation
+
+## For users
+
+* [Hermes Users Guide](./docs/users/index.md)
+* [Hermes API Reference](./docs/users/hermes-v1-reference.md)
+
+## For operators
+
+* [Hermes Operators Guide](./docs/operators/operators-guide.md)
