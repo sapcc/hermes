@@ -42,7 +42,7 @@ type Trail struct {
 	events []Event
 }
 
-// CADFEvent contains the CADF event according to CADF spec, section 6.6.1 Event (data)
+// Event contains the CADF event according to CADF spec, section 6.6.1 Event (data)
 // Extensions: requestPath (OpenStack, IBM), initiator.project_id/domain_id
 // Omissions: everything that we do not use or not expose to API users
 type Event struct {
