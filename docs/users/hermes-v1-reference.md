@@ -1,15 +1,18 @@
-# Hermes API Reference
+# Hermes v1 API Reference
 
-A Hermes event log is a JSON record containing the details of a given event. The event log contains
-information about actions taken within your Converged Cloud account, such as who made the request, 
-what the request was, and when the request occurred.
+The URLs indicated in the headers of each section are relative to the endpoint URL advertised in the Keystone catalog 
+under the service type resources.
 
-## List events
+## Request headers
 
-**GET /v1/events**
+### X-Auth-Token
+
+As with all OpenStack services, this header must contain a Keystone token.
+
+## GET /v1/events
 
 Lists a project’s or domain's audit events. The project or domain comes from the 
-scope of the authentication token, but can be overriden by a request parameter.
+scope of the authentication token, but can be overridden by a request parameter.
 
 The list of events can be filtered by the parameters passed in via the URL.
 
@@ -179,7 +182,8 @@ event, e.g.:
 
 **GET /v1/attributes/<attribute_name>**
 
-Returns the unique values of a given attribute, so that you can e.g. have users select from them.
+Returns the unique values of a given attribute, so that you can e.g. have users select from them. Scoped to the 
+OpenStack token.
 
 `GET /v1/attributes/action`
 
