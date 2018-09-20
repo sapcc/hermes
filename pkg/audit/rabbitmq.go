@@ -23,11 +23,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sapcc/hermes/pkg/cadf"
 	"github.com/streadway/amqp"
 )
 
 //sendEvents sends audit events to a RabbitMQ server.
-func sendEvents(clusterID string, config Config, events []Event) error {
+func sendEvents(clusterID string, config Config, events []cadf.Event) error {
 	labels := prometheus.Labels{
 		"os_cluster": clusterID,
 	}
