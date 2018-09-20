@@ -1863,6 +1863,12 @@
 			"revisionTime": "2018-05-24T07:14:09Z"
 		},
 		{
+			"checksumSHA1": "REYUEXDGocuizgH9eNtF2kwvLWc=",
+			"path": "github.com/sapcc/go-bits/gopherpolicy",
+			"revision": "9ed525049ddf4b0aa7c5ee1a2f7c6dd74b3d0ea9",
+			"revisionTime": "2018-08-09T09:05:54Z"
+		},
+		{
 			"checksumSHA1": "IFbKm3qhrSuMnSQKvbRu/I5QqBI=",
 			"path": "github.com/sapcc/go-bits/logg",
 			"revision": "9ed525049ddf4b0aa7c5ee1a2f7c6dd74b3d0ea9",
