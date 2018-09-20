@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sapcc/hermes/pkg/cadf"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
-	elastic "gopkg.in/olivere/elastic.v5"
+	"gopkg.in/olivere/elastic.v5"
 )
 
 //ElasticSearch struct holds esclient
@@ -73,7 +74,7 @@ func (es *ElasticSearch) init() {
 }
 
 // GetEvents grabs events for a given tenantID with filtering.
-func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*EventDetail, int, error) {
+func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, int, error) {
 	index := indexName(tenantID)
 	util.LogDebug("Looking for events in index %s", index)
 
@@ -144,9 +145,9 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*Even
 	util.LogDebug("Got %d hits", searchResult.TotalHits())
 
 	//Construct EventDetail array from search results
-	var events []*EventDetail
+	var events []*cadf.Event
 	for _, hit := range searchResult.Hits.Hits {
-		var de EventDetail
+		var de cadf.Event
 		err := json.Unmarshal(*hit.Source, &de)
 		if err != nil {
 			return nil, 0, err
@@ -159,7 +160,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*Even
 }
 
 // GetEvent Returns EventDetail for a single event.
-func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*EventDetail, error) {
+func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*cadf.Event, error) {
 	index := indexName(tenantID)
 	util.LogDebug("Looking for event %s in index %s", eventID, index)
 
@@ -179,7 +180,7 @@ func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*EventDetail,
 
 	if total > 0 {
 		hit := searchResult.Hits.Hits[0]
-		var de EventDetail
+		var de cadf.Event
 		err := json.Unmarshal(*hit.Source, &de)
 		return &de, err
 	}

@@ -19,6 +19,10 @@
 
 package storage
 
+import (
+	"github.com/sapcc/hermes/pkg/cadf"
+)
+
 // Status contains Prometheus status strings
 // TODO: Determine if we want a similar setup for Elasticsearch.
 type Status string
@@ -60,8 +64,8 @@ type Response struct {
 // Because it is an interface, the real implementation can be mocked away in unit tests.
 type Storage interface {
 	/********** requests to ElasticSearch **********/
-	GetEvents(filter *EventFilter, tenantID string) ([]*EventDetail, int, error)
-	GetEvent(eventID string, tenantID string) (*EventDetail, error)
+	GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, int, error)
+	GetEvent(eventID string, tenantID string) (*cadf.Event, error)
 	GetAttributes(filter *AttributeFilter, tenantID string) ([]string, error)
 	MaxLimit() uint
 }
@@ -98,67 +102,8 @@ type AttributeFilter struct {
 
 //  eventListwithTotal contains JSON annotations for parsing the result from ElasticSearch
 type eventListWithTotal struct {
-	Total  int           `json:"total"`
-	Events []EventDetail `json:"events"`
-}
-
-// Resource contains attributes describing a (OpenStack-) Resource
-type Resource struct {
-	TypeURI   string `json:"typeURI"`
-	Name      string `json:"name,omitempty"`
-	Domain    string `json:"domain,omitempty"`
-	ID        string `json:"id"`
-	Addresses []struct {
-		URL  string `json:"url"`
-		Name string `json:"name,omitempty"`
-	} `json:"addresses,omitempty"`
-	Host *struct {
-		ID       string `json:"id,omitempty"`
-		Address  string `json:"address,omitempty"`
-		Agent    string `json:"agent,omitempty"`
-		Platform string `json:"platform,omitempty"`
-	} `json:"host,omitempty"`
-	Attachments []Attachment `json:"attachments,omitempty"`
-	// project_id and domain_id are OpenStack extensions (introduced by Keystone and keystone(audit)middleware)
-	ProjectID string `json:"project_id,omitempty"`
-	DomainID  string `json:"domain_id,omitempty"`
-}
-
-// Attachment contains self-describing extensions to the event
-type Attachment struct {
-	// Note: name is optional in CADF spec. to permit unnamed attachments
-	Name string `json:"name,omitempty"`
-	// this is messed-up in the spec.: the schema and examples says contentType. But the text often refers to typeURI.
-	// Using typeURI would surely be more consistent. OpenStack uses typeURI, IBM supports both
-	// (but forgot the name property)
-	TypeURI string `json:"typeURI"`
-	// Content contains the payload of the attachment. In theory this means any type.
-	// In practise we have to decide because otherwise ES does based one first value
-	// An interface allows arrays of json content. This should be json in the content.
-	Content interface{} `json:"content"`
-}
-
-// EventDetail contains the CADF event according to CADF spec, section 6.6.1 Event (data)
-// Extensions: requestPath (OpenStack, IBM), initiator.project_id/domain_id
-// Omissions: everything that we do not use or not expose to API users
-//  The JSON annotations are for parsing the result from ElasticSearch AND for generating the Hermes API response
-type EventDetail struct {
-	TypeURI   string `json:"typeURI"`
-	ID        string `json:"id"`
-	EventTime string `json:"eventTime"`
-	Action    string `json:"action"`
-	EventType string `json:"eventType"`
-	Outcome   string `json:"outcome"`
-	Reason    struct {
-		ReasonType string `json:"reasonType"`
-		ReasonCode string `json:"reasonCode"`
-	} `json:"reason,omitempty"`
-	Initiator   Resource     `json:"initiator"`
-	Target      Resource     `json:"target"`
-	Observer    Resource     `json:"observer"`
-	Attachments []Attachment `json:"attachments,omitempty"`
-	// requestPath is an extension of OpenStack's pycadf which is supported by IBM as well
-	RequestPath string `json:"requestPath,omitempty"`
+	Total  int          `json:"total"`
+	Events []cadf.Event `json:"events"`
 }
 
 //AttributeValueList is used for holding unique attributes

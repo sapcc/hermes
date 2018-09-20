@@ -2,17 +2,18 @@ package storage
 
 import (
 	"encoding/json"
+	"github.com/sapcc/hermes/pkg/cadf"
 )
 
 // Mock elasticsearch driver with static data
 type Mock struct{}
 
 //GetEvents mock with static data
-func (m Mock) GetEvents(filter *EventFilter, tenantID string) ([]*EventDetail, int, error) {
+func (m Mock) GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, int, error) {
 	var detailedEvents eventListWithTotal
 	json.Unmarshal(mockEvents, &detailedEvents)
 
-	var events []*EventDetail
+	var events []*cadf.Event
 
 	for i := range detailedEvents.Events {
 		events = append(events, &detailedEvents.Events[i])
@@ -22,8 +23,8 @@ func (m Mock) GetEvents(filter *EventFilter, tenantID string) ([]*EventDetail, i
 }
 
 //GetEvent Mock with static data
-func (m Mock) GetEvent(eventID string, tenantID string) (*EventDetail, error) {
-	var parsedEvent EventDetail
+func (m Mock) GetEvent(eventID string, tenantID string) (*cadf.Event, error) {
+	var parsedEvent cadf.Event
 	err := json.Unmarshal(mockEvent, &parsedEvent)
 	return &parsedEvent, err
 }
