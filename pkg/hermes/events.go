@@ -23,6 +23,7 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/copier"
+	"github.com/sapcc/hermes/pkg/cadf"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
@@ -103,7 +104,7 @@ func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventS
 			filter.Offset, filter.Limit, eventStore.MaxLimit())
 	}
 
-	storageFieldOrder := []storage.FieldOrder{}
+	var storageFieldOrder []storage.FieldOrder
 	err := copier.Copy(&storageFieldOrder, &filter.Sort)
 	if err != nil {
 		panic("Could not copy storage field order.")
@@ -125,7 +126,7 @@ func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventS
 }
 
 // eventsList Construct ListEvents
-func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Identity) ([]*ListEvent, error) {
+func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		event := ListEvent{
@@ -157,7 +158,7 @@ func eventsList(eventDetails []*storage.EventDetail, keystoneDriver identity.Ide
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.EventDetail, error) {
+func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) (*cadf.Event, error) {
 	event, err := eventStore.GetEvent(eventID, tenantID)
 
 	return event, err
