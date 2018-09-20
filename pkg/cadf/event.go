@@ -68,7 +68,7 @@ type Resource struct {
 		URL  string `json:"url"`
 		Name string `json:"name,omitempty"`
 	} `json:"addresses,omitempty"`
-	Host        Host         `json:"host,omitempty"`
+	Host        *Host        `json:"host,omitempty"`
 	Attachments []Attachment `json:"attachments,omitempty"`
 	// project_id and domain_id are OpenStack extensions (introduced by Keystone and keystone(audit)middleware)
 	ProjectID string `json:"project_id,omitempty"`
@@ -77,8 +77,8 @@ type Resource struct {
 
 // Reason contains HTTP Code and Type, and is optional in the CADF spec
 type Reason struct {
-	ReasonCode string `json:"reasonCode,omitempty"`
 	ReasonType string `json:"reasonType,omitempty"`
+	ReasonCode string `json:"reasonCode,omitempty"`
 }
 
 // Host contains optional Information about the Host
@@ -165,7 +165,7 @@ func (p EventParams) NewEvent() Event {
 			Domain:    p.Token.Context.Auth["domain_name"],
 			DomainID:  p.Token.Context.Auth["domain_id"],
 			ProjectID: p.Token.Context.Auth["project_id"],
-			Host: Host{
+			Host: &Host{
 				Address: StripPort(p.Request.RemoteAddr),
 				Agent:   p.Request.Header.Get("User-Agent"),
 			},
