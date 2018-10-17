@@ -6,7 +6,7 @@ go:
 
 install:
     - go get -u github.com/Masterminds/glide
-    - go get -u github.com/golang/lint/golint
+    - go get -u -v golang.org/x/lint/golint
     - go get -u github.com/mattn/goveralls
 
 script:
