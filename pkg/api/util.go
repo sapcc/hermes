@@ -31,7 +31,7 @@ type versionLinkData struct {
 //The `code` argument specifies the HTTP response code, usually 200.
 func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
 	payload, err := json.MarshalIndent(&data, "", "  ")
-	// Replaces & symbols properly in json within urls.
+	// Replaces & symbols properly in json within urls due to Elasticsearch
 	payload = bytes.Replace(payload, []byte("\\u0026"), []byte("&"), -1)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

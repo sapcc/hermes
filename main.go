@@ -24,11 +24,9 @@ import (
 	"fmt"
 	"os"
 
-	"strings"
-
 	"log"
 
-	policy "github.com/databus23/goslo.policy"
+	"github.com/databus23/goslo.policy"
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
@@ -90,13 +88,6 @@ func readConfig(configPath *string) {
 			panic(fmt.Errorf("Fatal error config file: %s", err))
 		}
 	}
-
-	// Setup environment variable overrides for OpenStack authentication
-	var OSVars = []string{"username", "password", "auth_url", "user_domain_name", "project_name", "project_domain_name"}
-	for _, osVarName := range OSVars {
-		viper.BindEnv("keystone."+osVarName, "OS_"+strings.ToUpper(osVarName))
-	}
-
 }
 
 var keystoneIdentity = identity.Keystone{}
