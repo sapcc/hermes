@@ -44,7 +44,7 @@
 
 
 * Actions
-    I think we can safely assume that an export of Elasticsearch data into JSON or CSV, is going to be the fastest time to value. 
+    * I think we can safely assume that an export of Elasticsearch data into JSON or CSV, is going to be the fastest time to value. 
     * Start work on an export from ElasticSearch to JSON or CSV, and just put it into files.
         * Once it's in files, work on S3 connector to swift for it. 
         * Place files into S3/swift
@@ -59,7 +59,7 @@
     * Are all files group by day. Does it matter how many files there are individually in a day?
     * What are the key attributes in the filename/dir structure?
     * Do the JSON files contain any metadata, or are they flat JSON of events?
-    
+
 
 
 
