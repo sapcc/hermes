@@ -1,5 +1,5 @@
 FROM hub.global.cloud.sap/monsoon/monsoon-pipeline:1.8.4
-MAINTAINER "Darren Hague <d.hague@sap.com>"
+MAINTAINER "Nathan Oyler <nathan.oyler@sap.com>"
 
 RUN yum -y install gcc glibc-static
 # cannot just `yum install go` because go-1.6 from the repo is too old
