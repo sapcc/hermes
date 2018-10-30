@@ -14,6 +14,23 @@
 
 * Proposal 1 - Take Data from ElasticSearch and put it into swift.
     * Implement a swift upload of "chunked" audit messages by a key into a swift container in the customer project.
+        * Chunked by day index makes sense. 
+        * Export to CSV or Export to JSON
+        * Customer Project Swift container requires 
+            * access to upload into customer swift container
+            * ??? Is it always to the same region container, or can it be different regions?
+            * configuration of name of swift container to upload
+                * Upload process
+                * Amazon uploads every 15 minutes.
+                * Amazon has option for uploading data to all regions.
+            * configuration of max data to hold 
+                * Delete process to remove data from swift container after timeframe
+                    * Amazon uses an S3 specific lifecycle manager for data, maybe we don't own the delete process, and that should be owned by swift.
+            * Amazon stores data as JSON in buckets, makes sense for us as well.
+            * Provides a Java Client library for using the JSON in buckets. 
+                * https://github.com/aws/aws-cloudtrail-processing-library
+
+
 * Proposal 2 - Transfer Data into swift at the Logstash stage.
     * Implement a custom RabbitMQ to ElasticSearch transfer, that will also include pipelines into Swift based on a configuration.
 
@@ -24,3 +41,25 @@
  
   * activation of audit per type
   * configuration of "time to keep the audit indexes"
+
+
+* Actions
+    I think we can safely assume that an export of Elasticsearch data into JSON or CSV, is going to be the fastest time to value. 
+    * Start work on an export from ElasticSearch to JSON or CSV, and just put it into files.
+        * Once it's in files, work on S3 connector to swift for it. 
+        * Place files into S3/swift
+        
+* Features
+    * Export by TimeFrame is a must. 
+
+* Questions
+    * What to do if the service is down, and misses a run, if it's done every 15 minutes for example
+    * Is this process run inside the API, or is it a different export process?
+        * first guess is a different process...
+    * Are all files group by day. Does it matter how many files there are individually in a day?
+    * What are the key attributes in the filename/dir structure?
+    * Do the JSON files contain any metadata, or are they flat JSON of events?
+    
+
+
+
