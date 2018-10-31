@@ -233,3 +233,23 @@ List:
 | 2         | create, delete, update, update/add, update/remove, start, stop |
 | 3         | full list (see above) |
 
+```
+
+## Export
+
+**GET /v1/export/<tenant_id>**
+
+Returns a gzipped JSON file of events 
+
+`GET /v1/export/uuid_of_tenant_id`
+
+returns
+
+```gzip
+file of JSON containing the full CADF payload of events
+```
+**Parameters**
+
+| **Name** | **Type** | **Description** | **Default** |
+| --- | --- | --- | --- | 
+| time | string | Date filter to select all events with _eventTime_ matching the specified criteria. See Date Filters below for more detail. | 

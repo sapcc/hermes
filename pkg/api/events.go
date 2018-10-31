@@ -264,6 +264,24 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	ReturnJSON(res, http.StatusOK, attribute)
 }
 
+//GetExport handles GET /v1/export/:tenant_id
+// Return GZIP file with json
+func (p *v1Provider) GetExport(res http.ResponseWriter, req *http.Request) {
+	token := p.CheckToken(req)
+	if !token.Require(res, "event:show") {
+		return
+	}
+
+	// Handle QueryParams
+	queryName := mux.Vars(req)["tenant_id"]
+	if queryName == "" {
+		util.LogDebug("/export/{tenant_id} must be specified")
+		return
+	}
+
+	util.LogDebug("api.GetExport: Create filter")
+}
+
 func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
 	// Get tenant id from token
 	tenantID := token.context.Auth["tenant_id"]
