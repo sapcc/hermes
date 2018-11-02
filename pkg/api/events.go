@@ -34,15 +34,15 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 )
 
-// EventList is the model for JSON returned by the ListEvents API call
+// EventList is the model for JSON returned by the GetEventMetadata API call
 type EventList struct {
-	NextURL string              `json:"next,omitempty"`
-	PrevURL string              `json:"previous,omitempty"`
-	Events  []*hermes.ListEvent `json:"events"`
-	Total   int                 `json:"total"`
+	NextURL string                  `json:"next,omitempty"`
+	PrevURL string                  `json:"previous,omitempty"`
+	Events  []*hermes.EventMetadata `json:"events"`
+	Total   int                     `json:"total"`
 }
 
-//ListEvents handles GET /v1/events.
+//ListEvents handles GET /v1/events. Returns JSON of EventMetadata
 func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	util.LogDebug("* api.ListEvents: Check token")
 	token := p.CheckToken(req)
@@ -58,7 +58,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	// Parse the sort query string
 	//slice of a struct, key and direction.
 
-	sortSpec := []hermes.FieldOrder{}
+	var sortSpec []hermes.FieldOrder
 	validSortTopics := map[string]bool{"time": true, "initiator_id": true, "observer_type": true, "target_type": true,
 		"target_id": true, "action": true, "outcome": true,
 		// deprecated
@@ -152,12 +152,12 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		Sort:          sortSpec,
 	}
 
-	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
+	util.LogDebug("api.ListEvents: call hermes.GetEventMetadata()")
 	tenantID, err := getTenantID(token, req, res)
 	if err != nil {
 		return
 	}
-	events, total, err := hermes.GetEvents(&filter, tenantID, p.keystone, p.storage)
+	events, total, err := hermes.GetEventMetadata(&filter, tenantID, p.keystone, p.storage)
 	if ReturnError(res, err) {
 		util.LogError("api.ListEvents: error %s", err)
 		storageErrorsCounter.Add(1)
@@ -264,22 +264,133 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	ReturnJSON(res, http.StatusOK, attribute)
 }
 
-//GetExport handles GET /v1/export/:tenant_id
+//GetExport handles GET /v1/export/events
 // Return GZIP file with json
 func (p *v1Provider) GetExport(res http.ResponseWriter, req *http.Request) {
+	util.LogDebug("* api.GetExports: Check token")
 	token := p.CheckToken(req)
-	if !token.Require(res, "event:show") {
+	if !token.Require(res, "event:list") {
 		return
 	}
 
-	// Handle QueryParams
-	queryName := mux.Vars(req)["tenant_id"]
-	if queryName == "" {
-		util.LogDebug("/export/{tenant_id} must be specified")
-		return
+	// QueryParams
+	// Parse the integers for offset & limit
+	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32)
+	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+
+	// Parse the sort query string
+	//slice of a struct, key and direction.
+
+	var sortSpec []hermes.FieldOrder
+	validSortTopics := map[string]bool{"time": true, "initiator_id": true, "observer_type": true, "target_type": true,
+		"target_id": true, "action": true, "outcome": true,
+		// deprecated
+		"source": true, "resource_type": true, "resource_name": true, "event_type": true}
+	validSortDirection := map[string]bool{"asc": true, "desc": true}
+	sortParam := req.FormValue("sort")
+
+	if sortParam != "" {
+		for _, sortElement := range strings.Split(sortParam, ",") {
+			keyVal := strings.SplitN(sortElement, ":", 2)
+			//`time`, `source`, `resource_type`, `resource_name`, and `event_type`.
+			sortfield := keyVal[0]
+			if !validSortTopics[sortfield] {
+				err := fmt.Errorf("not a valid topic: %s, valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			defsortorder := "asc"
+			if len(keyVal) == 2 {
+				sortDirection := keyVal[1]
+				if !validSortDirection[sortDirection] {
+					err := fmt.Errorf("sort direction %s is invalid, must be asc or desc", sortDirection)
+					http.Error(res, err.Error(), http.StatusBadRequest)
+					return
+				}
+				defsortorder = sortDirection
+			}
+
+			s := hermes.FieldOrder{Fieldname: sortfield, Order: defsortorder}
+			sortSpec = append(sortSpec, s)
+
+		}
+	}
+
+	// Next, parse the elements of the time range filter
+	timeRange := make(map[string]string)
+	validOperators := map[string]bool{"lt": true, "lte": true, "gt": true, "gte": true}
+	timeParam := req.FormValue("time")
+	if timeParam != "" {
+		for _, timeElement := range strings.Split(timeParam, ",") {
+			keyVal := strings.SplitN(timeElement, ":", 2)
+			operator := keyVal[0]
+			if !validOperators[operator] {
+				err := fmt.Errorf("time operator %s is not valid. Must be lt, lte, gt or gte", operator)
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
+			_, exists := timeRange[operator]
+			if exists {
+				err := fmt.Errorf("time operator %s can only occur once", operator)
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
+			if len(keyVal) != 2 {
+				err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
+			validTimeFormats := []string{time.RFC3339, "2006-01-02T15:04:05-0700", "2006-01-02T15:04:05"}
+			var isValidTimeFormat bool
+			timeStr := keyVal[1]
+			for _, timeFormat := range validTimeFormats {
+				_, err := time.Parse(timeFormat, timeStr)
+				if err != nil {
+					isValidTimeFormat = true
+					break
+				}
+			}
+			if !isValidTimeFormat {
+				err := fmt.Errorf("invalid time format: %s", timeStr)
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
+			timeRange[operator] = timeStr
+		}
 	}
 
 	util.LogDebug("api.GetExport: Create filter")
+	filter := hermes.EventFilter{
+		ObserverType:  req.FormValue("observer_type") + req.FormValue("source"),
+		TargetType:    req.FormValue("target_type") + req.FormValue("resource_type"),
+		TargetID:      req.FormValue("target_id"),
+		InitiatorID:   req.FormValue("initiator_id") + req.FormValue("user_name"),
+		InitiatorType: req.FormValue("initiator_type"),
+		Action:        req.FormValue("action") + req.FormValue("event_type"),
+		Outcome:       req.FormValue("outcome"),
+		Time:          timeRange,
+		Offset:        uint(offset),
+		Limit:         uint(limit),
+		Sort:          sortSpec,
+	}
+
+	util.LogDebug("api.GetExport: call hermes.GetEvents()")
+	tenantID, err := getTenantID(token, req, res)
+	if err != nil {
+		return
+	}
+
+	// Not using total, may need to for metadata later.
+	events, _, err := hermes.GetEvents(&filter, tenantID, p.keystone, p.storage)
+	if ReturnError(res, err) {
+		util.LogError("api.GetExport: error %s", err)
+		storageErrorsCounter.Add(1)
+		return
+	}
+
+	//ReturnGzipJSON
+	ReturnJSON(res, http.StatusOK, events)
 }
 
 func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {

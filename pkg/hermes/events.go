@@ -29,15 +29,9 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 )
 
-//ResourceRef is an embedded struct for ListEvents (eg. Initiator, Target, Observer)
-type ResourceRef struct {
-	TypeURI string `json:"typeURI"`
-	ID      string `json:"id"`
-}
-
-// ListEvent contains high-level data about an event, intended as a list item
+// EventMetadata contains high-level data about an event, intended as a list item
 //  The JSON annotations here are for the JSON to be returned by the API
-type ListEvent struct {
+type EventMetadata struct {
 	ID        string      `json:"id"`
 	Time      string      `json:"eventTime"`
 	Action    string      `json:"action"`
@@ -47,10 +41,10 @@ type ListEvent struct {
 	Observer  ResourceRef `json:"observer"`
 }
 
-// FieldOrder maps the sort Fieldname and Order
-type FieldOrder struct {
-	Fieldname string
-	Order     string //asc or desc
+// ResourceRef is an embedded struct for EventMetadata
+type ResourceRef struct {
+	TypeURI string `json:"typeURI"`
+	ID      string `json:"id"`
 }
 
 // EventFilter maps to the filtering/paging/sorting allowed by the API for Events
@@ -68,6 +62,12 @@ type EventFilter struct {
 	Sort          []FieldOrder
 }
 
+// FieldOrder maps the sort Fieldname and Order
+type FieldOrder struct {
+	Fieldname string
+	Order     string //asc or desc
+}
+
 // AttributeFilter maps to the filtering allowed by the API for Attributes
 type AttributeFilter struct {
 	QueryName string
@@ -75,8 +75,23 @@ type AttributeFilter struct {
 	Limit     uint
 }
 
-// GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*ListEvent, int, error) {
+// GetEvents returns a full detail list of cadf events (with filtering)
+func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*cadf.Event, int, error) {
+	storageFilter, err := storageFilter(filter, keystoneDriver, eventStore)
+	if err != nil {
+		return nil, 0, err
+	}
+	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantID)
+	eventDetails, total, err := eventStore.GetEvents(storageFilter, tenantID)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return eventDetails, total, err
+}
+
+// GetEventMetadata returns a list of a summary of events (with filtering)
+func GetEventMetadata(filter *EventFilter, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*EventMetadata, int, error) {
 	storageFilter, err := storageFilter(filter, keystoneDriver, eventStore)
 	if err != nil {
 		return nil, 0, err
@@ -125,11 +140,11 @@ func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventS
 	return &storageFilter, nil
 }
 
-// eventsList Construct ListEvents
-func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity) ([]*ListEvent, error) {
-	var events []*ListEvent
+// eventsList takes full event and returns only Event Metadata subset
+func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity) ([]*EventMetadata, error) {
+	var events []*EventMetadata
 	for _, storageEvent := range eventDetails {
-		event := ListEvent{
+		event := EventMetadata{
 			Initiator: ResourceRef{
 				TypeURI: storageEvent.Initiator.TypeURI,
 				ID:      storageEvent.Initiator.ID,
