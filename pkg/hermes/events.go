@@ -42,6 +42,7 @@ type ListEvent struct {
 	Time      string      `json:"eventTime"`
 	Action    string      `json:"action"`
 	Outcome   string      `json:"outcome"`
+	Name      string      `json:"name"`
 	Initiator ResourceRef `json:"initiator"`
 	Target    ResourceRef `json:"target"`
 	Observer  ResourceRef `json:"observer"`
@@ -142,6 +143,7 @@ func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity) ([
 			Action:  storageEvent.Action,
 			Outcome: storageEvent.Outcome,
 			Time:    storageEvent.EventTime,
+			Name:    storageEvent.Initiator.Name,
 			Observer: ResourceRef{
 				TypeURI: storageEvent.Observer.TypeURI,
 				ID:      storageEvent.Observer.ID,
