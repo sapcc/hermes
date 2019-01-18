@@ -12,23 +12,9 @@ import (
 	"gopkg.in/olivere/elastic.v5"
 )
 
-//ElasticSearch struct holds esclient
+//ElasticSearch contains an elastic.Client we pass around after init.
 type ElasticSearch struct {
 	esClient *elastic.Client
-}
-
-// Mapping for attributes based on return values to API
-var esFieldMapping = map[string]string{
-	"time": "eventTime",
-
-	"action":         "action",
-	"outcome":        "outcome",
-	"observer_id":    "observer.id",
-	"observer_type":  "observer.typeURI",
-	"target_id":      "target.id",
-	"target_type":    "target.typeURI",
-	"initiator_id":   "initiator.id",
-	"initiator_type": "initiator.typeURI",
 }
 
 func (es *ElasticSearch) client() *elastic.Client {
@@ -73,6 +59,20 @@ func (es *ElasticSearch) init() {
 	}
 }
 
+// Mapping for attributes based on return values to API
+var esFieldMapping = map[string]string{
+	"time": "eventTime",
+
+	"action":         "action",
+	"outcome":        "outcome",
+	"observer_id":    "observer.id",
+	"observer_type":  "observer.typeURI",
+	"target_id":      "target.id",
+	"target_type":    "target.typeURI",
+	"initiator_id":   "initiator.id",
+	"initiator_type": "initiator.typeURI",
+}
+
 // GetEvents grabs events for a given tenantID with filtering.
 func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, int, error) {
 	index := indexName(tenantID)
@@ -80,7 +80,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 
 	query := elastic.NewBoolQuery()
 	if filter.ObserverType != "" {
-		util.LogDebug("Filtering on ObserverType %s", filter.ObserverType)
+		//util.LogDebug("Filtering on ObserverType %s", filter.ObserverType)
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("observer.typeURI", filter.ObserverType))
 	}
 	if filter.TargetType != "" {
