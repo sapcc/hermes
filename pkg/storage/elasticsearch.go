@@ -211,7 +211,8 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	searchResult, err := esSearch.Do(context.Background())
 	if err != nil {
 		e, _ := err.(*elastic.Error)
-		log.Printf("Elastic failed with status %d and error %s.", e.Status, e.Details)
+		errdetails, _ := json.Marshal(e.Details)
+		log.Printf("Elastic failed with status %d and error %s.", e.Status, errdetails)
 		return nil, err
 	}
 
