@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/sapcc/hermes/pkg/cadf"
@@ -209,6 +210,8 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	esSearch := es.client().Search().Index(index).Size(int(filter.Limit)).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
 	if err != nil {
+		e, _ := err.(*elastic.Error)
+		log.Printf("Elastic failed with status %d and error %s.", e.Status, e.Details)
 		return nil, err
 	}
 
