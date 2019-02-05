@@ -72,6 +72,7 @@ var esFieldMapping = map[string]string{
 	"target_type":    "target.typeURI",
 	"initiator_id":   "initiator.id",
 	"initiator_type": "initiator.typeURI",
+	"initiator_name": "initiator.name",
 }
 
 // GetEvents grabs events for a given tenantID with filtering.

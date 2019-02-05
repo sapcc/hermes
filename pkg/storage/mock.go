@@ -120,7 +120,8 @@ var mockEvents = []byte(`
       "outcome": "success",
       "initiator": {
         "typeURI": "service/security/account/user",
-        "id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812"
+        "id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
+        "name": "i000011"
       },
       "target": {
         "typeURI": "service/security/account/user",
@@ -128,7 +129,8 @@ var mockEvents = []byte(`
       },
       "observer": {
         "typeURI": "service/security",
-        "id": "b54da470-046c-539d-a921-dfa91b32f525"
+        "id": "b54da470-046c-539d-a921-dfa91b32f525",
+        "name": "i000011"
       }
     },
     {
@@ -138,7 +140,8 @@ var mockEvents = []byte(`
       "outcome": "success",
       "initiator": {
         "typeURI": "service/security/account/user",
-        "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398"
+        "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
+        "name": "i000011"
       },
       "target": {
         "typeURI": "service/security/account/user",
@@ -146,7 +149,8 @@ var mockEvents = []byte(`
       },
       "observer": {
         "typeURI": "service/security",
-        "id": "9a3e952c-90a3-544d-9d56-c721e7284e1c"
+        "id": "9a3e952c-90a3-544d-9d56-c721e7284e1c",
+        "name": "i000011"
       }
     },
     {
@@ -156,7 +160,8 @@ var mockEvents = []byte(`
       "outcome": "success",
       "initiator": {
         "typeURI": "service/security/account/user",
-        "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398"
+        "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
+        "name": "i000011"
       },
       "target": {
         "typeURI": "service/security/account/user",
@@ -164,7 +169,8 @@ var mockEvents = []byte(`
       },
       "observer": {
         "typeURI": "service/security",
-        "id": "6d4828eb-e497-5649-be10-f29d1ddb0977"
+        "id": "6d4828eb-e497-5649-be10-f29d1ddb0977",
+        "name": "i000011"
       }
     }
   ],

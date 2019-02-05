@@ -30,6 +30,9 @@ func Test_GetEvents(t *testing.T) {
 		assert.NotEmpty(t, event.ID)
 		assert.NotEmpty(t, event.Outcome)
 		assert.NotEmpty(t, event.Time)
+		assert.NotEmpty(t, event.Initiator.ID)
+		assert.NotEmpty(t, event.Initiator.Name)
+		assert.NotEmpty(t, event.Initiator.TypeURI)
 	}
 	assert.NotEqual(t, events[0].ID, events[1].ID)
 	assert.NotEqual(t, events[0].ID, events[2].ID)

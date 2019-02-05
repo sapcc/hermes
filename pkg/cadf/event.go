@@ -1,12 +1,13 @@
 package cadf
 
 import (
-	"github.com/gofrs/uuid"
-	"github.com/sapcc/go-bits/gopherpolicy"
 	"net"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gofrs/uuid"
+	"github.com/sapcc/go-bits/gopherpolicy"
 )
 
 // Event contains the CADF event according to CADF spec, section 6.6.1 Event (data)
@@ -61,7 +62,7 @@ type Event struct {
 // Resource contains attributes describing a (OpenStack-) Resource
 type Resource struct {
 	TypeURI   string `json:"typeURI"`
-	Name      string `json:"name,omitempty"`
+	Name      string `json:"name"`
 	Domain    string `json:"domain,omitempty"`
 	ID        string `json:"id"`
 	Addresses []struct {
