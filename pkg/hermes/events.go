@@ -33,6 +33,7 @@ import (
 type ResourceRef struct {
 	TypeURI string `json:"typeURI"`
 	ID      string `json:"id"`
+	Name    string `json:"name,omitempty"`
 }
 
 // ListEvent contains high-level data about an event, intended as a list item
@@ -134,6 +135,7 @@ func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity) ([
 			Initiator: ResourceRef{
 				TypeURI: storageEvent.Initiator.TypeURI,
 				ID:      storageEvent.Initiator.ID,
+				Name:    storageEvent.Initiator.Name,
 			},
 			Target: ResourceRef{
 				TypeURI: storageEvent.Target.TypeURI,
@@ -143,10 +145,10 @@ func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity) ([
 			Action:  storageEvent.Action,
 			Outcome: storageEvent.Outcome,
 			Time:    storageEvent.EventTime,
-			Name:    storageEvent.Initiator.Name,
 			Observer: ResourceRef{
 				TypeURI: storageEvent.Observer.TypeURI,
 				ID:      storageEvent.Observer.ID,
+				Name:    storageEvent.Initiator.Name,
 			},
 		}
 		err := copier.Copy(&event.Initiator, &storageEvent.Initiator)

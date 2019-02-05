@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+
 	"github.com/sapcc/hermes/pkg/cadf"
 )
 
@@ -99,7 +100,8 @@ var mockEvents = []byte(`
       "outcome": "success",
       "initiator": {
         "typeURI": "service/security/account/user",
-        "id": "5d847cb1e75047a29aa9dee2cabcce9b"
+        "id": "5d847cb1e75047a29aa9dee2cabcce9b",
+        "name": "i000011"
       },
       "target": {
         "typeURI": "service/security/account/user",
@@ -107,7 +109,8 @@ var mockEvents = []byte(`
       },
       "observer": {
         "typeURI": "service/security",
-        "id": "a02d5699-4967-522f-8092-c286aea2deab"
+        "id": "a02d5699-4967-522f-8092-c286aea2deab",
+        "name": "i000011"
       }
     },
     {
