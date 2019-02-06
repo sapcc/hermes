@@ -144,6 +144,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		TargetID:      req.FormValue("target_id"),
 		InitiatorID:   req.FormValue("initiator_id") + req.FormValue("user_name"),
 		InitiatorType: req.FormValue("initiator_type"),
+		InitiatorName: req.FormValue("initiator_name"),
 		Action:        req.FormValue("action") + req.FormValue("event_type"),
 		Outcome:       req.FormValue("outcome"),
 		Time:          timeRange,
