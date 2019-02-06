@@ -63,7 +63,6 @@ func (es *ElasticSearch) init() {
 // Mapping for attributes based on return values to API
 var esFieldMapping = map[string]string{
 	"time": "eventTime",
-
 	"action":         "action",
 	"outcome":        "outcome",
 	"observer_id":    "observer.id",
@@ -97,6 +96,9 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	}
 	if filter.InitiatorID != "" {
 		query = query.Filter(elastic.NewTermQuery("initiator.id.raw", filter.InitiatorID))
+	}
+	if filter.InitiatorName != "" {
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("initiator.name", filter.InitiatorName))
 	}
 	if filter.Action != "" {
 		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.Action))

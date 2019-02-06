@@ -29,13 +29,6 @@ import (
 	"github.com/sapcc/hermes/pkg/util"
 )
 
-//ResourceRef is an embedded struct for ListEvents (eg. Initiator, Target, Observer)
-type ResourceRef struct {
-	TypeURI string `json:"typeURI"`
-	ID      string `json:"id"`
-	Name    string `json:"name,omitempty"`
-}
-
 // ListEvent contains high-level data about an event, intended as a list item
 //  The JSON annotations here are for the JSON to be returned by the API
 type ListEvent struct {
@@ -43,16 +36,16 @@ type ListEvent struct {
 	Time      string      `json:"eventTime"`
 	Action    string      `json:"action"`
 	Outcome   string      `json:"outcome"`
-	Name      string      `json:"name"`
 	Initiator ResourceRef `json:"initiator"`
 	Target    ResourceRef `json:"target"`
 	Observer  ResourceRef `json:"observer"`
 }
 
-// FieldOrder maps the sort Fieldname and Order
-type FieldOrder struct {
-	Fieldname string
-	Order     string //asc or desc
+//ResourceRef is an embedded struct for ListEvents (eg. Initiator, Target, Observer)
+type ResourceRef struct {
+	TypeURI string `json:"typeURI"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
 }
 
 // EventFilter maps to the filtering/paging/sorting allowed by the API for Events
@@ -68,6 +61,12 @@ type EventFilter struct {
 	Offset        uint
 	Limit         uint
 	Sort          []FieldOrder
+}
+
+// FieldOrder is an embedded struct for Event Filtering
+type FieldOrder struct {
+	Fieldname string
+	Order     string //asc or desc
 }
 
 // AttributeFilter maps to the filtering allowed by the API for Attributes

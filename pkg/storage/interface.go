@@ -83,6 +83,7 @@ type EventFilter struct {
 	TargetID      string
 	InitiatorID   string
 	InitiatorType string
+	InitiatorName string
 	Action        string
 	Outcome       string
 	Time          map[string]string

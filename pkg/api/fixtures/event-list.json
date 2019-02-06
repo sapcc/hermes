@@ -6,7 +6,6 @@
       "eventTime": "2017-11-17T08:53:32.667973+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
-      "name": "",
       "initiator": {
         "typeURI": "service/security/account/user",
         "id": "5d847cb1e75047a29aa9dee2cabcce9b",
@@ -14,7 +13,8 @@
       },
       "target": {
         "typeURI": "service/security/account/user",
-        "id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac"
+        "id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac",
+        "name": ""
       },
       "observer": {
         "typeURI": "service/security",
@@ -27,7 +27,6 @@
       "eventTime": "2017-11-07T11:46:19.448565+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
-      "name": "",
       "initiator": {
         "typeURI": "service/security/account/user",
         "id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
@@ -35,7 +34,8 @@
       },
       "target": {
         "typeURI": "service/security/account/user",
-        "id": "ba2cc58797d91dc126cc5849e5d802880bb6b01dfd3013a35392ce00ae3b0f43"
+        "id": "ba2cc58797d91dc126cc5849e5d802880bb6b01dfd3013a35392ce00ae3b0f43",
+        "name": ""
       },
       "observer": {
         "typeURI": "service/security",
@@ -48,7 +48,6 @@
       "eventTime": "2017-11-06T10:15:56.984390+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
-      "name": "",
       "initiator": {
         "typeURI": "service/security/account/user",
         "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
@@ -56,7 +55,8 @@
       },
       "target": {
         "typeURI": "service/security/account/user",
-        "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b"
+        "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
+        "name": ""
       },
       "observer": {
         "typeURI": "service/security",
@@ -69,7 +69,6 @@
       "eventTime": "2017-11-06T10:11:21.605421+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
-      "name": "",
       "initiator": {
         "typeURI": "service/security/account/user",
         "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
@@ -77,7 +76,8 @@
       },
       "target": {
         "typeURI": "service/security/account/user",
-        "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b"
+        "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
+        "name": ""
       },
       "observer": {
         "typeURI": "service/security",

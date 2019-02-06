@@ -29,6 +29,7 @@ CADF payload data for each individual event.
 | target\_id | string | Selects all events related to this specific resource instance. |
 | initiator\_id | string | Selects all events caused by this initiator (usually an OpenStack user ID) |
 | initiator\_type | string | Selects all events caused by this initiator type (user or system) |
+| initiator\_name | string | Filters events by Initiator Name |
 | action | string | Selects all events representing activities of this type. |
 | outcome | string | Selects all events based on the activity result (e.g. failed) |
 | time | string | Date filter to select all events with _eventTime_ matching the specified criteria. See Date Filters below for more detail. |
