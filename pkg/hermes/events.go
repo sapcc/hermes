@@ -115,6 +115,7 @@ func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventS
 		ObserverType:  filter.ObserverType,
 		InitiatorID:   filter.InitiatorID,
 		InitiatorType: filter.InitiatorType,
+		InitiatorName: filter.InitiatorName,
 		TargetType:    filter.TargetType,
 		TargetID:      filter.TargetID,
 		Action:        filter.Action,

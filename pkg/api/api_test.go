@@ -21,15 +21,16 @@ package api
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"testing"
+
 	"github.com/databus23/goslo.policy"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
 	"github.com/spf13/viper"
-	"io/ioutil"
-	"net/http"
-	"testing"
 )
 
 type object map[string]interface{}
