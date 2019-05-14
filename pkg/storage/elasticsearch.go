@@ -61,15 +61,16 @@ func (es *ElasticSearch) init() {
 }
 
 // Mapping for attributes based on return values to API
+// .raw because it's tokenizing the ID in searches, and won't match. .raw is not analyzed, and not tokenized.
 var esFieldMapping = map[string]string{
-	"time": "eventTime",
+	"time":           "eventTime",
 	"action":         "action",
 	"outcome":        "outcome",
 	"observer_id":    "observer.id",
 	"observer_type":  "observer.typeURI",
-	"target_id":      "target.id",
+	"target_id":      "target.id.raw",
 	"target_type":    "target.typeURI",
-	"initiator_id":   "initiator.id",
+	"initiator_id":   "initiator.id.raw",
 	"initiator_type": "initiator.typeURI",
 	"initiator_name": "initiator.name",
 }
@@ -82,33 +83,32 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	query := elastic.NewBoolQuery()
 	if filter.ObserverType != "" {
 		//util.LogDebug("Filtering on ObserverType %s", filter.ObserverType)
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("observer.typeURI", filter.ObserverType))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["observer_type"], filter.ObserverType))
 	}
 	if filter.TargetType != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("target.typeURI", filter.TargetType))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["target_type"], filter.TargetType))
 	}
-	// Adding .raw because it's tokenizing the ID in searches, and won't match. .raw is not analyzed, and not tokenized.
 	if filter.TargetID != "" {
-		query = query.Filter(elastic.NewTermQuery("target.id.raw", filter.TargetID))
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["target_id"], filter.TargetID))
 	}
 	if filter.InitiatorType != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("initiator.typeURI", filter.InitiatorType))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["initiator_type"], filter.InitiatorType))
 	}
 	if filter.InitiatorID != "" {
-		query = query.Filter(elastic.NewTermQuery("initiator.id.raw", filter.InitiatorID))
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["initiator_id"], filter.InitiatorID))
 	}
 	if filter.InitiatorName != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("initiator.name", filter.InitiatorName))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["initiator_name"], filter.InitiatorName))
 	}
 	if filter.Action != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("action", filter.Action))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["action"], filter.Action))
 	}
 	if filter.Outcome != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery("outcome", filter.Outcome))
+		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["outcome"], filter.Outcome))
 	}
 	if filter.Time != nil && len(filter.Time) > 0 {
 		for key, value := range filter.Time {
-			timeField := "eventTime"
+			timeField := esFieldMapping["time"]
 			switch key {
 			case "lt":
 				query = query.Filter(elastic.NewRangeQuery(timeField).Lt(value))
@@ -138,7 +138,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	}
 
 	esSearch = esSearch.
-		Sort("eventTime", false).
+		Sort(esFieldMapping["time"], false).
 		From(int(filter.Offset)).Size(int(filter.Limit))
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
