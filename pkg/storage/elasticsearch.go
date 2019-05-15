@@ -202,7 +202,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	var esName string
 	// Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
 	if val, ok := esFieldMapping[filter.QueryName]; ok {
-		esName = val + ".raw"
+		esName = val
 	} else {
 		esName = filter.QueryName + ".raw"
 	}
