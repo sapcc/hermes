@@ -64,15 +64,15 @@ func (es *ElasticSearch) init() {
 // .raw because it's tokenizing the ID in searches, and won't match. .raw is not analyzed, and not tokenized.
 var esFieldMapping = map[string]string{
 	"time":           "eventTime",
-	"action":         "action",
-	"outcome":        "outcome",
-	"observer_id":    "observer.id",
-	"observer_type":  "observer.typeURI",
+	"action":         "action.raw",
+	"outcome":        "outcome.raw",
+	"observer_id":    "observer.id.raw",
+	"observer_type":  "observer.typeURI.raw",
 	"target_id":      "target.id.raw",
-	"target_type":    "target.typeURI",
+	"target_type":    "target.typeURI.raw",
 	"initiator_id":   "initiator.id.raw",
-	"initiator_type": "initiator.typeURI",
-	"initiator_name": "initiator.name",
+	"initiator_type": "initiator.typeURI.raw",
+	"initiator_name": "initiator.name.raw",
 }
 
 // GetEvents grabs events for a given tenantID with filtering.
