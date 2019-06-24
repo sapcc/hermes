@@ -62,6 +62,10 @@ func (es *ElasticSearch) init() {
 
 // Mapping for attributes based on return values to API
 // .raw because it's tokenizing the ID in searches, and won't match. .raw is not analyzed, and not tokenized.
+// For more on Elasticsearch tokenization
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html
+// The .raw field is created on string fields with a different schema allowing aggregation and exact match searches.
+// We're aggregating in the Attributes call, and doing exact match searches in GetEvents.
 var esFieldMapping = map[string]string{
 	"time":           "eventTime",
 	"action":         "action.raw",
