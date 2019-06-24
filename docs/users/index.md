@@ -26,8 +26,8 @@ For any given event, the log contains the following details: What, When, Who, Fr
 
 ## Available clients
 
-* At the time of this writing, there is no command-line client for Hermes. You can send requests to
-  [the HTTP API](./hermes-v1-reference.md) directly, as shown [in this guide](./api-example.md).
+* Hermes command line client [HermesCtl](https://github.com/sapcc/hermes-ctl)
+* You can send requests to [the HTTP API](./hermes-v1-reference.md) directly, as shown [in this guide](./api-example.md).
 * The OpenStack web dashboard [Elektra](https://github.com/sapcc/elektra) contains an optional *Audit*
   module that becomes accessible if Hermes is deployed in the target OpenStack cluster.
 
