@@ -205,7 +205,7 @@ returns
 
 ### Hierarchical Values
 
-To support adjustable levels of detail, _type URIs_ and _actions_ in the CADF taxonomy are organized in hierarchies. Classifiers start with the most general classification followed by a theoretically unlimited number of sub-classifications, separated by slashes `/`.
+To support adjustable levels of detail, _type URIs_ and _actions_ in the CADF taxonomy are organized in hierarchies. Classifiers start with the most general classification followed by a theoretically unlimited number of sub-classifications, separated by slashes `/`. 
 
 Examples:
 * `update/add/floatingip`
@@ -234,3 +234,6 @@ List:
 | 2         | create, delete, update, update/add, update/remove, start, stop |
 | 3         | full list (see above) |
 
+The `max_depth` parameter functions separately from the limit parameter. While limit
+will limit the total number of records returned, there may be more than the limit 
+of values listed to contain all of the various hirearchies. 
