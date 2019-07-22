@@ -20,10 +20,11 @@
 package audit
 
 import (
-	"encoding/json"
 	"fmt"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sapcc/hermes/pkg/cadf"
+	"github.com/sapcc/hermes/pkg/rabbit"
 	"github.com/streadway/amqp"
 )
 
@@ -52,14 +53,7 @@ func sendEvents(clusterID string, config Config, events []cadf.Event) error {
 	defer ch.Close()
 
 	//declare a queue to hold and deliver messages to consumers
-	q, err := ch.QueueDeclare(
-		config.RabbitMQ.QueueName, // name of the queue
-		false,                     // durable: queue should survive cluster reset (or broker restart)
-		false,                     // autodelete when unused
-		false,                     // exclusive: queue only accessible by connection that declares and deleted when the connection closes
-		false,                     // noWait: the queue will assume to be declared on the server
-		nil,                       // arguments for advanced config
-	)
+	q, err := rabbit.DeclareQueue(ch, config.RabbitMQ.QueueName)
 	if err != nil {
 		eventPublishFailedCounter.With(labels).Inc()
 		return fmt.Errorf("RabbitMQ -- %s -- Failed to declare a queue: %s", events[0].ID, err)
@@ -67,17 +61,7 @@ func sendEvents(clusterID string, config Config, events []cadf.Event) error {
 
 	//publish the events to an exchange on the server
 	for _, event := range events {
-		body, _ := json.Marshal(event)
-		err = ch.Publish(
-			"",     // exchange: publish to default
-			q.Name, // routing key: same as queue name
-			false,  // mandatory: don't publish if no queue is bound that matches the routing key
-			false,  // immediate: don't publish if no consumer on the matched queue is ready to accept the delivery
-			amqp.Publishing{
-				ContentType: "text/plain",
-				Body:        []byte(body),
-			},
-		)
+		err := rabbit.PublishEvent(ch, q.Name, &event)
 		if err != nil {
 			eventPublishFailedCounter.With(labels).Inc()
 			return fmt.Errorf("RabbitMQ -- %s -- Failed to publish the audit event: %s", event.ID, err)
