@@ -69,5 +69,5 @@ func sendEvents(clusterID string, config Config, events []cadf.Event) error {
 		eventPublishSuccessCounter.With(labels).Inc()
 	}
 
-	return err
+	return nil
 }
