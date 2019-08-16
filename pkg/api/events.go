@@ -21,6 +21,7 @@ package api
 
 import (
 	"net/http"
+	"regexp"
 
 	"fmt"
 	"reflect"
@@ -275,6 +276,23 @@ func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, 
 	// Tenant id can be overridden with a query parameter
 	projectID := r.FormValue("project_id")
 	domainID := r.FormValue("domain_id")
+	// Input validation
+	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
+	if projectID != "" {
+		if re.MatchString(projectID) == false {
+			err := errors.New("project_id is not an alphanumeric string")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return "", err
+		}
+	}
+	if domainID != "" {
+		if re.MatchString(domainID) == false {
+			err := errors.New("domain_id is not an alphanumeric string")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return "", err
+		}
+	}
+
 	if projectID != "" {
 		tenantID = projectID
 	}
