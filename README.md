@@ -41,6 +41,7 @@ Related projects:
 * Cinder
 * Manila
 * [Limes](https://github.com/sapcc/limes)
+* [Castellum](https://github.com/sapcc/castellum)
 
 # Documentation
 
