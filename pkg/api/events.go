@@ -270,12 +270,13 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
 	// Get tenant id from token
 	tenantID := token.context.Auth["tenant_id"]
-	if tenantID == "" {
-		tenantID = token.context.Auth["domain_id"]
-	}
+	domainID := token.context.Auth["domain_id"]
+
 	// Tenant id can be overridden with a query parameter
 	projectID := r.FormValue("project_id")
-	domainID := r.FormValue("domain_id")
+	// Removing domain_id replacement as FormValue because it comes after authentication, and this
+	// allows you to bypass the check for domain
+	//domainID := r.FormValue("domain_id")
 	// Input validation
 	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
 	if projectID != "" {
@@ -285,13 +286,13 @@ func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, 
 			return "", err
 		}
 	}
-	if domainID != "" {
-		if re.MatchString(domainID) == false {
-			err := errors.New("domain_id is not an alphanumeric string")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return "", err
-		}
-	}
+	// if domainID != "" {
+	// 	if re.MatchString(domainID) == false {
+	// 		err := errors.New("domain_id is not an alphanumeric string")
+	// 		http.Error(w, err.Error(), http.StatusBadRequest)
+	// 		return "", err
+	// 	}
+	// }
 
 	if projectID != "" {
 		tenantID = projectID
