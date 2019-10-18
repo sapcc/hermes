@@ -430,7 +430,6 @@ func (d Keystone) RefreshToken() error {
 	}
 
 	providerClient.TokenID = token.ID
-	providerClient.ReauthFunc = d.RefreshToken //TODO: exponential backoff necessary or already provided by gophercloud?
 	providerClient.EndpointLocator = func(opts gophercloud.EndpointOpts) (string, error) {
 		return openstack.V3EndpointURL(catalog, opts)
 	}
@@ -445,7 +444,10 @@ func (d Keystone) AuthOptions() *gophercloud.AuthOptions {
 		Username:         viper.GetString("Keystone.username"),
 		Password:         viper.GetString("Keystone.password"),
 		DomainName:       viper.GetString("Keystone.user_domain_name"),
-		// Note: gophercloud only allows for user & project in the same domain
-		TenantName: viper.GetString("Keystone.project_name"),
+		Scope:       gophercloud.AuthScope{
+			ProjectName = viper.GetString("Keystone.project_name"),
+			DomainName = viper.GetString("Keystone.project_domain_name"),
+		}
+		AllowReauth: true,
 	}
 }
