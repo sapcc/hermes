@@ -444,10 +444,10 @@ func (d Keystone) AuthOptions() *gophercloud.AuthOptions {
 		Username:         viper.GetString("Keystone.username"),
 		Password:         viper.GetString("Keystone.password"),
 		DomainName:       viper.GetString("Keystone.user_domain_name"),
-		Scope:       gophercloud.AuthScope{
-			ProjectName = viper.GetString("Keystone.project_name"),
-			DomainName = viper.GetString("Keystone.project_domain_name"),
-		}
+		Scope: &gophercloud.AuthScope{
+			ProjectName: viper.GetString("Keystone.project_name"),
+			DomainName:  viper.GetString("Keystone.project_domain_name"),
+		},
 		AllowReauth: true,
 	}
 }
