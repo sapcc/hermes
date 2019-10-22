@@ -67,6 +67,7 @@ type keystoneNameID struct {
 }
 
 func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
+	util.LogDebug("Getting service user Identity token...")
 	if d.TokenRenewalMutex == nil {
 		d.TokenRenewalMutex = &sync.Mutex{}
 	}
@@ -80,8 +81,9 @@ func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 		}
 	}
 
+	//TODO: crashes with RegionName != ""
 	return openstack.NewIdentityV3(providerClient,
-		gophercloud.EndpointOpts{Availability: gophercloud.AvailabilityPublic},
+		gophercloud.EndpointOpts{Region: "", Availability: gophercloud.AvailabilityPublic},
 	)
 }
 
