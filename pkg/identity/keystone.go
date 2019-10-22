@@ -72,14 +72,17 @@ func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	}
 	if providerClient == nil {
 		var err error
-		providerClient, err = openstack.NewClient(viper.GetString("Keystone.auth_url"))
+		//providerClient, err = openstack.NewClient(viper.GetString("Keystone.auth_url"))
+		opts := d.AuthOptions()
+		providerClient, err = openstack.AuthenticatedClient(*opts)
 		if err != nil {
 			return nil, fmt.Errorf("cannot initialize OpenStack client: %v", err)
 		}
-		err = d.RefreshToken()
+		tokenid, err := providerClient.GetAuthResult().ExtractTokenID()
 		if err != nil {
-			return nil, fmt.Errorf("cannot fetch initial Identity token: %v", err)
+			fmt.Printf("Die Trying: %s", err)
 		}
+		fmt.Printf("Serivce user token: %s", tokenid)
 	}
 
 	return openstack.NewIdentityV3(providerClient,
