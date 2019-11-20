@@ -238,6 +238,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	}
 	if termsAggRes == nil {
 		util.LogDebug("termsAggRes is nil")
+		return nil, nil
 	}
 	util.LogDebug("Number of Buckets: %d", len(termsAggRes.Buckets))
 
