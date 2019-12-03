@@ -25,7 +25,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/databus23/goslo.policy"
+	policy "github.com/databus23/goslo.policy"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
@@ -33,7 +33,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type object map[string]interface{}
+//type object map[string]interface{} - unused re golangci
 
 func setupTest(t *testing.T) http.Handler {
 	//load test policy (where everything is allowed)

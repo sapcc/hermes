@@ -9,10 +9,10 @@ import (
 //Mock TODO: emnpty struct? Is there a better way?
 type Mock struct{}
 
-//keystoneClient for mocking connection
-func (d Mock) keystoneClient() (*gophercloud.ServiceClient, error) {
-	return nil, nil
-}
+//keystoneClient for mocking connection - unused re:golangci
+// func (d Mock) keystoneClient() (*gophercloud.ServiceClient, error) {
+//	return nil, nil
+// }
 
 //Client for mocking keystone
 func (d Mock) Client() *gophercloud.ProviderClient {

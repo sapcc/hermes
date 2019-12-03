@@ -279,14 +279,14 @@ func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, 
 	// Input validation
 	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
 	if projectID != "" {
-		if re.MatchString(projectID) == false {
+		if !re.MatchString(projectID) {
 			err := errors.New("project_id is not an alphanumeric string")
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return "", err
 		}
 	}
 	if domainID != "" {
-		if re.MatchString(domainID) == false {
+		if !re.MatchString(domainID) {
 			err := errors.New("domain_id is not an alphanumeric string")
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return "", err
