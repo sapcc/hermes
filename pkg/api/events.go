@@ -275,7 +275,7 @@ func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, 
 	}
 	// Tenant id can be overridden with a query parameter
 	projectID := r.FormValue("project_id")
-	domainID := r.FormValue("domain_id")
+
 	// Input validation
 	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
 	if projectID != "" {
@@ -285,24 +285,10 @@ func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, 
 			return "", err
 		}
 	}
-	if domainID != "" {
-		if !re.MatchString(domainID) {
-			err := errors.New("domain_id is not an alphanumeric string")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return "", err
-		}
-	}
 
 	if projectID != "" {
 		tenantID = projectID
 	}
-	if domainID != "" {
-		if projectID != "" {
-			err := errors.New("domain_id and project_id cannot both be specified")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return "", err
-		}
-		tenantID = domainID
-	}
+
 	return tenantID, nil
 }
