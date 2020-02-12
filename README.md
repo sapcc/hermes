@@ -40,6 +40,8 @@ Related projects:
 * Designate
 * Cinder
 * Manila
+* Glance
+* Barbican
 * [Limes](https://github.com/sapcc/limes)
 * [Castellum](https://github.com/sapcc/castellum)
 * [Keppel](https://github.com/sapcc/keppel)
