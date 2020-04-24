@@ -3,7 +3,7 @@ module github.com/sapcc/hermes
 require (
 	github.com/databus23/goslo.policy v0.0.0-20170317131957-3ae74dd07ebf
 	github.com/gofrs/uuid v3.2.0+incompatible
-	github.com/gophercloud/gophercloud v0.5.0
+	github.com/gophercloud/gophercloud v0.10.1-0.20200424014253-c3bfe50899e5
 	github.com/gorilla/mux v1.7.3
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/magiconair/properties v1.8.1 // indirect
@@ -22,8 +22,6 @@ require (
 	github.com/spf13/viper v1.4.0
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 	github.com/stretchr/testify v1.4.0
-	golang.org/x/sys v0.0.0-20191010194322-b09406accb47 // indirect
-	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.82
 )
 
