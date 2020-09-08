@@ -33,7 +33,7 @@ Via Makefile:
 Hermes can be used via our [Converged Cloud Dashboard Elektra](https://github.com/sapcc/elektra) 
 via "Auditing" or directly with the http API.
 
-The Hermes binary is server only. There is no client binary for connecting to Hermes.
+The Hermes binary is server only. For a client CLI tool please refer to the [hermesctl](https://github.com/sapcc/hermes-ctl) project.
 
 # Operating Hermes
 
