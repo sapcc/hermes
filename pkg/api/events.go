@@ -21,7 +21,6 @@ package api
 
 import (
 	"net/http"
-	"regexp"
 
 	"fmt"
 	"reflect"
@@ -156,11 +155,11 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
-	tenantID, err := getTenantID(token, req, res)
+	indexID, err := getIndexID(token, req, res)
 	if err != nil {
 		return
 	}
-	events, total, err := hermes.GetEvents(&filter, tenantID, p.keystone, p.storage)
+	events, total, err := hermes.GetEvents(&filter, indexID, p.keystone, p.storage)
 	if ReturnError(res, err) {
 		util.LogError("api.ListEvents: error %s", err)
 		storageErrorsCounter.Add(1)
@@ -200,12 +199,12 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	eventID := mux.Vars(req)["event_id"]
-	tenantID, err := getTenantID(token, req, res)
+	indexID, err := getIndexID(token, req, res)
 	if err != nil {
 		return
 	}
 
-	event, err := hermes.GetEvent(eventID, tenantID, p.keystone, p.storage)
+	event, err := hermes.GetEvent(eventID, indexID, p.keystone, p.storage)
 
 	if ReturnError(res, err) {
 		util.LogError("error getting events from Storage: %s", err)
@@ -213,7 +212,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	if event == nil {
-		err := fmt.Errorf("event %s could not be found in tenant %s", eventID, tenantID)
+		err := fmt.Errorf("event %s could not be found in project %s", eventID, indexID)
 		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -247,12 +246,12 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		Limit:     uint(limit),
 	}
 
-	tenantID, err := getTenantID(token, req, res)
+	indexID, err := getIndexID(token, req, res)
 	if err != nil {
 		return
 	}
 
-	attribute, err := hermes.GetAttributes(&filter, tenantID, p.storage)
+	attribute, err := hermes.GetAttributes(&filter, indexID, p.storage)
 
 	if ReturnError(res, err) {
 		util.LogError("could not get attributes from Storage: %s", err)
@@ -260,35 +259,31 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if attribute == nil {
-		err := fmt.Errorf("attribute %s could not be found in tenant %s", attribute, tenantID)
+		err := fmt.Errorf("attribute %s could not be found in project %s", attribute, indexID)
 		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
 	ReturnJSON(res, http.StatusOK, attribute)
 }
 
-func getTenantID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
-	// Get tenant id from token
-	tenantID := token.context.Auth["tenant_id"]
-	if tenantID == "" {
-		tenantID = token.context.Auth["domain_id"]
+func getIndexID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
+	// Get index ID from a token
+	// Defaults to a token project scope
+	indexID := token.context.Auth["project_id"]
+	if indexID == "" {
+		// Fallback to a token domain scope
+		indexID = token.context.Auth["domain_id"]
 	}
-	// Tenant id can be overridden with a query parameter
-	projectID := r.FormValue("project_id")
 
-	// Input validation
-	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
-	if projectID != "" {
-		if !re.MatchString(projectID) {
-			err := errors.New("project_id is not an alphanumeric string")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return "", err
+	// Whem the project_id argument is defined, check for the cluster_viewer rule
+	if v := r.FormValue("project_id"); v != "" {
+		if !token.Require(w, "cluster_viewer") {
+			// not a cloud admin, no possibility to override indexID
+			return "", errors.New("cannot override index ID")
 		}
+		// Index ID can be overridden with a query parameter, when a cluster_viewer rule is used
+		return v, nil
 	}
 
-	if projectID != "" {
-		tenantID = projectID
-	}
-
-	return tenantID, nil
+	return indexID, nil
 }
