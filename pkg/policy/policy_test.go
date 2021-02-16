@@ -39,7 +39,7 @@ func Test_Policy_AuditViewerTrue(t *testing.T) {
 		},
 		Logger: util.LogDebug,
 	}
-	assert.True(t, enforcer.Enforce("audit:show", c))
+	assert.True(t, enforcer.Enforce("event:show", c))
 }
 
 func Test_Policy_UnknownRoleFalse(t *testing.T) {
