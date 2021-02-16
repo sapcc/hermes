@@ -2,12 +2,10 @@
   "project_scope": "project_id:%(project_id)s",
   "domain_scope": "domain_id:%(domain_id)s",
 
+  "cluster_viewer": "project_domain_name:cloud_domain and project_name:cloud_admin_project",
   "domain_viewer":  "rule:domain_scope and role:audit_viewer",
-  "project_viewer": "rule:domain_viewer or (rule:project_scope and role:audit_viewer)",
-
-  "event:list":     "rule:project_viewer",
-  "event:show":     "rule:project_viewer",
-
-  "audit:show":    "@",
-  "audit:update":  "@"
+  "project_viewer": "rule:project_scope and role:audit_viewer",
+  
+  "event:list":     "rule:project_viewer or rule:domain_viewer or rule:cluster_viewer",
+  "event:show":     "rule:project_viewer or rule:domain_viewer or rule:cluster_viewer"
 }
