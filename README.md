@@ -35,6 +35,7 @@ Related projects:
 * Exposed Prometheus metrics
 
 ## Supported Services
+* Keystone
 * Nova
 * Neutron
 * Designate
@@ -45,6 +46,7 @@ Related projects:
 * [Limes](https://github.com/sapcc/limes)
 * [Castellum](https://github.com/sapcc/castellum)
 * [Keppel](https://github.com/sapcc/keppel)
+* Cronus
 
 # Documentation
 
