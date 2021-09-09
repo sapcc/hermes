@@ -7,10 +7,10 @@ import (
 	"log"
 	"strings"
 
+	elastic "github.com/olivere/elastic/v7"
 	"github.com/sapcc/hermes/pkg/cadf"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
-	"gopkg.in/olivere/elastic.v5"
 )
 
 //ElasticSearch contains an elastic.Client we pass around after init.
@@ -156,7 +156,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	var events []*cadf.Event
 	for _, hit := range searchResult.Hits.Hits {
 		var de cadf.Event
-		err := json.Unmarshal(*hit.Source, &de)
+		err := json.Unmarshal(hit.Source, &de)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -189,7 +189,7 @@ func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*cadf.Event, 
 	if total > 0 {
 		hit := searchResult.Hits.Hits[0]
 		var de cadf.Event
-		err := json.Unmarshal(*hit.Source, &de)
+		err := json.Unmarshal(hit.Source, &de)
 		return &de, err
 	}
 	return nil, nil
