@@ -68,15 +68,15 @@ func (es *ElasticSearch) init() {
 // We're aggregating in the Attributes call, and doing exact match searches in GetEvents.
 var esFieldMapping = map[string]string{
 	"time":           "eventTime",
-	"action":         "action.raw",
-	"outcome":        "outcome.raw",
-	"observer_id":    "observer.id.raw",
-	"observer_type":  "observer.typeURI.raw",
-	"target_id":      "target.id.raw",
-	"target_type":    "target.typeURI.raw",
-	"initiator_id":   "initiator.id.raw",
-	"initiator_type": "initiator.typeURI.raw",
-	"initiator_name": "initiator.name.raw",
+	"action":         "action.keyword",
+	"outcome":        "outcome.keyword",
+	"observer_id":    "observer.id.keyword",
+	"observer_type":  "observer.typeURI.keyword",
+	"target_id":      "target.id.keyword",
+	"target_type":    "target.typeURI.keyword",
+	"initiator_id":   "initiator.id.keyword",
+	"initiator_type": "initiator.typeURI.keyword",
+	"initiator_name": "initiator.name.keyword",
 }
 
 // GetEvents grabs events for a given tenantID with filtering.
