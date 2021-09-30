@@ -89,28 +89,28 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	query := elastic.NewBoolQuery()
 	if filter.ObserverType != "" {
 		//util.LogDebug("Filtering on ObserverType %s", filter.ObserverType)
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["observer_type"], filter.ObserverType))
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["observer_type"], filter.ObserverType))
 	}
 	if filter.TargetType != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["target_type"], filter.TargetType))
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["target_type"], filter.TargetType))
 	}
 	if filter.TargetID != "" {
 		query = query.Filter(elastic.NewTermQuery(esFieldMapping["target_id"], filter.TargetID))
 	}
 	if filter.InitiatorType != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["initiator_type"], filter.InitiatorType))
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["initiator_type"], filter.InitiatorType))
 	}
 	if filter.InitiatorID != "" {
 		query = query.Filter(elastic.NewTermQuery(esFieldMapping["initiator_id"], filter.InitiatorID))
 	}
 	if filter.InitiatorName != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["initiator_name"], filter.InitiatorName))
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["initiator_name"], filter.InitiatorName))
 	}
 	if filter.Action != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["action"], filter.Action))
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["action"], filter.Action))
 	}
 	if filter.Outcome != "" {
-		query = query.Filter(elastic.NewMatchPhrasePrefixQuery(esFieldMapping["outcome"], filter.Outcome))
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["outcome"], filter.Outcome))
 	}
 	if filter.Time != nil && len(filter.Time) > 0 {
 		for key, value := range filter.Time {
