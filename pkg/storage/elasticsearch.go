@@ -66,17 +66,19 @@ func (es *ElasticSearch) init() {
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html
 // The .raw field is created on string fields with a different schema allowing aggregation and exact match searches.
 // We're aggregating in the Attributes call, and doing exact match searches in GetEvents.
+
+// New Schema that changes all pieces to keywords.
 var esFieldMapping = map[string]string{
 	"time":           "eventTime",
-	"action":         "action.keyword",
-	"outcome":        "outcome.keyword",
-	"observer_id":    "observer.id.keyword",
-	"observer_type":  "observer.typeURI.keyword",
-	"target_id":      "target.id.keyword",
-	"target_type":    "target.typeURI.keyword",
-	"initiator_id":   "initiator.id.keyword",
-	"initiator_type": "initiator.typeURI.keyword",
-	"initiator_name": "initiator.name.keyword",
+	"action":         "action",
+	"outcome":        "outcome",
+	"observer_id":    "observer.id",
+	"observer_type":  "observer.typeURI",
+	"target_id":      "target.id",
+	"target_type":    "target.typeURI",
+	"initiator_id":   "initiator.id",
+	"initiator_type": "initiator.typeURI",
+	"initiator_name": "initiator.name",
 }
 
 // GetEvents grabs events for a given tenantID with filtering.
