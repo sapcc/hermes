@@ -174,8 +174,7 @@ func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*cadf.Event, 
 	index := indexName(tenantID)
 	util.LogDebug("Looking for event %s in index %s", eventID, index)
 
-	// we use .raw on ID fields because Elasticsearch tokenizes fields with - in them. .raw is not tokenized.
-	query := elastic.NewTermQuery("id.raw", eventID)
+	query := elastic.NewTermQuery("id", eventID)
 	esSearch := es.client().Search().
 		Index(index).
 		Query(query)
@@ -206,11 +205,10 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 
 	// ObserverType in this case is not the cadf source, but instead the first part of event_type
 	var esName string
-	// Append .raw onto queryName, in Elasticsearch. Aggregations turned on for .raw
 	if val, ok := esFieldMapping[filter.QueryName]; ok {
 		esName = val
 	} else {
-		esName = filter.QueryName + ".raw"
+		esName = filter.QueryName
 	}
 	util.LogDebug("Mapped Queryname: %s --> %s", filter.QueryName, esName)
 
