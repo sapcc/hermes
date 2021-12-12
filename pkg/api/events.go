@@ -138,6 +138,11 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	detail := false
+	if req.FormValue("detail") != "" {
+		detail = true
+	}
+
 	util.LogDebug("api.ListEvents: Create filter")
 	filter := hermes.EventFilter{
 		ObserverType:  req.FormValue("observer_type") + req.FormValue("source"),
@@ -152,6 +157,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		Offset:        uint(offset),
 		Limit:         uint(limit),
 		Sort:          sortSpec,
+		Detail:        detail,
 	}
 
 	util.LogDebug("api.ListEvents: call hermes.GetEvents()")

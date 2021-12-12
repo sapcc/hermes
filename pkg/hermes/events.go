@@ -32,13 +32,14 @@ import (
 // ListEvent contains high-level data about an event, intended as a list item
 //  The JSON annotations here are for the JSON to be returned by the API
 type ListEvent struct {
-	ID        string      `json:"id"`
-	Time      string      `json:"eventTime"`
-	Action    string      `json:"action"`
-	Outcome   string      `json:"outcome"`
-	Initiator ResourceRef `json:"initiator"`
-	Target    ResourceRef `json:"target"`
-	Observer  ResourceRef `json:"observer"`
+	ID          string            `json:"id"`
+	Time        string            `json:"eventTime"`
+	Action      string            `json:"action"`
+	Outcome     string            `json:"outcome"`
+	Initiator   ResourceRef       `json:"initiator"`
+	Target      ResourceRef       `json:"target"`
+	Observer    ResourceRef       `json:"observer"`
+	Attachments []cadf.Attachment `json:"attachments,omitempty"`
 }
 
 //ResourceRef is an embedded struct for ListEvents (eg. Initiator, Target, Observer)
@@ -62,6 +63,7 @@ type EventFilter struct {
 	Offset        uint
 	Limit         uint
 	Sort          []FieldOrder
+	Detail        bool // Additional Detail for eventsList func which includes attachments.
 }
 
 // FieldOrder is an embedded struct for Event Filtering
@@ -83,12 +85,18 @@ func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Ide
 	if err != nil {
 		return nil, 0, err
 	}
+
 	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantID)
 	eventDetails, total, err := eventStore.GetEvents(storageFilter, tenantID)
 	if err != nil {
 		return nil, 0, err
 	}
-	events, err := eventsList(eventDetails, keystoneDriver)
+	// extra detial for Events List
+	detail := false
+	if filter.Detail == true {
+		detail = true
+	}
+	events, err := eventsList(eventDetails, keystoneDriver, detail)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -129,7 +137,7 @@ func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventS
 }
 
 // eventsList Construct ListEvents
-func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity) ([]*ListEvent, error) {
+func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity, detail bool) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		event := ListEvent{
@@ -151,6 +159,9 @@ func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity) ([
 				ID:      storageEvent.Observer.ID,
 				Name:    storageEvent.Initiator.Name,
 			},
+		}
+		if detail == true {
+			event.Attachments = storageEvent.Attachments
 		}
 		err := copier.Copy(&event.Initiator, &storageEvent.Initiator)
 		if err != nil {
