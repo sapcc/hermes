@@ -1,6 +1,6 @@
 # Hermes
 
-[![CI](https://github.com/sapcc/keppel/actions/workflows/ci.yaml/badge.svg)](https://github.com/sapcc/keppel/actions/workflows/ci.yaml)
+[![CI](https://github.com/sapcc/hermes/actions/workflows/ci.yaml/badge.svg)](https://github.com/sapcc/hermes/actions/workflows/ci.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sapcc/hermes)](https://goreportcard.com/report/github.com/sapcc/hermes)
 [![GoDoc](https://godoc.org/github.com/sapcc/hermes?status.svg)](https://godoc.org/github.com/sapcc/hermes)
 
