@@ -1,6 +1,6 @@
 # Hermes
 
-[![Build Status](https://travis-ci.org/sapcc/hermes.svg?branch=master)](https://travis-ci.org/sapcc/hermes)
+[![CI](https://github.com/sapcc/keppel/actions/workflows/ci.yaml/badge.svg)](https://github.com/sapcc/keppel/actions/workflows/ci.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sapcc/hermes)](https://goreportcard.com/report/github.com/sapcc/hermes)
 [![GoDoc](https://godoc.org/github.com/sapcc/hermes?status.svg)](https://godoc.org/github.com/sapcc/hermes)
 
