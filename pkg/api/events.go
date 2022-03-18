@@ -204,7 +204,11 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	if !token.Require(res, "event:show") {
 		return
 	}
+	// Sanitize user input
 	eventID := mux.Vars(req)["event_id"]
+	eventID = strings.Replace(eventID, "\n", "", -1)
+	eventID = strings.Replace(eventID, "\r", "", -1)
+
 	indexID, err := getIndexID(token, req, res)
 	if err != nil {
 		return
@@ -232,8 +236,10 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Handle QueryParams
+	// Handle QueryParams, Sanitize user input
 	queryName := mux.Vars(req)["attribute_name"]
+	queryName = strings.Replace(queryName, "\n", "", -1)
+	queryName = strings.Replace(queryName, "\r", "", -1)
 	if queryName == "" {
 		util.LogDebug("attribute_name empty")
 		return
