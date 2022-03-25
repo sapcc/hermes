@@ -34,7 +34,7 @@ $ openstack catalog list
 | ...           | ...           | ...                                                                      |
 |               |               |                                                                          |
 | hermes        | audit-data    | staging                                                                  |
-|               |               |   public: https://limes.example.com                                      |
+|               |               |   public: https://hermes.example.com                                     |
 |               |               |                                                                          |
 | ...           | ...           | ...                                                                      |
 |               |               |                                                                          |
