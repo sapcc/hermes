@@ -26,7 +26,7 @@ For any given event, the log contains the following details: What, When, Who, Fr
 
 ## Available clients
 
-* Hermes command line client [HermesCtl](https://github.com/sapcc/hermes-ctl)
+* Hermes command line client [HermesCli](https://github.com/sapcc/hermescli)
 * You can send requests to [the HTTP API](./hermes-v1-reference.md) directly, as shown [in this guide](./api-example.md).
 * The OpenStack web dashboard [Elektra](https://github.com/sapcc/elektra) contains an optional *Audit*
   module that becomes accessible if Hermes is deployed in the target OpenStack cluster.
@@ -34,6 +34,4 @@ For any given event, the log contains the following details: What, When, Who, Fr
 ## Retention of audit events
 
 Retention is configurable on a global level for all tenants. In the roadmap it is intended that retention will be
-on a per tenant basis. The current basis for retention most commonly used is when disk space is 80% full, removing
-the oldest events at that time. Other options are on a time basis (every 30 days) or earlier depending on your space
-requirements.
+on a per tenant basis. The current basis for retention is 3 months.
