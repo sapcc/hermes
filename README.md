@@ -23,6 +23,7 @@ It enables easy access for audit relevant events that occur from OpenStack in an
 Related projects:
 * [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware)
 * [Hermes CLI Command Line Client](https://github.com/sapcc/hermescli)
+* [Hermes Audit Tools for Creation of Events](https://github.com/sapcc/go-bits/tree/master/audittools)
 * [Keystone Event Notifications](https://docs.openstack.org/keystone/pike/advanced-topics/event_notifications.html)
 
 ----
