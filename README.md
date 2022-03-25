@@ -22,6 +22,7 @@ It enables easy access for audit relevant events that occur from OpenStack in an
 
 Related projects:
 * [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware)
+* [Hermes CLI Command Line Client](https://github.com/sapcc/hermescli)
 * [Keystone Event Notifications](https://docs.openstack.org/keystone/pike/advanced-topics/event_notifications.html)
 
 ----
@@ -33,6 +34,7 @@ Related projects:
 * Project and domain-level access control (scoping)
 * Compatible with other cloud based audit APIs 
 * Exposed Prometheus metrics
+* CLI for querying events 
 
 ## Supported Services
 * Keystone
