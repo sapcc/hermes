@@ -4,7 +4,7 @@ require (
 	github.com/databus23/goslo.policy v0.0.0-20170317131957-3ae74dd07ebf
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gophercloud/gophercloud v0.10.1-0.20200424014253-c3bfe50899e5
-	github.com/gorilla/mux v1.7.3
+	github.com/gorilla/mux v1.8.0
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/olivere/elastic/v7 v7.0.32
