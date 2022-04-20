@@ -5,7 +5,7 @@ require (
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gophercloud/gophercloud v0.10.1-0.20200424014253-c3bfe50899e5
 	github.com/gorilla/mux v1.8.0
-	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
+	github.com/jinzhu/copier v0.3.5
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/pelletier/go-toml v1.5.0 // indirect
