@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
 	github.com/rs/cors v1.7.0
-	github.com/sapcc/go-bits v0.0.0-20220420164641-de8a04267267
+	github.com/sapcc/go-bits v0.0.0-20220421001326-5fc35d483379
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.7.1
 )
