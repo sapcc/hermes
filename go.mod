@@ -12,7 +12,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/sapcc/go-bits v0.0.0-20220420164641-de8a04267267
 	github.com/spf13/viper v1.4.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 )
 
 require (
