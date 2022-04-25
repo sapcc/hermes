@@ -24,6 +24,8 @@ Related projects:
 * [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware)
 * [Hermes CLI Command Line Client](https://github.com/sapcc/hermescli)
 * [Hermes Audit Tools for Creation of Events](https://github.com/sapcc/go-bits/tree/master/audittools)
+* [GopherCloud Extension for Hermes Audit](https://github.com/sapcc/gophercloud-sapcc/tree/master/audit/v1)
+* [SAPCC Go Api Declarations](https://github.com/sapcc/go-api-declarations/tree/main/cadf)
 * [Keystone Event Notifications](https://docs.openstack.org/keystone/pike/advanced-topics/event_notifications.html)
 
 ----
