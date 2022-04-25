@@ -67,7 +67,8 @@ func setDefaultConfig() {
 	viper.SetDefault("elasticsearch.url", "localhost:9200")
 	// index.max_result_window defaults to 10000, as per
 	// https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html
-	viper.SetDefault("elasticsearch.max_result_window", "10000")
+	// Increasing max_result_window to 20000, with corresponding changes to Elasticsearch to handle the increase.
+	viper.SetDefault("elasticsearch.max_result_window", "20000")
 
 }
 
