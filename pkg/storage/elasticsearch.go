@@ -168,6 +168,9 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
 	if err != nil {
+		e, _ := err.(*elastic.Error)
+		errdetails, _ := json.Marshal(e.Details)
+		log.Printf("Elastic failed with status %d and error %s.", e.Status, errdetails)
 		return nil, 0, err
 	}
 
