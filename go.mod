@@ -1,5 +1,7 @@
 module github.com/sapcc/hermes
 
+go 1.17
+
 require (
 	github.com/databus23/goslo.policy v0.0.0-20210929125152-81bf2876dbdb
 	github.com/gofrs/uuid v4.2.0+incompatible
@@ -10,6 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
 	github.com/rs/cors v1.8.2
+	github.com/sapcc/go-api-declarations v1.1.0
 	github.com/sapcc/go-bits v0.0.0-20220421001326-5fc35d483379
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.7.1
@@ -46,5 +49,3 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
-
-go 1.17

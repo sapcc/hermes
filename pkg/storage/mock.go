@@ -22,7 +22,7 @@ package storage
 import (
 	"encoding/json"
 
-	"github.com/sapcc/hermes/pkg/cadf"
+	"github.com/sapcc/go-api-declarations/cadf"
 )
 
 // Mock elasticsearch driver with static data

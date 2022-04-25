@@ -27,7 +27,7 @@ import (
 	"strings"
 
 	elastic "github.com/olivere/elastic/v7"
-	"github.com/sapcc/hermes/pkg/cadf"
+	"github.com/sapcc/go-api-declarations/cadf"
 	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
 )

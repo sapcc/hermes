@@ -23,7 +23,7 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/copier"
-	"github.com/sapcc/hermes/pkg/cadf"
+	"github.com/sapcc/go-api-declarations/cadf"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
@@ -151,8 +151,8 @@ func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity, de
 				ID:      storageEvent.Target.ID,
 			},
 			ID:      storageEvent.ID,
-			Action:  storageEvent.Action,
-			Outcome: storageEvent.Outcome,
+			Action:  string(storageEvent.Action),
+			Outcome: string(storageEvent.Outcome),
 			Time:    storageEvent.EventTime,
 			Observer: ResourceRef{
 				TypeURI: storageEvent.Observer.TypeURI,
