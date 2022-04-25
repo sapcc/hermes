@@ -20,12 +20,14 @@ It enables easy access for audit relevant events that occur from OpenStack in an
 * [CADF Format](http://www.dmtf.org/sites/default/files/standards/documents/DSP0262_1.0.0.pdf)
 * [CADF Standards](http://www.dmtf.org/standards/cadf)
 
-Related projects:
+Related Repositories:
 * [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware)
 * [Hermes CLI Command Line Client](https://github.com/sapcc/hermescli)
 * [Hermes Audit Tools for Creation of Events](https://github.com/sapcc/go-bits/tree/master/audittools)
 * [GopherCloud Extension for Hermes Audit](https://github.com/sapcc/gophercloud-sapcc/tree/master/audit/v1)
 * [SAPCC Go Api Declarations](https://github.com/sapcc/go-api-declarations/tree/main/cadf)
+
+Related Projects:
 * [Keystone Event Notifications](https://docs.openstack.org/keystone/pike/advanced-topics/event_notifications.html)
 
 ----
