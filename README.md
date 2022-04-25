@@ -61,3 +61,7 @@ Related projects:
 ## For operators
 
 * [Hermes Operators Guide](./docs/operators/operators-guide.md)
+
+## For Audit Clients submitting events
+
+* TODO
