@@ -20,7 +20,7 @@
 package storage
 
 import (
-	"github.com/sapcc/hermes/pkg/cadf"
+	"github.com/sapcc/go-api-declarations/cadf"
 )
 
 // Status contains Prometheus status strings
