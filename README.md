@@ -17,7 +17,7 @@ to audit events on a tenant basis, relying on the ELK stack for storage. Now use
 audit events through an API, or as a module in [Elektra](https://github.com/sapcc/elektra) an OpenStack Dashboard.
 
 It enables easy access for audit relevant events that occur from OpenStack in an Open Standards CADF Format.
-* [CADF Format](https://www.dmtf.org/sites/default/files/standards/documents/DSP2038_1.1.0.pdf)
+* [CADF Format](https://www.dmtf.org/sites/default/files/standards/documents/DSP0262_1.0.0.pdf)
 * [CADF Standards](http://www.dmtf.org/standards/cadf)
 
 Related Repositories:
