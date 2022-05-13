@@ -46,18 +46,18 @@ Related Projects:
 * CLI for querying events 
 
 ## Supported Services
-* Keystone
-* Nova
-* Neutron
-* Designate
-* Cinder
-* Manila
-* Glance
-* Barbican
-* [Limes](https://github.com/sapcc/limes)
-* [Castellum](https://github.com/sapcc/castellum)
-* [Keppel](https://github.com/sapcc/keppel)
-* Cronus
+* [Keystone Identity Service](https://docs.openstack.org/keystone/latest/)
+* [Nova Compute Service](https://docs.openstack.org/nova/latest/)
+* [Neutron Network Service](https://docs.openstack.org/neutron/latest/)
+* [Designate DNS Service](https://docs.openstack.org/designate/latest/)
+* [Cinder Block Storage Service](https://docs.openstack.org/cinder/latest/)
+* [Manila Shared Filesystem Service](https://docs.openstack.org/manila/latest/)
+* [Glance Image Service](https://docs.openstack.org/glance/latest/)
+* [Barbican Key Manager Service](https://docs.openstack.org/Barbican/latest/)
+* [Limes Quota/Usage Tracking Service](https://github.com/sapcc/limes)
+* [Castellum Vertical Autoscaling Service](https://github.com/sapcc/castellum)
+* [Keppel Container Image Registry Service](https://github.com/sapcc/keppel)
+* Cronus Email Service
 
 # Documentation
 
