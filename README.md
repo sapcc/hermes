@@ -17,7 +17,7 @@ easy access to audit events on a tenant basis, relying on the ELK stack for stor
 level audit events through an API, or as a module in [Elektra](https://github.com/sapcc/elektra), an OpenStack Dashboard.
 
 The Audit log can be used by information auditors or cloud based audit APIs to track events for a resource in a domain or project.
-Support teams can validate when customers communicate problems with cloud services, verify what occured, 
+Support teams can validate when customers communicate problems with cloud services, verify what occurred, 
 and view additional detail about the customer issue.
 
 Hermes enables customer access for audit relevant events that occur from OpenStack in an Open Standards CADF Format.
