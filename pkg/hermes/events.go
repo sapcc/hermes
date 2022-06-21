@@ -93,9 +93,9 @@ func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Ide
 	if err != nil {
 		return nil, 0, err
 	}
-	// extra detial for Events List
+	// extra detail for Events List
 	detail := false
-	if filter.Detail == true {
+	if filter.Detail {
 		detail = true
 	}
 	events, err := eventsList(eventDetails, keystoneDriver, detail)
@@ -164,7 +164,7 @@ func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity, de
 				Name:    storageEvent.Initiator.Name,
 			},
 		}
-		if detail == true {
+		if detail {
 			event.Attachments = storageEvent.Attachments
 		}
 		err := copier.Copy(&event.Initiator, &storageEvent.Initiator)
