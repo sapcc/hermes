@@ -91,6 +91,7 @@ var esFieldMapping = map[string]string{
 	"time":           "eventTime",
 	"action":         "action",
 	"outcome":        "outcome",
+	"request_path":   "requestPath",
 	"observer_id":    "observer.id",
 	"observer_type":  "observer.typeURI",
 	"target_id":      "target.id",
@@ -130,6 +131,9 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	}
 	if filter.Outcome != "" {
 		query = query.Filter(elastic.NewTermQuery(esFieldMapping["outcome"], filter.Outcome))
+	}
+	if filter.RequestPath != "" {
+		query = query.Filter(elastic.NewTermQuery(esFieldMapping["request_path"], filter.RequestPath))
 	}
 	if filter.Time != nil && len(filter.Time) > 0 {
 		for key, value := range filter.Time {

@@ -36,6 +36,7 @@ type ListEvent struct {
 	Time        string            `json:"eventTime"`
 	Action      string            `json:"action"`
 	Outcome     string            `json:"outcome"`
+	RequestPath string            `json:"requestPath"`
 	Initiator   ResourceRef       `json:"initiator"`
 	Target      ResourceRef       `json:"target"`
 	Observer    ResourceRef       `json:"observer"`
@@ -59,6 +60,7 @@ type EventFilter struct {
 	InitiatorName string
 	Action        string
 	Outcome       string
+	RequestPath   string
 	Time          map[string]string
 	Offset        uint
 	Limit         uint
@@ -128,6 +130,7 @@ func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventS
 		TargetID:      filter.TargetID,
 		Action:        filter.Action,
 		Outcome:       filter.Outcome,
+		RequestPath:   filter.RequestPath,
 		Time:          filter.Time,
 		Offset:        filter.Offset,
 		Limit:         filter.Limit,
@@ -150,10 +153,11 @@ func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity, de
 				TypeURI: storageEvent.Target.TypeURI,
 				ID:      storageEvent.Target.ID,
 			},
-			ID:      storageEvent.ID,
-			Action:  string(storageEvent.Action),
-			Outcome: string(storageEvent.Outcome),
-			Time:    storageEvent.EventTime,
+			ID:          storageEvent.ID,
+			Action:      string(storageEvent.Action),
+			Outcome:     string(storageEvent.Outcome),
+			RequestPath: storageEvent.RequestPath,
+			Time:        storageEvent.EventTime,
 			Observer: ResourceRef{
 				TypeURI: storageEvent.Observer.TypeURI,
 				ID:      storageEvent.Observer.ID,
