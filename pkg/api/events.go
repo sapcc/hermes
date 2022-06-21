@@ -59,11 +59,24 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	//slice of a struct, key and direction.
 
 	sortSpec := []hermes.FieldOrder{}
-	validSortTopics := map[string]bool{"time": true, "initiator_id": true, "observer_type": true, "target_type": true,
-		"target_id": true, "action": true, "outcome": true, "initiator_name": true, "initiator_type": true,
+	validSortTopics := map[string]bool{
+		"time":           true,
+		"initiator_id":   true,
+		"observer_type":  true,
+		"target_type":    true,
+		"target_id":      true,
+		"action":         true,
+		"outcome":        true,
+		"initiator_name": true,
+		"initiator_type": true,
+		"request_path":   true,
 
 		// deprecated
-		"source": true, "resource_type": true, "resource_name": true, "event_type": true}
+		"source":        true,
+		"resource_type": true,
+		"resource_name": true,
+		"event_type":    true,
+	}
 	validSortDirection := map[string]bool{"asc": true, "desc": true}
 	sortParam := req.FormValue("sort")
 
@@ -153,6 +166,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		InitiatorName: req.FormValue("initiator_name"),
 		Action:        req.FormValue("action") + req.FormValue("event_type"),
 		Outcome:       req.FormValue("outcome"),
+		RequestPath:   req.FormValue("request_path"),
 		Time:          timeRange,
 		Offset:        uint(offset),
 		Limit:         uint(limit),
