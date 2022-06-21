@@ -6,6 +6,7 @@
       "eventTime": "2017-11-17T08:53:32.667973+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
+      "requestPath": "",
       "initiator": {
         "typeURI": "service/security/account/user",
         "id": "5d847cb1e75047a29aa9dee2cabcce9b",
@@ -27,6 +28,7 @@
       "eventTime": "2017-11-07T11:46:19.448565+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
+      "requestPath": "",
       "initiator": {
         "typeURI": "service/security/account/user",
         "id": "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812",
@@ -48,6 +50,7 @@
       "eventTime": "2017-11-06T10:15:56.984390+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
+      "requestPath": "",
       "initiator": {
         "typeURI": "service/security/account/user",
         "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
@@ -69,6 +72,7 @@
       "eventTime": "2017-11-06T10:11:21.605421+00:00",
       "action": "create/role_assignment",
       "outcome": "success",
+      "requestPath": "",
       "initiator": {
         "typeURI": "service/security/account/user",
         "id": "21ff350bc75824262c60adfc58b7fd4a7349120b43a990c2888e6b0b88af6398",
