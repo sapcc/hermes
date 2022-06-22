@@ -65,7 +65,7 @@ type EventFilter struct {
 	Offset        uint
 	Limit         uint
 	Sort          []FieldOrder
-	Detail        bool // Additional Detail for eventsList func which includes attachments.
+	Details       bool // Additional Detail for eventsList func which includes attachments.
 }
 
 // FieldOrder is an embedded struct for Event Filtering
@@ -93,12 +93,12 @@ func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Ide
 	if err != nil {
 		return nil, 0, err
 	}
-	// extra detail for Events List
-	detail := false
-	if filter.Detail {
-		detail = true
+	// extra details for Events List
+	details := false
+	if filter.Details {
+		details = true
 	}
-	events, err := eventsList(eventDetails, keystoneDriver, detail)
+	events, err := eventsList(eventDetails, keystoneDriver, details)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -140,7 +140,7 @@ func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventS
 }
 
 // eventsList Construct ListEvents
-func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity, detail bool) ([]*ListEvent, error) {
+func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity, details bool) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		event := ListEvent{
@@ -164,7 +164,7 @@ func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity, de
 				Name:    storageEvent.Initiator.Name,
 			},
 		}
-		if detail {
+		if details {
 			event.Attachments = storageEvent.Attachments
 		}
 		err := copier.Copy(&event.Initiator, &storageEvent.Initiator)
