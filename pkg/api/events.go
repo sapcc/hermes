@@ -152,7 +152,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 
 	details := false
-	if req.FormValue("details") != "" {
+	if req.Form.Has("details") {
 		details = true
 	}
 

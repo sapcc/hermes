@@ -38,7 +38,7 @@ CADF payload data for each individual event.
 | sort | string | Determines the sorted order of the returned list. See Sorting below for more detail. |
 | domain\_id | string | Selects all events in this domain (requires special permissions). |
 | project\_id | string | Selects all events in this project (requires special permissions). |
-| details | string | Adds attachment details | 
+| details | boolean | Adds attachment details |
 
 **Scope:**
 
