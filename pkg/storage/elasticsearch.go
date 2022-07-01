@@ -102,7 +102,7 @@ var esFieldMapping = map[string]string{
 }
 
 // FilterQuery takes filter requests, and adds their filter to the ElasticSearch Query
-// Handle Filter, Negation of Filter !, and or values seperated by ,
+// Handle Filter, Negation of Filter !, and or values separated by ,
 func FilterQuery(filter string, filtername string, query *elastic.BoolQuery) (filteredquery *elastic.BoolQuery) {
 	switch {
 	case strings.HasPrefix(filter, "!"):
