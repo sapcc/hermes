@@ -93,12 +93,8 @@ func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Ide
 	if err != nil {
 		return nil, 0, err
 	}
-	// extra details for Events List
-	details := false
-	if filter.Details {
-		details = true
-	}
-	events, err := eventsList(eventDetails, keystoneDriver, details)
+
+	events, err := eventsList(eventDetails, keystoneDriver, filter.Details)
 	if err != nil {
 		return nil, 0, err
 	}

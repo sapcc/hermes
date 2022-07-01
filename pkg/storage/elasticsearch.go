@@ -101,40 +101,56 @@ var esFieldMapping = map[string]string{
 	"initiator_name": "initiator.name",
 }
 
+// FilterQuery takes filter requests, and adds their filter to the ElasticSearch Query
+// Handle Filter, Negation of Filter !, and or values seperated by ,
+func FilterQuery(filter string, filtername string, query *elastic.BoolQuery) (filteredquery *elastic.BoolQuery) {
+	switch {
+	case strings.HasPrefix(filter, "!"):
+		filter = filter[1:]
+		query = query.MustNot(elastic.NewTermQuery(filtername, filter))
+	default:
+		query = query.Filter(elastic.NewTermQuery(filtername, filter))
+	}
+	filteredquery = query
+	return filteredquery
+}
+
 // GetEvents grabs events for a given tenantID with filtering.
 func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, int, error) {
 	index := indexName(tenantID)
 	util.LogDebug("Looking for events in index %s", index)
 
 	query := elastic.NewBoolQuery()
+
 	if filter.ObserverType != "" {
 		//util.LogDebug("Filtering on ObserverType %s", filter.ObserverType)
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["observer_type"], filter.ObserverType))
+		query = FilterQuery(filter.ObserverType, esFieldMapping["observer_type"], query)
 	}
 	if filter.TargetType != "" {
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["target_type"], filter.TargetType))
+		query = FilterQuery(filter.TargetType, esFieldMapping["target_type"], query)
 	}
 	if filter.TargetID != "" {
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["target_id"], filter.TargetID))
+		query = FilterQuery(filter.TargetID, esFieldMapping["target_id"], query)
 	}
 	if filter.InitiatorType != "" {
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["initiator_type"], filter.InitiatorType))
+		query = FilterQuery(filter.InitiatorType, esFieldMapping["initiator_type"], query)
 	}
 	if filter.InitiatorID != "" {
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["initiator_id"], filter.InitiatorID))
+		query = FilterQuery(filter.InitiatorID, esFieldMapping["initiator_id"], query)
 	}
 	if filter.InitiatorName != "" {
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["initiator_name"], filter.InitiatorName))
+		query = FilterQuery(filter.InitiatorName, esFieldMapping["initiator_name"], query)
 	}
 	if filter.Action != "" {
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["action"], filter.Action))
+		query = FilterQuery(filter.Action, esFieldMapping["action"], query)
 	}
 	if filter.Outcome != "" {
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["outcome"], filter.Outcome))
+		query = FilterQuery(filter.Outcome, esFieldMapping["outcome"], query)
 	}
 	if filter.RequestPath != "" {
-		query = query.Filter(elastic.NewTermQuery(esFieldMapping["request_path"], filter.RequestPath))
+		query = FilterQuery(filter.RequestPath, esFieldMapping["request_path"], query)
 	}
+
 	if filter.Time != nil && len(filter.Time) > 0 {
 		for key, value := range filter.Time {
 			timeField := esFieldMapping["time"]
