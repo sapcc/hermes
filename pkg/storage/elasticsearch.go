@@ -103,7 +103,7 @@ var esFieldMapping = map[string]string{
 
 // FilterQuery takes filter requests, and adds their filter to the ElasticSearch Query
 // Handle Filter, Negation of Filter !, and or values separated by ,
-func FilterQuery(filter string, filtername string, query *elastic.BoolQuery) (filteredquery *elastic.BoolQuery) {
+func FilterQuery(filter string, filtername string, query *elastic.BoolQuery) *elastic.BoolQuery {
 	switch {
 	case strings.HasPrefix(filter, "!"):
 		filter = filter[1:]
@@ -111,8 +111,7 @@ func FilterQuery(filter string, filtername string, query *elastic.BoolQuery) (fi
 	default:
 		query = query.Filter(elastic.NewTermQuery(filtername, filter))
 	}
-	filteredquery = query
-	return filteredquery
+	return query
 }
 
 // GetEvents grabs events for a given tenantID with filtering.
