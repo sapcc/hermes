@@ -50,6 +50,15 @@ If *both* are specified, *no events will be returned*.
 
 If neither is specified, then the scope of the client's X-Auth-Token will be used.
 
+**Negate Filters:**
+
+Filter parameters that are contained in the event can be negated with !
+
+For example, to get a list of events not including failed events
+```
+GET /v1/events?outcome=!failed
+```
+
 **Date Filters:**
 
 The value for the `time` parameter is a comma-separated list of time stamps in ISO 
