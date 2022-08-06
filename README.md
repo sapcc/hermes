@@ -54,6 +54,7 @@ Related Projects:
 * [Manila Shared Filesystem Service](https://docs.openstack.org/manila/latest/)
 * [Glance Image Service](https://docs.openstack.org/glance/latest/)
 * [Barbican Key Manager Service](https://docs.openstack.org/Barbican/latest/)
+* [Ironic](https://docs.openstack.org/ironic/latest/)
 * [Limes Quota/Usage Tracking Service](https://github.com/sapcc/limes)
 * [Castellum Vertical Autoscaling Service](https://github.com/sapcc/castellum)
 * [Keppel Container Image Registry Service](https://github.com/sapcc/keppel)
