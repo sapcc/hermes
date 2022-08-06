@@ -22,7 +22,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: "1.17"
+        go-version: "1.19"
     - name: Make all check
       run: GO_BUILDFLAGS='-mod vendor' make all check
   lint:
@@ -34,7 +34,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: "1.17"
+        go-version: "1.19"
     - name: Run gofmt, go vet, staticcheck
       run: GO_BUILDFLAGS='-mod vendor' make static-check
   test:
@@ -48,7 +48,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: "1.17"
+        go-version: "1.19"
     - name: Run tests and generate coverage report
       run: GO_BUILDFLAGS='-mod vendor' make build/cover.out
     - name: Upload coverage report to Coveralls
