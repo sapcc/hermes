@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-//Mock TODO: emnpty struct? Is there a better way?
+// Mock TODO: emnpty struct? Is there a better way?
 type Mock struct{}
 
 //keystoneClient for mocking connection - unused re:golangci
@@ -33,52 +33,52 @@ type Mock struct{}
 //	return nil, nil
 // }
 
-//Client for mocking keystone
+// Client for mocking keystone
 func (d Mock) Client() *gophercloud.ProviderClient {
 	return nil
 }
 
-//ValidateToken for mocking keystone
+// ValidateToken for mocking keystone
 func (d Mock) ValidateToken(token string) (policy.Context, error) {
 	return policy.Context{}, nil
 }
 
-//Authenticate for Mocking Keystone
+// Authenticate for Mocking Keystone
 func (d Mock) Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error) {
 	return policy.Context{}, nil
 }
 
-//DomainName for mocking keystone
+// DomainName for mocking keystone
 func (d Mock) DomainName(id string) (string, error) {
 	return "monsoon3", nil
 }
 
-//ProjectName for mocking keystone
+// ProjectName for mocking keystone
 func (d Mock) ProjectName(id string) (string, error) {
 	return "ceilometer-cadf-delete-me", nil
 }
 
-//UserName for mocking keystone
+// UserName for mocking keystone
 func (d Mock) UserName(id string) (string, error) {
 	return "I056593", nil
 }
 
-//UserID for mocking keystone
+// UserID for mocking keystone
 func (d Mock) UserID(name string) (string, error) {
 	return "eb5cd8f904b06e8b2a6eb86c8b04c08e6efb89b92da77905cc8c475f30b0b812", nil
 }
 
-//RoleName for mocking keystone
+// RoleName for mocking keystone
 func (d Mock) RoleName(id string) (string, error) {
 	return "audit_viewer", nil
 }
 
-//GroupName for mocking keystone
+// GroupName for mocking keystone
 func (d Mock) GroupName(id string) (string, error) {
 	return "admins", nil
 }
 
-//AuthOptions for mocking keystone
+// AuthOptions for mocking keystone
 func (d Mock) AuthOptions() *gophercloud.AuthOptions {
 	return &gophercloud.AuthOptions{
 		IdentityEndpoint: viper.GetString("Keystone.auth_url"),

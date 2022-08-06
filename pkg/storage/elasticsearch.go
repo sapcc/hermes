@@ -28,11 +28,12 @@ import (
 
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/sapcc/go-api-declarations/cadf"
-	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
+
+	"github.com/sapcc/hermes/pkg/util"
 )
 
-//ElasticSearch contains an elastic.Client we pass around after init.
+// ElasticSearch contains an elastic.Client we pass around after init.
 type ElasticSearch struct {
 	esClient *elastic.Client
 }
@@ -186,9 +187,10 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 		From(int(filter.Offset)).Size(int(filter.Limit))
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
+	//errcheck already within an errchecek, this is for additional detail.
 	if err != nil {
-		e, _ := err.(*elastic.Error)
-		errdetails, _ := json.Marshal(e.Details)
+		e, _ := err.(*elastic.Error)             //nolint:errcheck
+		errdetails, _ := json.Marshal(e.Details) //nolint:errcheck
 		log.Printf("Elastic failed with status %d and error %s.", e.Status, errdetails)
 		return nil, 0, err
 	}
@@ -257,9 +259,10 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 
 	esSearch := es.client().Search().Index(index).Size(int(filter.Limit)).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
+	//errcheck already within an errcheck, this is for additional detail.
 	if err != nil {
-		e, _ := err.(*elastic.Error)
-		errdetails, _ := json.Marshal(e.Details)
+		e, _ := err.(*elastic.Error)             //nolint:errcheck
+		errdetails, _ := json.Marshal(e.Details) //nolint:errcheck
 		log.Printf("Elastic failed with status %d and error %s.", e.Status, errdetails)
 		return nil, err
 	}
@@ -286,7 +289,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	var unique []string
 	for _, bucket := range termsAggRes.Buckets {
 		util.LogDebug("key: %s count: %d", bucket.Key, bucket.DocCount)
-		attribute := bucket.Key.(string)
+		attribute := bucket.Key.(string) //nolint:errcheck
 
 		// Hierarchical Depth Handling
 		var att string
@@ -303,7 +306,6 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 		}
 
 		unique = append(unique, attribute)
-
 	}
 
 	unique = SliceUniqMap(unique)

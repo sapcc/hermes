@@ -22,10 +22,11 @@ package hermes
 import (
 	"testing"
 
-	"github.com/sapcc/hermes/pkg/identity"
-	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/sapcc/hermes/pkg/identity"
+	"github.com/sapcc/hermes/pkg/storage"
 )
 
 func Test_GetEvent(t *testing.T) {

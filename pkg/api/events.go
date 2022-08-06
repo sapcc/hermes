@@ -30,6 +30,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+
 	"github.com/sapcc/hermes/pkg/hermes"
 	"github.com/sapcc/hermes/pkg/util"
 )
@@ -42,7 +43,7 @@ type EventList struct {
 	Total   int                 `json:"total"`
 }
 
-//ListEvents handles GET /v1/events.
+// ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	util.LogDebug("* api.ListEvents: Check token")
 	token := p.CheckToken(req)
@@ -52,8 +53,16 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 	// QueryParams
 	// Parse the integers for offset & limit
-	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32)
-	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+	offset, err := strconv.ParseUint(req.FormValue("offset"), 10, 32)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	limit, err := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	// Parse the sort query string
 	//slice of a struct, key and direction.
@@ -104,7 +113,6 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 			s := hermes.FieldOrder{Fieldname: sortfield, Order: defsortorder}
 			sortSpec = append(sortSpec, s)
-
 		}
 	}
 
@@ -212,7 +220,7 @@ func getProtocol(req *http.Request) string {
 	return protocol
 }
 
-//GetEvent handles GET /v1/events/:event_id.
+// GetEvent handles GET /v1/events/:event_id.
 func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request) {
 	token := p.CheckToken(req)
 	if !token.Require(res, "event:show") {
@@ -243,7 +251,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	ReturnJSON(res, http.StatusOK, event)
 }
 
-//GetAttributes handles GET /v1/attributes/:attribute_name
+// GetAttributes handles GET /v1/attributes/:attribute_name
 func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	token := p.CheckToken(req)
 	if !token.Require(res, "event:show") {
@@ -258,8 +266,16 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		util.LogDebug("attribute_name empty")
 		return
 	}
-	maxdepth, _ := strconv.ParseUint(req.FormValue("max_depth"), 10, 32)
-	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+	maxdepth, err := strconv.ParseUint(req.FormValue("max_depth"), 10, 32)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	limit, err := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// Default Limit of 50 if not specified by queryparam
 	if limit == 0 {
 		limit = 50

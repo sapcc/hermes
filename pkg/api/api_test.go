@@ -21,23 +21,24 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"testing"
 
 	policy "github.com/databus23/goslo.policy"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/spf13/viper"
+
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
-	"github.com/spf13/viper"
 )
 
 //type object map[string]interface{} - unused re golangci
 
 func setupTest(t *testing.T) http.Handler {
 	//load test policy (where everything is allowed)
-	policyBytes, err := ioutil.ReadFile("../test/policy.json")
+	policyBytes, err := os.ReadFile("../test/policy.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,5 +88,4 @@ func Test_API(t *testing.T) {
 			}.Check(t, router)
 		})
 	}
-
 }

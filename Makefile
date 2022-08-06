@@ -39,10 +39,12 @@ GO_COVERFILES := $(patsubst %,build/%.cover.out,$(subst /,_,$(TESTPKGS)))
 check: all static-check build/cover.html FORCE
 	@echo -e "\e[1;32m>> All tests successful.\e[0m"
 
-static-check: FORCE
-	@if s="$$(gofmt -s -l *.go pkg 2>/dev/null)"                            && test -n "$$s"; then printf ' => %s\n%s\n' gofmt  "$$s"; false; fi
-	@if s="$$(golint . && find pkg -type d -exec golint {} \; 2>/dev/null)" && test -n "$$s"; then printf ' => %s\n%s\n' golint "$$s"; false; fi
-	$(GO) vet $(GO_ALLPKGS)
+prepare-static-check: FORCE
+	@if ! hash golangci-lint 2>/dev/null; then printf "\e[1;36m>> Installing golangci-lint (this may take a while)...\e[0m\n"; go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; fi
+
+static-check: FORCE prepare-static-check
+	@printf "\e[1;36m>> golangci-lint\e[0m\n"
+	@golangci-lint run
 
 build/cover.out: $(GO_COVERFILES)
 	pkg/test/util/gocovcat.go $(GO_COVERFILES) > $@

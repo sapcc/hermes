@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/gophercloud/gophercloud"
+
 	"github.com/sapcc/hermes/pkg/util"
 )
 
@@ -123,7 +124,7 @@ func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
 	elemsToRemove := []*list.Element{}
 	cache.RLock()
 	for e := cache.eList.Front(); e != nil; e = e.Next() {
-		expiryTime := (e.Value).(time.Time)
+		expiryTime := (e.Value).(time.Time) //nolint:errcheck
 		if now.Before(expiryTime) {
 			break // list is sorted, so we can stop once we get to an unexpired token
 		}
@@ -133,8 +134,8 @@ func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
 	cache.RUnlock()
 	cache.Lock()
 	for _, elem := range elemsToRemove {
-		cache.eList.Remove(elem) // Remove the cached expiry time from the sorted list
-		time := (elem.Value).(time.Time)
+		cache.eList.Remove(elem)         // Remove the cached expiry time from the sorted list
+		time := (elem.Value).(time.Time) //nolint:errcheck
 		tokenIDs := cache.eMap[time]
 		delete(cache.eMap, time) // Remove the cached expiry time from the time:tokenIDs map
 		for _, tokenID := range tokenIDs {

@@ -26,28 +26,29 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/sapcc/hermes/pkg/util"
 )
 
 // utility functionality
 
-//VersionData is used by version advertisement handlers.
+// VersionData is used by version advertisement handlers.
 type VersionData struct {
 	Status string            `json:"status"`
 	ID     string            `json:"id"`
 	Links  []versionLinkData `json:"links"`
 }
 
-//versionLinkData is used by version advertisement handlers, as part of the
-//VersionData struct.
+// versionLinkData is used by version advertisement handlers, as part of the
+// VersionData struct.
 type versionLinkData struct {
 	URL      string `json:"href"`
 	Relation string `json:"rel"`
 	Type     string `json:"type,omitempty"`
 }
 
-//ReturnJSON is a convenience function for HTTP handlers returning JSON data.
-//The `code` argument specifies the HTTP response code, usually 200.
+// ReturnJSON is a convenience function for HTTP handlers returning JSON data.
+// The `code` argument specifies the HTTP response code, usually 200.
 func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
 	payload, err := json.MarshalIndent(&data, "", "  ")
 	// Replaces & symbols properly in json within urls due to Elasticsearch
@@ -64,8 +65,8 @@ func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
 	}
 }
 
-//ReturnError produces an error response with HTTP status code 500 if the given
-//error is non-nil. Otherwise, nothing is done and false is returned.
+// ReturnError produces an error response with HTTP status code 500 if the given
+// error is non-nil. Otherwise, nothing is done and false is returned.
 func ReturnError(w http.ResponseWriter, err error) bool {
 	if err == nil {
 		return false
@@ -105,5 +106,5 @@ func observeResponseSize(handlerFunc http.HandlerFunc, handler string) http.Hand
 	durationSummary := prometheus.NewSummaryVec(prometheus.SummaryOpts{Name: "hermes_response_size_bytes", Help: "Size of the Hermes response (e.g. to a query)", ConstLabels: prometheus.Labels{"handler": handler}}, nil)
 	prometheus.MustRegister(durationSummary)
 
-	return promhttp.InstrumentHandlerResponseSize(durationSummary, http.HandlerFunc(handlerFunc)).ServeHTTP
+	return promhttp.InstrumentHandlerResponseSize(durationSummary, handlerFunc).ServeHTTP
 }

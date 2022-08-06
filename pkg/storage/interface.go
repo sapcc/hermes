@@ -102,16 +102,16 @@ type AttributeFilter struct {
 
 // Thanks to the tool at https://mholt.github.io/json-to-go/
 
-//  eventListwithTotal contains JSON annotations for parsing the result from ElasticSearch
+// eventListwithTotal contains JSON annotations for parsing the result from ElasticSearch
 type eventListWithTotal struct {
 	Total  int          `json:"total"`
 	Events []cadf.Event `json:"events"`
 }
 
-//AttributeValueList is used for holding unique attributes
+// AttributeValueList is used for holding unique attributes
 type AttributeValueList []AttributeValue
 
-//AttributeValue contains the return values for an attribute call.
+// AttributeValue contains the return values for an attribute call.
 type AttributeValue struct {
 	Value string `json:"value"`
 	Count int64  `json:"-"` // Json to not include it in JSON return

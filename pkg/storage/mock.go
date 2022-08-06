@@ -28,10 +28,13 @@ import (
 // Mock elasticsearch driver with static data
 type Mock struct{}
 
-//GetEvents mock with static data
+// GetEvents mock with static data
 func (m Mock) GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, int, error) {
 	var detailedEvents eventListWithTotal
-	json.Unmarshal(mockEvents, &detailedEvents)
+	err := json.Unmarshal(mockEvents, &detailedEvents)
+	if err != nil {
+		return nil, 0, err
+	}
 
 	var events []*cadf.Event
 
@@ -42,19 +45,19 @@ func (m Mock) GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, in
 	return events, detailedEvents.Total, nil
 }
 
-//GetEvent Mock with static data
+// GetEvent Mock with static data
 func (m Mock) GetEvent(eventID string, tenantID string) (*cadf.Event, error) {
 	var parsedEvent cadf.Event
 	err := json.Unmarshal(mockEvent, &parsedEvent)
 	return &parsedEvent, err
 }
 
-//MaxLimit Mock with static data
+// MaxLimit Mock with static data
 func (m Mock) MaxLimit() uint {
 	return 100
 }
 
-//GetAttributes Mock
+// GetAttributes Mock
 func (m Mock) GetAttributes(filter *AttributeFilter, tenantID string) ([]string, error) {
 	var parsedAttribute []string
 	err := json.Unmarshal(mockAttributes, &parsedAttribute)

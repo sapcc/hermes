@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 )
@@ -35,9 +36,9 @@ type v1Provider struct {
 	versionData VersionData
 }
 
-//NewV1Handler creates a http.Handler that serves the Hermes v1 API.
-//It also returns the VersionData for this API version which is needed for the
-//version advertisement on "GET /".
+// NewV1Handler creates a http.Handler that serves the Hermes v1 API.
+// It also returns the VersionData for this API version which is needed for the
+// version advertisement on "GET /".
 func NewV1Handler(keystone identity.Identity, storage storage.Storage) (http.Handler, VersionData) {
 	r := mux.NewRouter()
 
@@ -76,7 +77,7 @@ func NewV1Handler(keystone identity.Identity, storage storage.Storage) (http.Han
 	return r, p.versionData
 }
 
-//Path constructs a full URL for a given URL path below the /v1/ endpoint.
+// Path constructs a full URL for a given URL path below the /v1/ endpoint.
 func (p *v1Provider) Path(elements ...string) string {
 	parts := []string{
 		strings.TrimSuffix( /*p.Driver.Cluster().Config.CatalogURL*/ "", "/"),

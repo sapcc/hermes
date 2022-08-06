@@ -24,13 +24,15 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/sapcc/go-api-declarations/cadf"
+
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
 )
 
 // ListEvent contains high-level data about an event, intended as a list item
-//  The JSON annotations here are for the JSON to be returned by the API
+//
+//	The JSON annotations here are for the JSON to be returned by the API
 type ListEvent struct {
 	ID          string            `json:"id"`
 	Time        string            `json:"eventTime"`
@@ -43,7 +45,7 @@ type ListEvent struct {
 	Attachments []cadf.Attachment `json:"attachments,omitempty"`
 }
 
-//ResourceRef is an embedded struct for ListEvents (eg. Initiator, Target, Observer)
+// ResourceRef is an embedded struct for ListEvents (eg. Initiator, Target, Observer)
 type ResourceRef struct {
 	TypeURI string `json:"typeURI"`
 	ID      string `json:"id"`
@@ -83,7 +85,7 @@ type AttributeFilter struct {
 
 // GetEvents returns a list of matching events (with filtering)
 func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*ListEvent, int, error) {
-	storageFilter, err := storageFilter(filter, keystoneDriver, eventStore)
+	storageFilter, err := storageFilter(filter, eventStore)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -94,14 +96,14 @@ func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Ide
 		return nil, 0, err
 	}
 
-	events, err := eventsList(eventDetails, keystoneDriver, filter.Details)
+	events, err := eventsList(eventDetails, filter.Details)
 	if err != nil {
 		return nil, 0, err
 	}
 	return events, total, err
 }
 
-func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventStore storage.Storage) (*storage.EventFilter, error) {
+func storageFilter(filter *EventFilter, eventStore storage.Storage) (*storage.EventFilter, error) {
 	// As per the documentation, the default limit is 10
 	if filter.Limit == 0 {
 		filter.Limit = 10
@@ -136,7 +138,7 @@ func storageFilter(filter *EventFilter, keystoneDriver identity.Identity, eventS
 }
 
 // eventsList Construct ListEvents
-func eventsList(eventDetails []*cadf.Event, keystoneDriver identity.Identity, details bool) ([]*ListEvent, error) {
+func eventsList(eventDetails []*cadf.Event, details bool) ([]*ListEvent, error) {
 	var events []*ListEvent
 	for _, storageEvent := range eventDetails {
 		event := ListEvent{
@@ -180,7 +182,7 @@ func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity,
 	return event, err
 }
 
-//GetAttributes No Logic here, but handles mock implementation for eventStore
+// GetAttributes No Logic here, but handles mock implementation for eventStore
 func GetAttributes(filter *AttributeFilter, tenantID string, eventStore storage.Storage) ([]string, error) {
 	attributeFilter := storage.AttributeFilter{
 		QueryName: filter.QueryName,

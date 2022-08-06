@@ -21,7 +21,7 @@ package util
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	policy "github.com/databus23/goslo.policy"
 )
@@ -31,7 +31,7 @@ func LoadPolicyFile(path string) (*policy.Enforcer, error) {
 	if path == "" {
 		return nil, nil
 	}
-	bytes, err := ioutil.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

@@ -23,7 +23,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -33,7 +32,7 @@ import (
 	"testing"
 )
 
-//APIRequest contains all metadata about a test request.
+// APIRequest contains all metadata about a test request.
 type APIRequest struct {
 	Method           string
 	Path             string
@@ -44,9 +43,9 @@ type APIRequest struct {
 	ExpectFile       string  //path to arbitrary file
 }
 
-//Check performs the HTTP request described by this APIRequest against the
-//given http.Handler and compares the response with the expectation in the
-//APIRequest.
+// Check performs the HTTP request described by this APIRequest against the
+// given http.Handler and compares the response with the expectation in the
+// APIRequest.
 func (r APIRequest) Check(t *testing.T, handler http.Handler) {
 	var requestBody io.Reader
 	if r.RequestJSON != nil {
@@ -54,7 +53,7 @@ func (r APIRequest) Check(t *testing.T, handler http.Handler) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		requestBody = bytes.NewReader([]byte(body))
+		requestBody = bytes.NewReader(body)
 	}
 	request := httptest.NewRequest(r.Method, r.Path, requestBody)
 	request.Header.Set("X-Auth-Token", "something")
@@ -63,7 +62,10 @@ func (r APIRequest) Check(t *testing.T, handler http.Handler) {
 	handler.ServeHTTP(recorder, request)
 
 	response := recorder.Result()
-	responseBytes, _ := ioutil.ReadAll(response.Body)
+	responseBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if response.StatusCode != r.ExpectStatusCode {
 		t.Errorf("%s %s: expected status code %d, got %d",
@@ -97,9 +99,12 @@ func (r APIRequest) Check(t *testing.T, handler http.Handler) {
 func (r APIRequest) compareBodyToFixture(t *testing.T, fixturePath string, data []byte) {
 	//write actual content to file to make it easy to copy the computed result over
 	//to the fixture path when a new test is added or an existing one is modified
-	fixturePathAbs, _ := filepath.Abs(fixturePath)
+	fixturePathAbs, err := filepath.Abs(fixturePath)
+	if err != nil {
+		t.Fatal(err)
+	}
 	actualPathAbs := fixturePathAbs + ".actual"
-	err := ioutil.WriteFile(actualPathAbs, data, 0644)
+	err = os.WriteFile(actualPathAbs, data, 0644)
 	if err != nil {
 		t.Fatal(err)
 	}

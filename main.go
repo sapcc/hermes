@@ -26,12 +26,13 @@ import (
 
 	"log"
 
-	"github.com/databus23/goslo.policy"
+	policy "github.com/databus23/goslo.policy"
+	"github.com/spf13/viper"
+
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/util"
-	"github.com/spf13/viper"
 )
 
 var configPath *string
@@ -44,7 +45,10 @@ func main() {
 	keystoneDriver := configuredKeystoneDriver()
 	storageDriver := configuredStorageDriver()
 	readPolicy()
-	api.Server(keystoneDriver, storageDriver)
+	err := api.Server(keystoneDriver, storageDriver)
+	if err != nil {
+		panic(fmt.Errorf("fatal error api server couldn't start: %s", err))
+	}
 }
 
 func parseCmdlineFlags() {
@@ -69,7 +73,6 @@ func setDefaultConfig() {
 	// https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html
 	// Increasing max_result_window to 20000, with corresponding changes to Elasticsearch to handle the increase.
 	viper.SetDefault("elasticsearch.max_result_window", "20000")
-
 }
 
 func readConfig(configPath *string) {
@@ -86,7 +89,7 @@ func readConfig(configPath *string) {
 		viper.SetConfigType("toml")
 		err := viper.ReadInConfig()
 		if err != nil { // Handle errors reading the config file
-			panic(fmt.Errorf("Fatal error config file: %s", err))
+			panic(fmt.Errorf("fatal error config file: %s", err))
 		}
 	}
 }

@@ -26,8 +26,9 @@ import (
 	"os"
 
 	policy "github.com/databus23/goslo.policy"
-	"github.com/sapcc/hermes/pkg/util"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/sapcc/hermes/pkg/util"
 )
 
 // Setup test
@@ -160,5 +161,4 @@ func TestPolicy(t *testing.T) {
 	//if enforcer.Enforce("service_admin_or_owner", userContext) {
 	//	t.Error("service_admin_or_owner should pass for non owning user")
 	//}
-
 }

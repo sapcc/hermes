@@ -28,21 +28,22 @@ import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gorilla/mux"
-	"github.com/sapcc/hermes/pkg/util"
 	"github.com/spf13/viper"
+
+	"github.com/sapcc/hermes/pkg/util"
 )
 
-//Token represents a user's token, as passed through the X-Auth-Token header of
-//a request.
+// Token represents a user's token, as passed through the X-Auth-Token header of
+// a request.
 type Token struct {
 	enforcer *policy.Enforcer
 	context  policy.Context
 	err      error
 }
 
-//CheckToken checks the validity of the request's X-Auth-Token in keystone, and
-//returns a Token instance for checking authorization. Any errors that occur
-//during this function are deferred until Require() is called.
+// CheckToken checks the validity of the request's X-Auth-Token in keystone, and
+// returns a Token instance for checking authorization. Any errors that occur
+// during this function are deferred until Require() is called.
 func (p *v1Provider) CheckToken(r *http.Request) *Token {
 	str := r.Header.Get("X-Auth-Token")
 	if str == "" {
@@ -72,9 +73,9 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 	return t
 }
 
-//Require checks if the given token has the given permission according to the
-//policy.json that is in effect. If not, an error response is written and false
-//is returned.
+// Require checks if the given token has the given permission according to the
+// policy.json that is in effect. If not, an error response is written and false
+// is returned.
 func (t *Token) Require(w http.ResponseWriter, rule string) bool {
 	if t.err != nil {
 		http.Error(w, t.err.Error(), http.StatusUnauthorized)
