@@ -302,11 +302,11 @@ func getIndexID(token *Token, r *http.Request, w http.ResponseWriter) (string, e
 	}
 
 	// Sanitize user input
-	project_id := r.FormValue("project_id")
-	project_id = strings.Replace(project_id, "\n", "", -1)
-	project_id = strings.Replace(project_id, "\r", "", -1)
-	// When the project_id argument is defined, check for the cluster_viewer rule
-	if v := project_id; v != "" {
+	projectid := r.FormValue("project_id")
+	projectid = strings.Replace(projectid, "\n", "", -1)
+	projectid = strings.Replace(projectid, "\r", "", -1)
+	// When the projectid argument is defined, check for the cluster_viewer rule
+	if v := projectid; v != "" {
 		if !token.Require(w, "cluster_viewer") {
 			// not a cloud admin, no possibility to override indexID
 			return "", errors.New("cannot override index ID")
