@@ -76,7 +76,7 @@ func init() {
 	}
 }
 
-func updateCache(cache *cache, key string, value string) {
+func updateCache(cache *cache, key, value string) {
 	cache.Lock()
 	cache.m[key] = value
 	cache.Unlock()

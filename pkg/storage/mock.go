@@ -46,7 +46,7 @@ func (m Mock) GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, in
 }
 
 // GetEvent Mock with static data
-func (m Mock) GetEvent(eventID string, tenantID string) (*cadf.Event, error) {
+func (m Mock) GetEvent(eventID, tenantID string) (*cadf.Event, error) {
 	var parsedEvent cadf.Event
 	err := json.Unmarshal(mockEvent, &parsedEvent)
 	return &parsedEvent, err

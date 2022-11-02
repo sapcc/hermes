@@ -66,6 +66,10 @@ func (r APIRequest) Check(t *testing.T, handler http.Handler) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = response.Body.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if response.StatusCode != r.ExpectStatusCode {
 		t.Errorf("%s %s: expected status code %d, got %d",

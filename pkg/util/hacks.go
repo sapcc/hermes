@@ -34,7 +34,7 @@ func init() {
 	//where you definitely don't want to turn off certificate verification.)
 	if os.Getenv("HERMES_INSECURE") == "1" {
 		tlsConf := &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: true, //nolint:gosec // intentional usage of InsecureSkipVerify
 		}
 		http.DefaultTransport = &http.Transport{
 			TLSClientConfig: tlsConf,
