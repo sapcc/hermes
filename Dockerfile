@@ -1,8 +1,25 @@
-FROM keppel.eu-de-1.cloud.sap/ccloud-dockerhub-mirror/library/alpine:latest
-MAINTAINER "Nathan Oyler <nathan.oyler@sap.com>"
-LABEL source_repository="https://github.com/sapcc/hermes"
+FROM golang:1.19.2-alpine3.16 as builder
 
-RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+RUN apk add --no-cache gcc git make musl-dev
 
-ADD build/docker.tar /
-ENTRYPOINT ["/usr/bin/hermes"]
+COPY . /src
+ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION # provided to 'make install'
+RUN make -C /src install PREFIX=/pkg
+
+################################################################################
+
+FROM alpine:3.16
+
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /pkg/ /usr/
+
+ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION
+LABEL source_repository="https://github.com/sapcc/hermes" \
+  org.opencontainers.image.url="https://github.com/sapcc/hermes" \
+  org.opencontainers.image.created=${BININFO_BUILD_DATE} \
+  org.opencontainers.image.revision=${BININFO_COMMIT_HASH} \
+  org.opencontainers.image.version=${BININFO_VERSION}
+
+USER nobody:nobody
+WORKDIR /var/empty
+ENTRYPOINT [ "/usr/bin/hermes" ]

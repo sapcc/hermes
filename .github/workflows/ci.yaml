@@ -24,7 +24,7 @@ jobs:
       with:
         go-version: "1.19"
     - name: Make all check
-      run: GO_BUILDFLAGS='-mod vendor' make all check
+      run: make build-all check
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -36,7 +36,7 @@ jobs:
       with:
         go-version: "1.19"
     - name: Run gofmt, go vet, staticcheck
-      run: GO_BUILDFLAGS='-mod vendor' make static-check
+      run: make static-check
   test:
     name: Test
     needs:
@@ -50,7 +50,7 @@ jobs:
       with:
         go-version: "1.19"
     - name: Run tests and generate coverage report
-      run: GO_BUILDFLAGS='-mod vendor' make build/cover.out
+      run: make build/cover.out
     - name: Upload coverage report to Coveralls
       env:
         COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}

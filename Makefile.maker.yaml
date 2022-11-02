@@ -1,0 +1,15 @@
+# Configuration file for <https://github.com/sapcc/go-makefile-maker>
+
+metadata:
+  url: https://github.com/sapcc/hermes
+
+binaries:
+  - name:        hermes
+    fromPackage: .
+    installTo:   bin/
+
+dockerfile:
+  enabled: true
+
+golangciLint:
+  createConfig: true
