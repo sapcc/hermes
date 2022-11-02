@@ -134,10 +134,10 @@ func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
 	cache.RUnlock()
 	cache.Lock()
 	for _, elem := range elemsToRemove {
-		cache.eList.Remove(elem)         // Remove the cached expiry time from the sorted list
-		time := (elem.Value).(time.Time) //nolint:errcheck
-		tokenIDs := cache.eMap[time]
-		delete(cache.eMap, time) // Remove the cached expiry time from the time:tokenIDs map
+		cache.eList.Remove(elem)                 // Remove the cached expiry time from the sorted list
+		timeToRemove := (elem.Value).(time.Time) //nolint:errcheck
+		tokenIDs := cache.eMap[timeToRemove]
+		delete(cache.eMap, timeToRemove) // Remove the cached expiry time from the time:tokenIDs map
 		for _, tokenID := range tokenIDs {
 			delete(cache.tMap, tokenID) // Remove all the cached tokens
 		}

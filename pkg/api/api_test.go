@@ -55,10 +55,10 @@ func setupTest(t *testing.T) http.Handler {
 
 	//create test driver with the domains and projects from start-data.sql
 	keystone := identity.Mock{}
-	storage := storage.Mock{}
+	storageInterface := storage.Mock{}
 
 	prometheus.DefaultRegisterer = prometheus.NewPedanticRegistry()
-	router, _ := NewV1Handler(keystone, storage)
+	router, _ := NewV1Handler(keystone, storageInterface)
 	return router
 }
 
