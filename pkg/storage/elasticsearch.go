@@ -104,7 +104,7 @@ var esFieldMapping = map[string]string{
 
 // FilterQuery takes filter requests, and adds their filter to the ElasticSearch Query
 // Handle Filter, Negation of Filter !, and or values separated by ,
-func FilterQuery(filter string, filtername string, query *elastic.BoolQuery) *elastic.BoolQuery {
+func FilterQuery(filter, filtername string, query *elastic.BoolQuery) *elastic.BoolQuery {
 	switch {
 	case strings.HasPrefix(filter, "!"):
 		filter = filter[1:]
@@ -213,7 +213,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 }
 
 // GetEvent Returns EventDetail for a single event.
-func (es ElasticSearch) GetEvent(eventID string, tenantID string) (*cadf.Event, error) {
+func (es ElasticSearch) GetEvent(eventID, tenantID string) (*cadf.Event, error) {
 	index := indexName(tenantID)
 	util.LogDebug("Looking for event %s in index %s", eventID, index)
 

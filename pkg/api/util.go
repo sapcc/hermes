@@ -55,13 +55,15 @@ func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
 	payload = bytes.Replace(payload, []byte("\\u0026"), []byte("&"), -1)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	_, err = w.Write(payload)
 	if err != nil {
-		util.LogDebug("Issue with writing payload when returning Json")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		// It's too late to write this as a 5xx response since we've already
+		// started writing a 2xx response, so this can only be logged.
+		util.LogError("Issue with writing payload when returning JSON: %s", err.Error())
 	}
 }
 
@@ -72,7 +74,7 @@ func ReturnError(w http.ResponseWriter, err error) bool {
 		return false
 	}
 
-	http.Error(w, err.Error(), 500)
+	http.Error(w, err.Error(), http.StatusInternalServerError)
 	return true
 }
 

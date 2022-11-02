@@ -176,7 +176,7 @@ func eventsList(eventDetails []*cadf.Event, details bool) ([]*ListEvent, error) 
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID string, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) (*cadf.Event, error) {
+func GetEvent(eventID, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) (*cadf.Event, error) {
 	event, err := eventStore.GetEvent(eventID, tenantID)
 
 	return event, err

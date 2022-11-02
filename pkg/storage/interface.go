@@ -65,7 +65,7 @@ type Response struct {
 type Storage interface {
 	/********** requests to ElasticSearch **********/
 	GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, int, error)
-	GetEvent(eventID string, tenantID string) (*cadf.Event, error)
+	GetEvent(eventID, tenantID string) (*cadf.Event, error)
 	GetAttributes(filter *AttributeFilter, tenantID string) ([]string, error)
 	MaxLimit() uint
 }

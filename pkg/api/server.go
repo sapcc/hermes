@@ -50,7 +50,10 @@ func Server(keystone identity.Identity, storage storage.Storage) error {
 		MaxAge:         600,
 	})
 	handler := c.Handler(mainRouter)
-	return http.ListenAndServe(listenaddress, handler)
+	//TODO: Gosec complains about the HTTP server not being cleanly
+	//interruptible. I've silenced this alert for now, but this should be
+	//migrated to use github.com/sapcc/go-bits/httpext.ListenAndServeContext.
+	return http.ListenAndServe(listenaddress, handler) //nolint:gosec
 }
 
 func setupRouter(keystone identity.Identity, storage storage.Storage) http.Handler {
