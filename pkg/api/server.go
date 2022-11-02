@@ -34,9 +34,9 @@ import (
 )
 
 // Server Set up and start the API server, hooking it up to the API router
-func Server(keystone identity.Identity, storage storage.Storage) error {
+func Server(keystone identity.Identity, storageInterface storage.Storage) error {
 	fmt.Println("API")
-	mainRouter := setupRouter(keystone, storage)
+	mainRouter := setupRouter(keystone, storageInterface)
 
 	http.Handle("/", mainRouter)
 
@@ -56,11 +56,11 @@ func Server(keystone identity.Identity, storage storage.Storage) error {
 	return http.ListenAndServe(listenaddress, handler) //nolint:gosec
 }
 
-func setupRouter(keystone identity.Identity, storage storage.Storage) http.Handler {
+func setupRouter(keystone identity.Identity, storageInterface storage.Storage) http.Handler {
 	mainRouter := mux.NewRouter()
 	//hook up the v1 API (this code is structured so that a newer API version can
 	//be added easily later)
-	v1Router, v1VersionData := NewV1Handler(keystone, storage)
+	v1Router, v1VersionData := NewV1Handler(keystone, storageInterface)
 	mainRouter.PathPrefix("/v1/").Handler(v1Router)
 
 	//add the version advertisement that lists all available API versions
