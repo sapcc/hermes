@@ -55,6 +55,7 @@ Related Projects:
 * [Glance Image Service](https://docs.openstack.org/glance/latest/)
 * [Barbican Key Manager Service](https://docs.openstack.org/Barbican/latest/)
 * [Ironic Baremetal Service](https://docs.openstack.org/ironic/latest/)
+* [Octavia Load Balancer Service](https://docs.openstack.org/octavia/latest/)
 * [Limes Quota/Usage Tracking Service](https://github.com/sapcc/limes)
 * [Castellum Vertical Autoscaling Service](https://github.com/sapcc/castellum)
 * [Keppel Container Image Registry Service](https://github.com/sapcc/keppel)
