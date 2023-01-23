@@ -1,17 +1,12 @@
-# Documentation for Hermes users
+# Getting Started with Hermes
 
-Hermes is an audit trail service for OpenStack. If auditing is enabled and Hermes is deployed to OpenStack, per tenant 
-audit events are available as an API to users, as well as an optional Dashboard component.
+Hermes is an audit trail service for OpenStack that enables easy access to audit events on a tenant basis. With Hermes, you can view project-level audit events through an API or as an optional module in the OpenStack dashboard, Elektra.
 
-A Hermes event is a JSON record containing the details of a given OpenStack event. The event log contains
-information about actions taken within your OpenStack tenant or domain, such as who made the request, 
-what the request was, and when the request occurred.
+## What is an audit event?
+An audit event is a JSON record that contains the details of a given OpenStack event, such as the user who made the request, the request itself, and when it occurred. The event log contains information about actions taken within your OpenStack tenant or domain.
 
-For any given event, the log contains the following details: What, When, Who, From Where, On What, Where, To Where of an activity<sup>*</sup>. This is also referred to as the 7 W’s of audit and compliance.
-
-&ast;*an activity is a type of event that provides information about actions having occurred or intended to occur, and initiated by some resource or done against some resource.*
-
-### The 7 “W”s of audit
+## 7 “W”s of audit
+Hermes provides detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This information is presented in the CADF format, which includes both mandatory and optional properties.
 
 | “W” Component | CADF Mandatory Properties  | CADF Optional Properties (where applicable) | Description |
 | --- | --- | --- | --- |
