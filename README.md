@@ -36,14 +36,13 @@ Related Projects:
 
 ----
 
-## Features 
-
-* A managed service for Auditing in OpenStack
-* OpenStack Identity v3 authentication and authorization
-* Project and domain-level access control (scoping)
-* Compatible with other cloud based audit APIs 
-* Exposed Prometheus metrics
-* CLI for querying events 
+## Features
+- A managed service for Auditing in OpenStack: A service that provides a central repository for all audit events in OpenStack, making it easy to access and analyze these events for compliance, security and troubleshooting purposes.
+- OpenStack Identity v3 authentication and authorization: Allows for the use of OpenStack's built-in identity service for authenticating and authorizing users and groups to access audit events, ensuring that only authorized users have access to sensitive audit information and to comply with regulatory requirements for data access control.
+- Project and domain-level access control (scoping): Allows you to specify which events a user or group of users can view based on the project and domain they belong to, useful for multi-tenant environments where different projects and domains have different levels of access and visibility to audit events. Ensures that only authorized users have access to sensitive audit information and to comply with regulatory requirements for data access control.
+- Compatible with other cloud based audit APIs: Hermes allows for integration with other cloud-based audit APIs, which enables customers to use their existing audit tools and processes with OpenStack.
+- Exposed Prometheus metrics: Allows for monitoring and alerting of key metrics and events, enabling customers to quickly identify and troubleshoot issues with their OpenStack environment.
+- [HermesCLI](https://github.com/sapcc/hermescli) for querying events: A command line interface that enables customers to easily query and filter audit events, allowing them to quickly find and analyze relevant events.
 
 ## Supported Services
 * [Keystone Identity Service](https://docs.openstack.org/keystone/latest/)
