@@ -1,13 +1,17 @@
-# Example for usage of Hermes API
+# Using the Hermes API
 
-Since there is no commandline client for Hermes yet, this guide shall introduce you to using the Hermes API directly via
-`curl`.
+The Hermes API allows you to access audit events on a tenant basis, providing detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This guide will walk you through the process of getting a token, finding the Hermes endpoint, and using the API.
 
-## Getting a token
+If you would prefer to use a command line to access the API please use [HermesCLI](https://github.com/sapcc/hermescli)
 
-If you are not familiar with the standard `openstack` client, please refer to the OpenStack documentation for [how to
-install and use it][os-cli]. Assuming that you have provided your credentials to the `openstack client`, get a token
-with
+## Getting a Token
+
+Before you can use the API, you need to get an authentication token. You can do this by using the OpenStack client. 
+Here are the steps to get a token:
+
+1. Install the OpenStack client: Follow the instructions in the OpenStack documentation for [how to install and use it](https://docs.openstack.org/user-guide/cli.html).
+2. Provide your credentials to the OpenStack client: 
+3. Get a token: 
 
 ```bash
 export OS_AUTH_TOKEN="$(openstack token issue -f value -c id)"
