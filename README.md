@@ -24,6 +24,19 @@ Hermes enables customer access for audit relevant events that occur from OpenSta
 * [CADF Format](https://www.dmtf.org/sites/default/files/standards/documents/DSP0262_1.0.0.pdf)
 * [CADF Standards](http://www.dmtf.org/standards/cadf)
 
+## Dependencies
+- OpenStack
+- [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware) - To Generate audit events in a WSGI Pipeline
+- RabbitMQ - To queue audit events from Openstack
+- Logstash - To transform and route audit events
+- Elasticsearch - To store audit events for the API to query
+
+## Installation
+
+To install Hermes, you can use the Helm charts available at [SAPCC Helm Charts](https://github.com/sapcc/helm-charts/tree/master/openstack/hermes). These charts provide a simple and efficient way to deploy Hermes in a Kubernetes cluster.
+
+In addition to the Helm charts, you can also use the following related repositories and projects to further customize and integrate Hermes into your OpenStack environment:
+
 Related Repositories:
 * [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware)
 * [Hermes CLI Command Line Client](https://github.com/sapcc/hermescli)
