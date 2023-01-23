@@ -16,9 +16,9 @@ OpenStack has an audit log through OpenStack Audit Middleware, but no way for cu
 easy access to audit events on a tenant basis, relying on the ELK stack for storage. Now cloud customers can view their project 
 level audit events through an API, or as a module in [Elektra](https://github.com/sapcc/elektra), an OpenStack Dashboard.
 
-The Audit log can be used by information auditors or cloud based audit APIs to track events for a resource in a domain or project.
-Support teams can validate when customers communicate problems with cloud services, verify what occurred, 
-and view additional detail about the customer issue.
+## Use Cases
+
+The Audit log can be used by information auditors or cloud based audit APIs to track events for a resource in a domain or project. Support teams can validate when customers communicate problems with cloud services, verify what occurred, and view additional detail about the customer issue.
 
 Hermes enables customer access for audit relevant events that occur from OpenStack in an Open Standards CADF Format.
 * [CADF Format](https://www.dmtf.org/sites/default/files/standards/documents/DSP0262_1.0.0.pdf)
