@@ -25,9 +25,9 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/sapcc/go-api-declarations/cadf"
 
-	"github.com/sapcc/hermes/pkg/identity"
-	"github.com/sapcc/hermes/pkg/storage"
-	"github.com/sapcc/hermes/pkg/util"
+	"github.com/sapcc/hermes/internal/identity"
+	"github.com/sapcc/hermes/internal/storage"
+	"github.com/sapcc/hermes/internal/util"
 )
 
 // ListEvent contains high-level data about an event, intended as a list item

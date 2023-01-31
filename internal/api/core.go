@@ -26,8 +26,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/sapcc/hermes/pkg/identity"
-	"github.com/sapcc/hermes/pkg/storage"
+	"github.com/sapcc/hermes/internal/identity"
+	"github.com/sapcc/hermes/internal/storage"
 )
 
 type v1Provider struct {

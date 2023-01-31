@@ -26,7 +26,7 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 
-	"github.com/sapcc/hermes/pkg/util"
+	"github.com/sapcc/hermes/internal/util"
 )
 
 // Cache type used for the name caches

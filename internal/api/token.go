@@ -30,7 +30,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
 
-	"github.com/sapcc/hermes/pkg/util"
+	"github.com/sapcc/hermes/internal/util"
 )
 
 // Token represents a user's token, as passed through the X-Auth-Token header of

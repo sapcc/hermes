@@ -27,7 +27,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/sapcc/hermes/pkg/util"
+	"github.com/sapcc/hermes/internal/util"
 )
 
 // utility functionality

@@ -30,7 +30,7 @@ import (
 	"github.com/sapcc/go-api-declarations/cadf"
 	"github.com/spf13/viper"
 
-	"github.com/sapcc/hermes/pkg/util"
+	"github.com/sapcc/hermes/internal/util"
 )
 
 // ElasticSearch contains an elastic.Client we pass around after init.

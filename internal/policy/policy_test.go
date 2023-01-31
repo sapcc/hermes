@@ -28,7 +28,7 @@ import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/sapcc/hermes/pkg/util"
+	"github.com/sapcc/hermes/internal/util"
 )
 
 // Setup test
