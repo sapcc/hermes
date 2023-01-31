@@ -4,14 +4,14 @@ RUN apk add --no-cache gcc git make musl-dev
 
 COPY . /src
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION # provided to 'make install'
-RUN make -C /src install PREFIX=/pkg
+RUN make -C /src install PREFIX=/internal
 
 ################################################################################
 
 FROM alpine:3.17
 
 RUN apk add --no-cache ca-certificates
-COPY --from=builder /pkg/ /usr/
+COPY --from=builder /internal/ /usr/
 
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION
 LABEL source_repository="https://github.com/sapcc/hermes" \

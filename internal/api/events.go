@@ -31,8 +31,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
-	"github.com/sapcc/hermes/pkg/hermes"
-	"github.com/sapcc/hermes/pkg/util"
+	"github.com/sapcc/hermes/internal/hermes"
+	"github.com/sapcc/hermes/internal/util"
 )
 
 // EventList is the model for JSON returned by the ListEvents API call

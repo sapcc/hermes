@@ -1,11 +1,11 @@
 # build artifacts
 build/hermes
-.gopath/pkg/
+.gopath/internal/
 build/install/
 build/docker.tar
 
 # test artifacts
-pkg/test/migrations/*.sql
+internal/test/migrations/*.sql
 unittest.db
 build/cover.out
 build/*.cover.out
