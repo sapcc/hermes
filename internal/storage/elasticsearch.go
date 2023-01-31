@@ -28,9 +28,8 @@ import (
 
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/sapcc/go-api-declarations/cadf"
+	"github.com/sapcc/go-bits/logg"
 	"github.com/spf13/viper"
-
-	"github.com/sapcc/hermes/internal/util"
 )
 
 // ElasticSearch contains an elastic.Client we pass around after init.
@@ -47,12 +46,12 @@ func (es *ElasticSearch) client() *elastic.Client {
 }
 
 func (es *ElasticSearch) init() {
-	util.LogDebug("Initializing ElasticSearch()")
+	logg.Debug("Initializing ElasticSearch()")
 
 	// Create a client
 	var err error
 	var url = viper.GetString("elasticsearch.url")
-	util.LogDebug("Using ElasticSearch URL: %s", url)
+	logg.Debug("Using ElasticSearch URL: %s", url)
 
 	// Kubernetes LB with Elasticsearch causes challenges with IP being held on connections.
 	// We can create our own custom http client, but then connections take awhile to be marked dead.
@@ -118,12 +117,12 @@ func FilterQuery(filter, filtername string, query *elastic.BoolQuery) *elastic.B
 // GetEvents grabs events for a given tenantID with filtering.
 func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf.Event, int, error) {
 	index := indexName(tenantID)
-	util.LogDebug("Looking for events in index %s", index)
+	logg.Debug("Looking for events in index %s", index)
 
 	query := elastic.NewBoolQuery()
 
 	if filter.ObserverType != "" {
-		//util.LogDebug("Filtering on ObserverType %s", filter.ObserverType)
+		//logg.Debug("Filtering on ObserverType %s", filter.ObserverType)
 		query = FilterQuery(filter.ObserverType, esFieldMapping["observer_type"], query)
 	}
 	if filter.TargetType != "" {
@@ -195,7 +194,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 		return nil, 0, err
 	}
 
-	util.LogDebug("Got %d hits", searchResult.TotalHits())
+	logg.Debug("Got %d hits", searchResult.TotalHits())
 
 	//Construct EventDetail array from search results
 	var events []*cadf.Event
@@ -215,7 +214,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 // GetEvent Returns EventDetail for a single event.
 func (es ElasticSearch) GetEvent(eventID, tenantID string) (*cadf.Event, error) {
 	index := indexName(tenantID)
-	util.LogDebug("Looking for event %s in index %s", eventID, index)
+	logg.Debug("Looking for event %s in index %s", eventID, index)
 
 	query := elastic.NewTermQuery("id", eventID)
 	esSearch := es.client().Search().
@@ -224,11 +223,11 @@ func (es ElasticSearch) GetEvent(eventID, tenantID string) (*cadf.Event, error) 
 
 	searchResult, err := esSearch.Do(context.Background())
 	if err != nil {
-		util.LogDebug("Query failed: %s", err.Error())
+		logg.Debug("Query failed: %s", err.Error())
 		return nil, err
 	}
 	total := searchResult.TotalHits()
-	util.LogDebug("Results: %d", total)
+	logg.Debug("Results: %d", total)
 
 	if total > 0 {
 		hit := searchResult.Hits.Hits[0]
@@ -244,7 +243,7 @@ func (es ElasticSearch) GetEvent(eventID, tenantID string) (*cadf.Event, error) 
 func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) ([]string, error) {
 	index := indexName(tenantID)
 
-	util.LogDebug("Looking for unique attributes for %s in index %s", filter.QueryName, index)
+	logg.Debug("Looking for unique attributes for %s in index %s", filter.QueryName, index)
 
 	// ObserverType in this case is not the cadf source, but instead the first part of event_type
 	var esName string
@@ -253,7 +252,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	} else {
 		esName = filter.QueryName
 	}
-	util.LogDebug("Mapped Queryname: %s --> %s", filter.QueryName, esName)
+	logg.Debug("Mapped Queryname: %s --> %s", filter.QueryName, esName)
 
 	queryAgg := elastic.NewTermsAggregation().Size(int(filter.Limit)).Field(esName)
 
@@ -268,27 +267,27 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	}
 
 	if searchResult.Hits == nil {
-		util.LogDebug("expected Hits != nil; got: nil")
+		logg.Debug("expected Hits != nil; got: nil")
 	}
 
 	agg := searchResult.Aggregations
 	if agg == nil {
-		util.LogDebug("expected Aggregations, got nil")
+		logg.Debug("expected Aggregations, got nil")
 	}
 
 	termsAggRes, found := agg.Terms("attributes")
 	if !found {
-		util.LogDebug("Term %s not found in Aggregation", esName)
+		logg.Debug("Term %s not found in Aggregation", esName)
 	}
 	if termsAggRes == nil {
-		util.LogDebug("termsAggRes is nil")
+		logg.Debug("termsAggRes is nil")
 		return nil, nil
 	}
-	util.LogDebug("Number of Buckets: %d", len(termsAggRes.Buckets))
+	logg.Debug("Number of Buckets: %d", len(termsAggRes.Buckets))
 
 	var unique []string
 	for _, bucket := range termsAggRes.Buckets {
-		util.LogDebug("key: %s count: %d", bucket.Key, bucket.DocCount)
+		logg.Debug("key: %s count: %d", bucket.Key, bucket.DocCount)
 		attribute := bucket.Key.(string) //nolint:errcheck
 
 		// Hierarchical Depth Handling

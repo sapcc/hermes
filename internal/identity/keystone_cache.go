@@ -26,7 +26,7 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 
-	"github.com/sapcc/hermes/internal/util"
+	"github.com/sapcc/go-bits/logg"
 )
 
 // Cache type used for the name caches
@@ -92,7 +92,7 @@ func getFromCache(cache *cache, key string) (string, bool) {
 func addTokenToCache(cache *keystoneTokenCache, id string, token *keystoneToken) {
 	expiryTime, err := time.Parse("2006-01-02T15:04:05.999999Z", token.ExpiresAt)
 	if err != nil {
-		util.LogWarning("Not adding token to cache because time '%s' could not be parsed", token.ExpiresAt)
+		logg.Error("Not adding token to cache because time '%s' could not be parsed", token.ExpiresAt)
 		return
 	}
 	cache.Lock()
@@ -115,7 +115,7 @@ func addTokenToCache(cache *keystoneTokenCache, id string, token *keystoneToken)
 	cache.tMap[id] = token
 	cacheSize := len(cache.tMap)
 	cache.Unlock()
-	util.LogDebug("Added token to cache. Current cache size: %d", cacheSize)
+	logg.Debug("Added token to cache. Current cache size: %d", cacheSize)
 }
 
 func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
@@ -145,14 +145,14 @@ func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
 	cacheSize := len(cache.tMap)
 	cache.Unlock()
 	if len(elemsToRemove) > 0 {
-		util.LogDebug("Removed expired token(s) from cache. Current cache size: %d", cacheSize)
+		logg.Debug("Removed expired token(s) from cache. Current cache size: %d", cacheSize)
 	}
 	// Now look for the token in question
 	cache.RLock()
 	token := cache.tMap[id]
 	cache.RUnlock()
 	if token != nil {
-		util.LogDebug("Got token from cache. Current cache size: %d", cacheSize)
+		logg.Debug("Got token from cache. Current cache size: %d", cacheSize)
 	}
 
 	return token

@@ -28,9 +28,9 @@ import (
 	"github.com/rs/cors"
 	"github.com/spf13/viper"
 
+	"github.com/sapcc/go-bits/logg"
 	"github.com/sapcc/hermes/internal/identity"
 	"github.com/sapcc/hermes/internal/storage"
-	"github.com/sapcc/hermes/internal/util"
 )
 
 // Server Set up and start the API server, hooking it up to the API router
@@ -42,7 +42,7 @@ func Server(keystone identity.Identity, storageInterface storage.Storage) error 
 
 	//start HTTP server
 	listenaddress := viper.GetString("API.ListenAddress")
-	util.LogInfo("listening on %s", listenaddress)
+	logg.Info("listening on %s", listenaddress)
 	//enable cors support
 	c := cors.New(cors.Options{
 		AllowedHeaders: []string{"X-Auth-Token", "Content-Type", "Accept"},

@@ -24,10 +24,10 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/sapcc/go-api-declarations/cadf"
+	"github.com/sapcc/go-bits/logg"
 
 	"github.com/sapcc/hermes/internal/identity"
 	"github.com/sapcc/hermes/internal/storage"
-	"github.com/sapcc/hermes/internal/util"
 )
 
 // ListEvent contains high-level data about an event, intended as a list item
@@ -90,7 +90,7 @@ func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Ide
 		return nil, 0, err
 	}
 
-	util.LogDebug("hermes.GetEvents: tenant id is %s", tenantID)
+	logg.Debug("hermes.GetEvents: tenant id is %s", tenantID)
 	eventDetails, total, err := eventStore.GetEvents(storageFilter, tenantID)
 	if err != nil {
 		return nil, 0, err

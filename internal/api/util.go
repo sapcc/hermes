@@ -26,8 +26,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-
-	"github.com/sapcc/hermes/internal/util"
+	"github.com/sapcc/go-bits/logg"
 )
 
 // utility functionality
@@ -63,7 +62,7 @@ func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
 	if err != nil {
 		// It's too late to write this as a 5xx response since we've already
 		// started writing a 2xx response, so this can only be logged.
-		util.LogError("Issue with writing payload when returning JSON: %s", err.Error())
+		logg.Error("Issue with writing payload when returning JSON: %s", err.Error())
 	}
 }
 

@@ -24,9 +24,10 @@ import (
 	"fmt"
 	"os"
 
-	"log"
-
 	policy "github.com/databus23/goslo.policy"
+	"github.com/sapcc/go-bits/logg"
+	"github.com/sapcc/go-bits/must"
+	"github.com/sapcc/go-bits/osext"
 	"github.com/spf13/viper"
 
 	"github.com/sapcc/hermes/internal/api"
@@ -38,6 +39,7 @@ import (
 var configPath *string
 
 func main() {
+	logg.ShowDebug = osext.GetenvBool("HERMES_DEBUG")
 	parseCmdlineFlags()
 
 	setDefaultConfig()
@@ -45,10 +47,7 @@ func main() {
 	keystoneDriver := configuredKeystoneDriver()
 	storageDriver := configuredStorageDriver()
 	readPolicy()
-	err := api.Server(keystoneDriver, storageDriver)
-	if err != nil {
-		panic(fmt.Errorf("fatal error api server couldn't start: %s", err))
-	}
+	must.Succeed(api.Server(keystoneDriver, storageDriver))
 }
 
 func parseCmdlineFlags() {
@@ -83,14 +82,11 @@ func readConfig(configPath *string) {
 		shouldReadConfig = *configPath != flag.Lookup("f").DefValue
 	}
 	// Now we sorted that out, read the config
-	util.LogDebug("Should read config: %v, config file is %s", shouldReadConfig, *configPath)
+	logg.Debug("Should read config: %v, config file is %s", shouldReadConfig, *configPath)
 	if shouldReadConfig {
 		viper.SetConfigFile(*configPath)
 		viper.SetConfigType("toml")
-		err := viper.ReadInConfig()
-		if err != nil { // Handle errors reading the config file
-			panic(fmt.Errorf("fatal error config file: %s", err))
-		}
+		must.Succeed(viper.ReadInConfig())
 	}
 }
 
@@ -105,7 +101,7 @@ func configuredKeystoneDriver() identity.Identity {
 	case "mock":
 		return mockIdentity
 	default:
-		log.Printf("Couldn't match a keystone driver for configured value \"%s\"", driverName)
+		logg.Error("Couldn't match a keystone driver for configured value \"%s\"", driverName)
 		return nil
 	}
 }
@@ -121,7 +117,7 @@ func configuredStorageDriver() storage.Storage {
 	case "mock":
 		return mockStorage
 	default:
-		log.Printf("Couldn't match a storage driver for configured value \"%s\"", driverName)
+		logg.Error("Couldn't match a storage driver for configured value \"%s\"", driverName)
 		return nil
 	}
 }
@@ -130,7 +126,7 @@ func readPolicy() {
 	//load the policy file
 	policyEnforcer, err := util.LoadPolicyFile(viper.GetString("hermes.PolicyFilePath"))
 	if err != nil {
-		util.LogFatal(err.Error())
+		logg.Fatal(err.Error())
 	}
 	if policyEnforcer != nil {
 		viper.Set("hermes.PolicyEnforcer", policyEnforcer)
