@@ -31,7 +31,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 
-	"github.com/sapcc/hermes/internal/util"
+	"github.com/sapcc/go-bits/logg"
 )
 
 // Keystone Openstack Keystone implementation
@@ -69,7 +69,7 @@ type keystoneNameID struct {
 }
 
 func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
-	util.LogDebug("Getting service user Identity token...")
+	logg.Debug("Getting service user Identity token...")
 	if d.TokenRenewalMutex == nil {
 		d.TokenRenewalMutex = &sync.Mutex{}
 	}
@@ -268,7 +268,7 @@ func (d Keystone) UserID(name string) (string, error) {
 		case 1:
 			userID = data.User[0].UUID
 		default:
-			util.LogWarning("Multiple users found with name %s - returning the first one", name)
+			logg.Info("Multiple users found with name %s - returning the first one", name)
 			userID = data.User[0].UUID
 		}
 		updateCache(userIDCache, name, userID)
@@ -379,7 +379,7 @@ func (t *keystoneToken) ToContext() policy.Context {
 			"tenant_domain_name":  t.ProjectScope.Domain.Name,
 		},
 		Request: nil,
-		Logger:  util.LogDebug,
+		Logger:  logg.Debug,
 	}
 	for key, value := range c.Auth {
 		if value == "" {
@@ -405,7 +405,7 @@ func (d Keystone) RefreshToken() error {
 	//1. thread-safe token renewal
 	//2. proper support for cross-domain scoping
 
-	util.LogDebug("Getting service user Identity token...")
+	logg.Debug("Getting service user Identity token...")
 
 	d.TokenRenewalMutex.Lock()
 	defer d.TokenRenewalMutex.Unlock()
@@ -419,7 +419,7 @@ func (d Keystone) RefreshToken() error {
 		return fmt.Errorf("cannot initialize Identity client: %v", err)
 	}
 
-	util.LogDebug("Identity URL: %s", keystone.Endpoint)
+	logg.Debug("Identity URL: %s", keystone.Endpoint)
 
 	result := tokens.Create(keystone, d.AuthOptions())
 	token, err := result.ExtractToken()

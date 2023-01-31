@@ -28,9 +28,8 @@ import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gorilla/mux"
+	"github.com/sapcc/go-bits/logg"
 	"github.com/spf13/viper"
-
-	"github.com/sapcc/hermes/internal/util"
 )
 
 // Token represents a user's token, as passed through the X-Auth-Token header of
@@ -53,7 +52,7 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
 	t.context, t.err = p.keystone.ValidateToken(str)
 	if t.err != nil {
-		util.LogDebug("Error connection to identity server %s", t.err)
+		logg.Debug("Error connection to identity server %s", t.err)
 		switch t.err.(type) {
 		case gophercloud.ErrDefault404:
 			t.err = errors.New("X-Auth-Token is invalid or expired")

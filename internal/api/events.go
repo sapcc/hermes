@@ -30,9 +30,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+	"github.com/sapcc/go-bits/logg"
 
 	"github.com/sapcc/hermes/internal/hermes"
-	"github.com/sapcc/hermes/internal/util"
 )
 
 // EventList is the model for JSON returned by the ListEvents API call
@@ -45,7 +45,7 @@ type EventList struct {
 
 // ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
-	util.LogDebug("* api.ListEvents: Check token")
+	logg.Debug("* api.ListEvents: Check token")
 	token := p.CheckToken(req)
 	if !token.Require(res, "event:list") {
 		return
@@ -157,7 +157,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		details = true
 	}
 
-	util.LogDebug("api.ListEvents: Create filter")
+	logg.Debug("api.ListEvents: Create filter")
 	filter := hermes.EventFilter{
 		ObserverType:  req.FormValue("observer_type") + req.FormValue("source"),
 		TargetType:    req.FormValue("target_type") + req.FormValue("resource_type"),
@@ -175,14 +175,14 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		Details:       details,
 	}
 
-	util.LogDebug("api.ListEvents: call hermes.GetEvents()")
+	logg.Debug("api.ListEvents: call hermes.GetEvents()")
 	indexID, err := getIndexID(token, req, res)
 	if err != nil {
 		return
 	}
 	events, total, err := hermes.GetEvents(&filter, indexID, p.keystone, p.storage)
 	if ReturnError(res, err) {
-		util.LogError("api.ListEvents: error %s", err)
+		logg.Error("api.ListEvents: error %s", err)
 		storageErrorsCounter.Add(1)
 		return
 	}
@@ -232,7 +232,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	event, err := hermes.GetEvent(eventID, indexID, p.keystone, p.storage)
 
 	if ReturnError(res, err) {
-		util.LogError("error getting events from Storage: %s", err)
+		logg.Error("error getting events from Storage: %s", err)
 		storageErrorsCounter.Add(1)
 		return
 	}
@@ -256,7 +256,7 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	queryName = strings.Replace(queryName, "\n", "", -1)
 	queryName = strings.Replace(queryName, "\r", "", -1)
 	if queryName == "" {
-		util.LogDebug("attribute_name empty")
+		logg.Debug("attribute_name empty")
 		return
 	}
 	maxdepth, _ := strconv.ParseUint(req.FormValue("max_depth"), 10, 32) //nolint:errcheck
@@ -267,7 +267,7 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		limit = 50
 	}
 
-	util.LogDebug("api.GetAttributes: Create filter")
+	logg.Debug("api.GetAttributes: Create filter")
 	filter := hermes.AttributeFilter{
 		QueryName: queryName,
 		MaxDepth:  uint(maxdepth),
@@ -282,7 +282,7 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	attribute, err := hermes.GetAttributes(&filter, indexID, p.storage)
 
 	if ReturnError(res, err) {
-		util.LogError("could not get attributes from Storage: %s", err)
+		logg.Error("could not get attributes from Storage: %s", err)
 		storageErrorsCounter.Add(1)
 		return
 	}
