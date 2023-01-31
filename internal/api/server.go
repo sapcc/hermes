@@ -29,6 +29,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/sapcc/go-bits/logg"
+
 	"github.com/sapcc/hermes/internal/identity"
 	"github.com/sapcc/hermes/internal/storage"
 )
