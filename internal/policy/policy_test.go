@@ -29,6 +29,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/sapcc/go-bits/logg"
+
 	"github.com/sapcc/hermes/internal/util"
 )
 
