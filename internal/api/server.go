@@ -20,14 +20,17 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"github.com/spf13/viper"
 
+	"github.com/sapcc/go-bits/httpext"
 	"github.com/sapcc/go-bits/logg"
 
 	"github.com/sapcc/hermes/internal/identity"
@@ -51,10 +54,9 @@ func Server(keystone identity.Identity, storageInterface storage.Storage) error 
 		MaxAge:         600,
 	})
 	handler := c.Handler(mainRouter)
-	//TODO: Gosec complains about the HTTP server not being cleanly
-	//interruptible. I've silenced this alert for now, but this should be
-	//migrated to use github.com/sapcc/go-bits/httpext.ListenAndServeContext.
-	return http.ListenAndServe(listenaddress, handler) //nolint:gosec
+
+	ctx := httpext.ContextWithSIGINT(context.Background(), 10*time.Second)
+	return httpext.ListenAndServeContext(ctx, listenaddress, handler)
 }
 
 func setupRouter(keystone identity.Identity, storageInterface storage.Storage) http.Handler {
