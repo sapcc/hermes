@@ -60,9 +60,11 @@ func parseCmdlineFlags() {
 	flag.Parse()
 }
 
-var nullEnforcer, _ = policy.NewEnforcer(make(map[string]string))
-
 func setDefaultConfig() {
+	var nullEnforcer, err = policy.NewEnforcer(make(map[string]string))
+	if err != nil {
+		panic(err)
+	}
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
 	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
