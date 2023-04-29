@@ -96,16 +96,31 @@ func gaugeInflight(handler http.Handler) http.Handler {
 }
 
 func observeDuration(handlerFunc http.HandlerFunc, handler string) http.HandlerFunc {
-	durationSummary := prometheus.NewSummaryVec(
-		prometheus.SummaryOpts{Name: "hermes_request_duration_seconds", Help: "Duration/latency of a Hermes request", ConstLabels: prometheus.Labels{"handler": handler}}, nil)
-	prometheus.MustRegister(durationSummary)
+	durationHistogram := prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:        "hermes_request_duration_seconds",
+			Help:        "Duration/latency of a Hermes request",
+			ConstLabels: prometheus.Labels{"handler": handler},
+			Buckets:     prometheus.DefBuckets,
+		},
+		[]string{},
+	)
+	prometheus.MustRegister(durationHistogram)
 
-	return promhttp.InstrumentHandlerDuration(durationSummary, handlerFunc)
+	return promhttp.InstrumentHandlerDuration(durationHistogram, handlerFunc)
 }
 
 func observeResponseSize(handlerFunc http.HandlerFunc, handler string) http.HandlerFunc {
-	durationSummary := prometheus.NewSummaryVec(prometheus.SummaryOpts{Name: "hermes_response_size_bytes", Help: "Size of the Hermes response (e.g. to a query)", ConstLabels: prometheus.Labels{"handler": handler}}, nil)
-	prometheus.MustRegister(durationSummary)
+	responseSizeHistogram := prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:        "hermes_response_size_bytes",
+			Help:        "Size of the Hermes response (e.g. to a query)",
+			ConstLabels: prometheus.Labels{"handler": handler},
+			Buckets:     prometheus.LinearBuckets(100, 100, 10),
+		},
+		[]string{},
+	)
+	prometheus.MustRegister(responseSizeHistogram)
 
-	return promhttp.InstrumentHandlerResponseSize(durationSummary, handlerFunc).ServeHTTP
+	return promhttp.InstrumentHandlerResponseSize(responseSizeHistogram, handlerFunc).ServeHTTP
 }
