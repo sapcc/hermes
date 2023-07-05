@@ -164,6 +164,8 @@ github.com/gophercloud/gophercloud v1.3.0 h1:RUKyCMiZoQR3VlVR5E3K7PK1AC3/qppsWYo
 github.com/gophercloud/gophercloud v1.3.0/go.mod h1:aAVqcocTSXh2vYFZ1JTvx4EQmfgzxRcNupUfxZbBNDM=
 github.com/gophercloud/gophercloud v1.4.0 h1:RqEu43vaX0lb0LanZr5BylK5ICVxjpFFoc0sxivyuHU=
 github.com/gophercloud/gophercloud v1.4.0/go.mod h1:aAVqcocTSXh2vYFZ1JTvx4EQmfgzxRcNupUfxZbBNDM=
+github.com/gophercloud/gophercloud v1.5.0 h1:cDN6XFCLKiiqvYpjQLq9AiM7RDRbIC9450WpPH+yvXo=
+github.com/gophercloud/gophercloud v1.5.0/go.mod h1:aAVqcocTSXh2vYFZ1JTvx4EQmfgzxRcNupUfxZbBNDM=
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
@@ -320,6 +322,8 @@ github.com/sapcc/go-bits v0.0.0-20230609124502-ada8add2e99b h1:tz0yQQ+mnNS+G4CO6
 github.com/sapcc/go-bits v0.0.0-20230609124502-ada8add2e99b/go.mod h1:kTwPywJ474TQzcXRhK2j1IKIEs72Cl0j419aOJdleZ8=
 github.com/sapcc/go-bits v0.0.0-20230614140115-83eb3a701632 h1:GK/Gw800kfYHe1nlyusq2PYFfb4xzYCIgxZkvvJV8Rk=
 github.com/sapcc/go-bits v0.0.0-20230614140115-83eb3a701632/go.mod h1:jjAzEgHWrGCqQFAsWA52Du/+2JC1EPaZkkLHs2PNXh0=
+github.com/sapcc/go-bits v0.0.0-20230622213651-f0dc22861208 h1:CjhHjOm9NEzkhvmWqCQzzkbtjyStCUSSmQf5nJr5IdM=
+github.com/sapcc/go-bits v0.0.0-20230622213651-f0dc22861208/go.mod h1:WJEvJkfWn2AuCWGl0pK83v+nJe5DiXsHMtnMhzIpZ7s=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
