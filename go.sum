@@ -302,6 +302,8 @@ github.com/sapcc/go-api-declarations v1.5.1 h1:K0dn7gy9uvBRn3qBUHOYli4J3eJCRrTBI
 github.com/sapcc/go-api-declarations v1.5.1/go.mod h1:3OCDo75YJwpytM/I0SjwcZJf1ZNu89KeAZ55kdOTSqE=
 github.com/sapcc/go-api-declarations v1.6.0 h1:sPEnqSY6IumN59wGFTzl3VeehNxXjlE+pYroj1t91r4=
 github.com/sapcc/go-api-declarations v1.6.0/go.mod h1:3OCDo75YJwpytM/I0SjwcZJf1ZNu89KeAZ55kdOTSqE=
+github.com/sapcc/go-api-declarations v1.7.0 h1:fABKw/dw300ZQ5TKEjVnKPqMSH5aCOSbJ06XnfWtpuw=
+github.com/sapcc/go-api-declarations v1.7.0/go.mod h1:3OCDo75YJwpytM/I0SjwcZJf1ZNu89KeAZ55kdOTSqE=
 github.com/sapcc/go-bits v0.0.0-20230127160334-4cfcb11b2ecb h1:hjTaf884mNe96WLGiVaKH/8/cp9QE2mkXuw7BtGUWxw=
 github.com/sapcc/go-bits v0.0.0-20230127160334-4cfcb11b2ecb/go.mod h1:kXLnyyteE5opVQhCTIEwZ9nL31PbcQFpHmzX14lK00U=
 github.com/sapcc/go-bits v0.0.0-20230323091343-206e6dcb3e83 h1:JY5nDqF3UkmWHJvJeC8hg2HEYqN/hRiYAfR1wMZhRUg=
@@ -324,6 +326,8 @@ github.com/sapcc/go-bits v0.0.0-20230614140115-83eb3a701632 h1:GK/Gw800kfYHe1nly
 github.com/sapcc/go-bits v0.0.0-20230614140115-83eb3a701632/go.mod h1:jjAzEgHWrGCqQFAsWA52Du/+2JC1EPaZkkLHs2PNXh0=
 github.com/sapcc/go-bits v0.0.0-20230622213651-f0dc22861208 h1:CjhHjOm9NEzkhvmWqCQzzkbtjyStCUSSmQf5nJr5IdM=
 github.com/sapcc/go-bits v0.0.0-20230622213651-f0dc22861208/go.mod h1:WJEvJkfWn2AuCWGl0pK83v+nJe5DiXsHMtnMhzIpZ7s=
+github.com/sapcc/go-bits v0.0.0-20230714164034-847bf6682d87 h1:ppSuC8bMkGSmvX5waZLwUrXIt1amgKyQ8etyaZO7b/c=
+github.com/sapcc/go-bits v0.0.0-20230714164034-847bf6682d87/go.mod h1:J/Q/o/JysipZxYy4p4Os1FZhxgKw53Dw68Y5e6c4IbE=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
