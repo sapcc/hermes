@@ -159,7 +159,7 @@ func eventsList(eventDetails []*cadf.Event, details bool) ([]*ListEvent, error) 
 			Observer: ResourceRef{
 				TypeURI: storageEvent.Observer.TypeURI,
 				ID:      storageEvent.Observer.ID,
-				Name:    storageEvent.Initiator.Name,
+				Name:    storageEvent.Observer.Name,
 			},
 		}
 		if details {
