@@ -304,6 +304,8 @@ github.com/sapcc/go-api-declarations v1.6.0 h1:sPEnqSY6IumN59wGFTzl3VeehNxXjlE+p
 github.com/sapcc/go-api-declarations v1.6.0/go.mod h1:3OCDo75YJwpytM/I0SjwcZJf1ZNu89KeAZ55kdOTSqE=
 github.com/sapcc/go-api-declarations v1.7.0 h1:fABKw/dw300ZQ5TKEjVnKPqMSH5aCOSbJ06XnfWtpuw=
 github.com/sapcc/go-api-declarations v1.7.0/go.mod h1:3OCDo75YJwpytM/I0SjwcZJf1ZNu89KeAZ55kdOTSqE=
+github.com/sapcc/go-api-declarations v1.8.0 h1:jlomBUa0IMgcibtUT1GQ6VOT9RYa8LCk6LuP0DxURWo=
+github.com/sapcc/go-api-declarations v1.8.0/go.mod h1:83R3hTANhuRXt/pXDby37IJetw8l7DG41s33Tp9NXxI=
 github.com/sapcc/go-bits v0.0.0-20230127160334-4cfcb11b2ecb h1:hjTaf884mNe96WLGiVaKH/8/cp9QE2mkXuw7BtGUWxw=
 github.com/sapcc/go-bits v0.0.0-20230127160334-4cfcb11b2ecb/go.mod h1:kXLnyyteE5opVQhCTIEwZ9nL31PbcQFpHmzX14lK00U=
 github.com/sapcc/go-bits v0.0.0-20230323091343-206e6dcb3e83 h1:JY5nDqF3UkmWHJvJeC8hg2HEYqN/hRiYAfR1wMZhRUg=

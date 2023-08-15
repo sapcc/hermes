@@ -1,6 +1,8 @@
 module github.com/sapcc/hermes
 
-go 1.19
+go 1.21
+
+toolchain go1.21.0
 
 require (
 	github.com/databus23/goslo.policy v0.0.0-20210929125152-81bf2876dbdb
@@ -11,7 +13,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.16.0
 	github.com/rs/cors v1.9.0
-	github.com/sapcc/go-api-declarations v1.7.0
+	github.com/sapcc/go-api-declarations v1.8.0
 	github.com/sapcc/go-bits v0.0.0-20230802113032-9edf4f26a329
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
