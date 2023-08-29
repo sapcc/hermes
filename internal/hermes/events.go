@@ -165,7 +165,8 @@ func eventsList(eventDetails []*cadf.Event, details bool) ([]*ListEvent, error) 
 		if details {
 			event.Attachments = storageEvent.Attachments
 		}
-		err := copier.Copy(&event.Initiator, &storageEvent.Initiator)
+		copiedInitiator := storageEvent.Initiator              // Create a copy of the Initiator
+		err := copier.Copy(&event.Initiator, &copiedInitiator) // Use the copy as the source for the copy
 		if err != nil {
 			return nil, err
 		}
