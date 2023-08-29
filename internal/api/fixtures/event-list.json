@@ -15,7 +15,6 @@
       "target": {
         "typeURI": "service/security/account/user",
         "id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac",
-        "name": ""
       },
       "observer": {
         "typeURI": "service/security",
@@ -37,7 +36,6 @@
       "target": {
         "typeURI": "service/security/account/user",
         "id": "ba2cc58797d91dc126cc5849e5d802880bb6b01dfd3013a35392ce00ae3b0f43",
-        "name": ""
       },
       "observer": {
         "typeURI": "service/security",
@@ -59,7 +57,6 @@
       "target": {
         "typeURI": "service/security/account/user",
         "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
-        "name": ""
       },
       "observer": {
         "typeURI": "service/security",
@@ -81,7 +78,6 @@
       "target": {
         "typeURI": "service/security/account/user",
         "id": "c4d3626f405b99f395a1c581ed630b2d40be8b9701f95f7b8f5b1e2cf2d72c1b",
-        "name": ""
       },
       "observer": {
         "typeURI": "service/security",
