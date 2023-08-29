@@ -22,7 +22,6 @@
   },
   "target": {
     "typeURI": "service/security/account/user",
-    "name": "",
     "id": "f1a7118aee7698ab43deb080df40e01845127240e11bae64293837145a4a7dac",
     "addresses": [
       {
