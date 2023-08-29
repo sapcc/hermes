@@ -1,17 +1,21 @@
-FROM golang:1.20.4-alpine3.16 as builder
+FROM golang:1.20.5-alpine3.18 as builder
 
-RUN apk add --no-cache gcc git make musl-dev
+RUN apk add --no-cache --no-progress gcc git make musl-dev
 
 COPY . /src
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION # provided to 'make install'
-RUN make -C /src install PREFIX=/internal
+RUN make -C /src install PREFIX=/pkg
 
 ################################################################################
 
 FROM alpine:3.18
 
-RUN apk add --no-cache ca-certificates
-COPY --from=builder /internal/ /usr/
+RUN addgroup -g 4200 appgroup \
+  && adduser -h /home/appuser -s /sbin/nologin -G appgroup -D -u 4200 appuser
+# upgrade all installed packages to fix potential CVEs in advance
+RUN apk upgrade --no-cache --no-progress \
+  && apk add --no-cache --no-progress ca-certificates
+COPY --from=builder /pkg/ /usr/
 
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION
 LABEL source_repository="https://github.com/sapcc/hermes" \
@@ -20,6 +24,6 @@ LABEL source_repository="https://github.com/sapcc/hermes" \
   org.opencontainers.image.revision=${BININFO_COMMIT_HASH} \
   org.opencontainers.image.version=${BININFO_VERSION}
 
-USER nobody:nobody
-WORKDIR /var/empty
+USER 4200:4200
+WORKDIR /home/appuser
 ENTRYPOINT [ "/usr/bin/hermes" ]
