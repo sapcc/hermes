@@ -49,7 +49,7 @@ type ListEvent struct {
 type ResourceRef struct {
 	TypeURI string `json:"typeURI"`
 	ID      string `json:"id"`
-	Name    string `json:"name"`
+	Name    string `json:"name,omitempty"`
 }
 
 // EventFilter maps to the filtering/paging/sorting allowed by the API for Events
