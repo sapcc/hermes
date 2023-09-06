@@ -10,7 +10,7 @@ require (
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.16.0
-	github.com/rs/cors v1.9.0
+	github.com/rs/cors v1.10.0
 	github.com/sapcc/go-api-declarations v1.8.1
 	github.com/sapcc/go-bits v0.0.0-20230831095729-1bcecc1483c4
 	github.com/spf13/viper v1.16.0
