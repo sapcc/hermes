@@ -356,6 +356,8 @@ github.com/sapcc/go-bits v0.0.0-20230906130635-a54387dfe732 h1:nTL+ERqsTQeAnoLTU
 github.com/sapcc/go-bits v0.0.0-20230906130635-a54387dfe732/go.mod h1:pN2Z9UI5h6eiZegXd0RAupBJr70oY5Y3Z8wdRnWa68k=
 github.com/sapcc/go-bits v0.0.0-20230912142452-3a5bef45cdb0 h1:LvhS1Df7IuVOZGv0xSlrJ0zFiYSh2OFtxCaetw+wcXI=
 github.com/sapcc/go-bits v0.0.0-20230912142452-3a5bef45cdb0/go.mod h1:GT41Se6TIKuC72WifVXoRGW5SLTgGUQXVEdFm+d9AU8=
+github.com/sapcc/go-bits v0.0.0-20230920131001-bf2c07577372 h1:PtW7XVqxsrltcjWnTqznIgM1ARcEBLQpTAv0WQ5Wyls=
+github.com/sapcc/go-bits v0.0.0-20230920131001-bf2c07577372/go.mod h1:GT41Se6TIKuC72WifVXoRGW5SLTgGUQXVEdFm+d9AU8=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
