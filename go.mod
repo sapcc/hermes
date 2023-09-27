@@ -9,7 +9,7 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.16.0
+	github.com/prometheus/client_golang v1.17.0
 	github.com/rs/cors v1.10.0
 	github.com/sapcc/go-api-declarations v1.8.3
 	github.com/sapcc/go-bits v0.0.0-20230920131001-bf2c07577372
@@ -32,7 +32,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_model v0.4.0 // indirect
+	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
