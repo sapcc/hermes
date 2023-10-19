@@ -86,6 +86,7 @@ type EventFilter struct {
 	InitiatorName string
 	Action        string
 	Outcome       string
+	Search        string
 	RequestPath   string
 	Time          map[string]string
 	Offset        uint
