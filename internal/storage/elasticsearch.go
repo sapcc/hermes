@@ -167,12 +167,12 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	}
 
 	// Check if a search string is provided in EventFilter
-    if filter.Search != "" {
-        // Create a Query String Query for global text search
-        queryStringQuery := elastic.NewQueryStringQuery(filter.Search)
-        // Combine the Query String Query with the existing Bool Query
-        query = query.Must(queryStringQuery)
-    }
+	if filter.Search != "" {
+		// Create a Query String Query for global text search
+		queryStringQuery := elastic.NewQueryStringQuery(filter.Search)
+		// Combine the Query String Query with the existing Bool Query
+		query = query.Must(queryStringQuery)
+	}
 
 	esSearch := es.client().Search().
 		Index(index).
