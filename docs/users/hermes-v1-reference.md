@@ -32,6 +32,7 @@ CADF payload data for each individual event.
 | initiator\_name | string | Filters events by Initiator Name |
 | action | string | Selects all events representing activities of this type. |
 | outcome | string | Selects all events based on the activity result (e.g. failed) |
+| search | string | Searches all events based on string (e.g. attachments) |
 | time | string | Date filter to select all events with _eventTime_ matching the specified criteria. See Date Filters below for more detail. |
 | offset | integer | The starting index within the total list of the events that you would like to retrieve. |
 | limit | integer | The maximum number of records to return (up to 100). The default limit is 10. |

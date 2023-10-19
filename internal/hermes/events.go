@@ -62,6 +62,7 @@ type EventFilter struct {
 	InitiatorName string
 	Action        string
 	Outcome       string
+	Search  	  string
 	RequestPath   string
 	Time          map[string]string
 	Offset        uint
@@ -128,6 +129,7 @@ func storageFilter(filter *EventFilter, eventStore storage.Storage) (*storage.Ev
 		TargetID:      filter.TargetID,
 		Action:        filter.Action,
 		Outcome:       filter.Outcome,
+		Search: 	   filter.Search,
 		RequestPath:   filter.RequestPath,
 		Time:          filter.Time,
 		Offset:        filter.Offset,

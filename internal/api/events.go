@@ -167,6 +167,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		InitiatorName: req.FormValue("initiator_name"),
 		Action:        req.FormValue("action") + req.FormValue("event_type"),
 		Outcome:       req.FormValue("outcome"),
+		Search:        req.FormValue("search"),
 		RequestPath:   req.FormValue("request_path"),
 		Time:          timeRange,
 		Offset:        uint(offset),
