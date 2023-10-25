@@ -78,7 +78,7 @@ func (es *ElasticSearch) init() {
 	} else {
 		es.esClient, err = elastic.NewSimpleClient(elastic.SetURL(url))
 	}
-	
+
 	if err != nil {
 		// TODO - Add instrumentation here for failed elasticsearch connection
 		// If issues - https://github.com/olivere/elastic/wiki/Connection-Problems#how-to-figure-out-connection-problems
