@@ -77,6 +77,12 @@ func setDefaultConfig() {
 }
 
 func readConfig(configPath *string) {
+	// Enable viper to read Environment Variables
+	viper.AutomaticEnv()
+
+	// Bind the specific environment variable to a viper key
+	viper.BindEnv("elasticsearch.password", "ES_PASSWD")
+
 	// Don't read config file if the default config file isn't there,
 	//  as we will just fall back to config defaults in that case
 	var shouldReadConfig = true
