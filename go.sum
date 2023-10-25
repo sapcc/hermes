@@ -202,6 +202,8 @@ github.com/sapcc/go-bits v0.0.0-20231013125211-851c71f69b13 h1:lc8hNUCWt5o5tJHVE
 github.com/sapcc/go-bits v0.0.0-20231013125211-851c71f69b13/go.mod h1:4KxNEtNDkMSlsBsbtYhBkmxG3jTqv0YuotbXFn7DWs8=
 github.com/sapcc/go-bits v0.0.0-20231021002531-0ca6c95ffcde h1:Y4/yuDZvYCfB7CmQgBe6Lbln8B2s+73qJLvhZ65Bv4U=
 github.com/sapcc/go-bits v0.0.0-20231021002531-0ca6c95ffcde/go.mod h1:rfuD6L3QHx0JhZHGX8zEMPczStM25iI+GBKvCmWvLhk=
+github.com/sapcc/go-bits v0.0.0-20231025110038-7e644a44c112 h1:BdPiGuN3Ht3W3TiZ+sjMYxic90ypqsO/DB2Z7YUeloQ=
+github.com/sapcc/go-bits v0.0.0-20231025110038-7e644a44c112/go.mod h1:rfuD6L3QHx0JhZHGX8zEMPczStM25iI+GBKvCmWvLhk=
 github.com/sergi/go-diff v1.3.1 h1:xkr+Oxo4BOQKmkn/B9eMK0g5Kg/983T9DqqPHwYqD+8=
 github.com/sergi/go-diff v1.3.1/go.mod h1:aMJSSKb2lpPvRNec0+w3fl7LP9IOFzdc9Pa4NFbPK1I=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
