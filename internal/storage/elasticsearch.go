@@ -51,7 +51,10 @@ func (es *ElasticSearch) init() {
 	// Create a client
 	var err error
 	var url = viper.GetString("elasticsearch.url")
+	var username = viper.GetString("elasticsearch.username")
+	var password = viper.GetString("elasticsearch.password")
 	logg.Debug("Using ElasticSearch URL: %s", url)
+	logg.Debug("Using ElasticSearch Username: %s", username)
 
 	// Kubernetes LB with Elasticsearch causes challenges with IP being held on connections.
 	// We can create our own custom http client, but then connections take awhile to be marked dead.
@@ -70,8 +73,12 @@ func (es *ElasticSearch) init() {
 	// create the connection each time we want it. I expect this will end up slow at scale, and we'll
 	// have to revert to the above implementation.
 
-	es.esClient, err = elastic.NewSimpleClient(elastic.SetURL(url))
-
+	if username != "" && password != "" {
+		es.esClient, err = elastic.NewSimpleClient(elastic.SetURL(url), elastic.SetBasicAuth(username, password))
+	} else {
+		es.esClient, err = elastic.NewSimpleClient(elastic.SetURL(url))
+	}
+	
 	if err != nil {
 		// TODO - Add instrumentation here for failed elasticsearch connection
 		// If issues - https://github.com/olivere/elastic/wiki/Connection-Problems#how-to-figure-out-connection-problems
