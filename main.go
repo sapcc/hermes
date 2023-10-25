@@ -81,7 +81,14 @@ func readConfig(configPath *string) {
 	viper.AutomaticEnv()
 
 	// Bind the specific environment variable to a viper key
-	viper.BindEnv("elasticsearch.password", "ES_PASSWD")
+	err := viper.BindEnv("elasticsearch.username", "HERMES_ES_USERNAME")
+	if err != nil {
+		logg.Fatal(err.Error())
+	}
+	err = viper.BindEnv("elasticsearch.password", "HERMES_ES_PASSWORD")
+	if err != nil {
+		logg.Fatal(err.Error())
+	}
 
 	// Don't read config file if the default config file isn't there,
 	//  as we will just fall back to config defaults in that case
