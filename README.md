@@ -29,7 +29,7 @@ Hermes enables customer access for audit relevant events that occur from OpenSta
 - [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware) - To Generate audit events in a WSGI Pipeline
 - RabbitMQ - To queue audit events from Openstack
 - Logstash - To transform and route audit events
-- Elasticsearch - To store audit events for the API to query
+- Elasticsearch or Opensearch - To store audit events for the API to query
 
 ## Installation
 
