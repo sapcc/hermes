@@ -15,6 +15,24 @@ Any data served by Hermes requires an underlying ElasticSearch installation to a
 \[ElasticSearch\]
 * url - Url for ElasticSearch
 
+
+#### Environment Variables
+
+To configure secure access to Elasticsearch, set the following environment variables:
+
+- `HERMES_ES_USERNAME`: The username for connecting to Elasticsearch.
+- `HERMES_ES_PASSWORD`: The password for connecting to Elasticsearch.
+
+These environment variables can be set in the deployment environment, or you may include them in your Kubernetes configuration if you are deploying Hermes there.
+
+#### Example usage:
+
+```bash
+export HERMES_ES_USERNAME="your_username_here"
+export HERMES_ES_PASSWORD="your_password_here"
+```
+
+
 #### Integration for OpenStack Keystone
 \[keystone\] 
 * auth_url - Location of v3 keystone identity - ex. https://keystone.example.com/v3
