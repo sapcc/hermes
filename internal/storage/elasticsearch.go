@@ -323,23 +323,21 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 		unique = append(unique, attribute)
 	}
 
-	unique = SliceUniqMap(unique)
+	unique = RemoveDuplicates(unique)
 	return unique, nil
 }
 
-// SliceUniqMap Removes duplicates from slice
-func SliceUniqMap(s []string) []string {
+// RemoveDuplicates removes duplicates from a slice of strings while preserving the order.
+func RemoveDuplicates(s []string) []string {
 	seen := make(map[string]struct{}, len(s))
-	j := 0
+	var result []string
 	for _, v := range s {
-		if _, ok := seen[v]; ok {
-			continue
+		if _, ok := seen[v]; !ok {
+			seen[v] = struct{}{}
+			result = append(result, v)
 		}
-		seen[v] = struct{}{}
-		s[j] = v
-		j++
 	}
-	return s[:j]
+	return result
 }
 
 // MaxLimit grabs the configured maxlimit for results
