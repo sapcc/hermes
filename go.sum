@@ -192,6 +192,8 @@ github.com/sagikazarmark/slog-shim v0.1.0 h1:diDBnUNK9N/354PgrxMywXnAwEr1QZcOr6g
 github.com/sagikazarmark/slog-shim v0.1.0/go.mod h1:SrcSrq8aKtyuqEI1uvTDTK1arOWRIczQRv+GVI1AkeQ=
 github.com/sapcc/go-api-declarations v1.9.0 h1:IUCIo9gn6z6FnNY3DX5jaKb0Read2TlkcZQLXOSqCh8=
 github.com/sapcc/go-api-declarations v1.9.0/go.mod h1:83R3hTANhuRXt/pXDby37IJetw8l7DG41s33Tp9NXxI=
+github.com/sapcc/go-api-declarations v1.10.3 h1:wFnq1Qx1Uv0G4F0AWT+9E4N/8n77Lm3buUpT9rFm/QY=
+github.com/sapcc/go-api-declarations v1.10.3/go.mod h1:83R3hTANhuRXt/pXDby37IJetw8l7DG41s33Tp9NXxI=
 github.com/sapcc/go-bits v0.0.0-20231021002531-0ca6c95ffcde h1:Y4/yuDZvYCfB7CmQgBe6Lbln8B2s+73qJLvhZ65Bv4U=
 github.com/sapcc/go-bits v0.0.0-20231021002531-0ca6c95ffcde/go.mod h1:rfuD6L3QHx0JhZHGX8zEMPczStM25iI+GBKvCmWvLhk=
 github.com/sapcc/go-bits v0.0.0-20231025110038-7e644a44c112 h1:BdPiGuN3Ht3W3TiZ+sjMYxic90ypqsO/DB2Z7YUeloQ=
