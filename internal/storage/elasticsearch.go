@@ -233,6 +233,8 @@ func (es ElasticSearch) GetEvent(eventID, tenantID string) (*cadf.Event, error) 
 	logg.Debug("Looking for event %s in index %s", eventID, index)
 
 	query := elastic.NewTermQuery("id", eventID)
+  logg.Debug("Query: %v", query)
+
 	esSearch := es.client().Search().
 		Index(index).
 		Query(query)
