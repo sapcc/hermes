@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/databus23/goslo.policy v0.0.0-20210929125152-81bf2876dbdb
-	github.com/gophercloud/gophercloud v1.7.0
+	github.com/gophercloud/gophercloud v1.8.0
 	github.com/gorilla/mux v1.8.1
 	github.com/jinzhu/copier v0.4.0
 	github.com/olivere/elastic/v7 v7.0.32
@@ -12,7 +12,7 @@ require (
 	github.com/prometheus/client_golang v1.17.0
 	github.com/rs/cors v1.10.1
 	github.com/sapcc/go-api-declarations v1.10.3
-	github.com/sapcc/go-bits v0.0.0-20231114102838-b69ff7fedd7f
+	github.com/sapcc/go-bits v0.0.0-20231130134726-6ee9377708fc
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 )
