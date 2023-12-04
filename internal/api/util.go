@@ -48,7 +48,7 @@ type versionLinkData struct {
 
 // ReturnJSON is a convenience function for HTTP handlers returning JSON data.
 // The `code` argument specifies the HTTP response code, usually 200.
-func ReturnJSON(w http.ResponseWriter, code int, data interface{}) {
+func ReturnJSON(w http.ResponseWriter, code int, data any) {
 	payload, err := json.MarshalIndent(&data, "", "  ")
 	// Replaces & symbols properly in json within urls due to Elasticsearch
 	payload = bytes.Replace(payload, []byte("\\u0026"), []byte("&"), -1)

@@ -54,10 +54,10 @@ const (
 
 // Response encapsulates a generic response of a Prometheus API
 type Response struct {
-	Status    Status        `json:"status"`
-	Data      []interface{} `json:"data,omitempty"`
-	ErrorType ErrorType     `json:"errorType,omitempty"`
-	Error     string        `json:"error,omitempty"`
+	Status    Status    `json:"status"`
+	Data      []any     `json:"data,omitempty"`
+	ErrorType ErrorType `json:"errorType,omitempty"`
+	Error     string    `json:"error,omitempty"`
 }
 
 // Storage is an interface that wraps the underlying event storage mechanism.

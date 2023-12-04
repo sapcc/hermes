@@ -36,7 +36,7 @@ import (
 type APIRequest struct {
 	Method           string
 	Path             string
-	RequestJSON      interface{} //if non-nil, will be encoded as JSON
+	RequestJSON      any //if non-nil, will be encoded as JSON
 	ExpectStatusCode int
 	ExpectBody       *string //raw content (not a file path)
 	ExpectJSON       string  //path to JSON file

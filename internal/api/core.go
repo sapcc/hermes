@@ -64,7 +64,7 @@ func NewV1Handler(keystone identity.Identity, storageInterface storage.Storage) 
 
 	r.Methods("GET").Path("/v1/").HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		p.versionData.Links[0].URL = fmt.Sprintf("%s://%s%s/", getProtocol(req), req.Host, p.Path())
-		ReturnJSON(res, 200, map[string]interface{}{"version": p.versionData})
+		ReturnJSON(res, 200, map[string]any{"version": p.versionData})
 	})
 
 	r.Methods("GET").Path("/v1/events").HandlerFunc(
