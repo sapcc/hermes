@@ -34,8 +34,6 @@ import (
 	"github.com/sapcc/hermes/internal/test"
 )
 
-//type object map[string]interface{} - unused re golangci
-
 func setupTest(t *testing.T) http.Handler {
 	//load test policy (where everything is allowed)
 	policyBytes, err := os.ReadFile("../test/policy.json")
