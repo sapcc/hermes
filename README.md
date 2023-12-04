@@ -71,6 +71,7 @@ Related Projects:
 * [Limes Quota/Usage Tracking Service](https://github.com/sapcc/limes)
 * [Castellum Vertical Autoscaling Service](https://github.com/sapcc/castellum)
 * [Keppel Container Image Registry Service](https://github.com/sapcc/keppel)
+* [Archer End Point Service](https://github.com/sapcc/archer)
 * Cronus Email Service
 
 # Documentation
