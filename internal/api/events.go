@@ -28,6 +28,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sapcc/go-bits/logg"
@@ -224,6 +225,12 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	eventID := mux.Vars(req)["event_id"]
 	eventID = strings.Replace(eventID, "\n", "", -1)
 	eventID = strings.Replace(eventID, "\r", "", -1)
+
+	// Validate if eventID is a valid UUID
+	if _, err := uuid.Parse(eventID); err != nil {
+		http.Error(res, "Invalid event ID format", http.StatusBadRequest)
+		return
+	}
 
 	indexID, err := getIndexID(token, req, res)
 	if err != nil {
