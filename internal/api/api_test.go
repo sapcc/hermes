@@ -72,6 +72,7 @@ func Test_API(t *testing.T) {
 		{"EventDetails", "GET", "/v1/events/7be6c4ff-b761-5f1f-b234-f5d41616c2cd", http.StatusOK, "fixtures/event-details.json"},
 		{"EventList", "GET", "/v1/events?event_type=identity.project.deleted&offset=10", http.StatusOK, "fixtures/event-list.json"},
 		{"Attributes", "GET", "/v1/attributes/resource_type", http.StatusOK, "fixtures/attributes.json"},
+		{"InvalidEventID", "GET", "/v1/events/invalid-uuid", http.StatusBadRequest, ""},
 	}
 
 	for _, tc := range tt {
