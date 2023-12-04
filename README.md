@@ -86,4 +86,6 @@ Related Projects:
 
 ## For Audit Clients submitting events
 
-* TODO
+* [Go Bits AuditTools](https://github.com/sapcc/go-bits/tree/master/audittools)
+
+For detailed usage, refer to the documentation provided in doc.go within the audittools package. This includes examples on how to generate audit events and publish them to a RabbitMQ server.
