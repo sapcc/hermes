@@ -117,7 +117,7 @@ func (r APIRequest) compareBodyToFixture(t *testing.T, fixturePath string, data 
 	defer func() {
 		err := os.Remove(actualPathAbs)
 		if err != nil {
-		    t.Logf("Warning: Could not remove temporary file %s: %v", actualPathAbs, err)
+			t.Logf("Warning: Could not remove temporary file %s: %v", actualPathAbs, err)
 		}
 	}()
 
