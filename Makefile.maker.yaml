@@ -13,3 +13,18 @@ dockerfile:
 
 golangciLint:
   createConfig: true
+
+githubWorkflow:
+  ci:
+    enabled: true
+    coveralls: true
+    ignorePaths:
+      - "**.md" # all Markdown files
+  license:
+    enabled: true
+  securityChecks:
+    enabled: true
+renovate:
+  enabled: true
+  assignees:
+    - notque
