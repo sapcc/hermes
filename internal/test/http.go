@@ -113,6 +113,14 @@ func (r APIRequest) compareBodyToFixture(t *testing.T, fixturePath string, data 
 		t.Fatal(err)
 	}
 
+	// Schedule the cleanup of the .actual file after the function exits
+	defer func() {
+		err := os.Remove(actualPathAbs)
+		if err != nil {
+		    t.Logf("Warning: Could not remove temporary file %s: %v", actualPathAbs, err)
+		}
+	}()
+
 	cmd := exec.Command("diff", "-u", fixturePathAbs, actualPathAbs)
 	cmd.Stdin = nil
 	cmd.Stdout = os.Stdout
