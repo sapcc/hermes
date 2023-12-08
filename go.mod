@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/databus23/goslo.policy v0.0.0-20210929125152-81bf2876dbdb
+	github.com/google/uuid v1.4.0
 	github.com/gophercloud/gophercloud v1.8.0
 	github.com/gorilla/mux v1.8.1
 	github.com/jinzhu/copier v0.4.0
@@ -11,8 +12,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.17.0
 	github.com/rs/cors v1.10.1
-	github.com/sapcc/go-api-declarations v1.10.3
-	github.com/sapcc/go-bits v0.0.0-20231130134726-6ee9377708fc
+	github.com/sapcc/go-api-declarations v1.10.4
+	github.com/sapcc/go-bits v0.0.0-20231207102323-7b1f750ed23f
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 )
@@ -22,7 +23,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/google/uuid v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
