@@ -12,8 +12,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.18.0
 	github.com/rs/cors v1.10.1
-	github.com/sapcc/go-api-declarations v1.10.5
-	github.com/sapcc/go-bits v0.0.0-20231221010852-98deb05b5d97
+	github.com/sapcc/go-api-declarations v1.10.6
+	github.com/sapcc/go-bits v0.0.0-20240104033923-b834f0c87cf8
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 )
