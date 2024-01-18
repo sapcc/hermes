@@ -114,9 +114,9 @@ func FilterQuery(filter, filtername string, query *elastic.BoolQuery) *elastic.B
 	switch {
 	case strings.HasPrefix(filter, "!"):
 		filter = filter[1:]
-		query = query.MustNot(elastic.NewTermQuery(filtername, filter))
+		query = query.MustNot(elastic.NewMatchQuery(filtername, filter))
 	default:
-		query = query.Filter(elastic.NewTermQuery(filtername, filter))
+		query = query.Filter(elastic.NewMatchQuery(filtername, filter))
 	}
 	return query
 }
