@@ -95,7 +95,7 @@ func (es *ElasticSearch) init() {
 
 // New Schema that changes all pieces to keywords.
 var esFieldMapping = map[string]string{
-	"time":           "eventTime.keyword",
+	"time":           "eventTime",
 	"action":         "action.keyword",
 	"outcome":        "outcome.keyword",
 	"request_path":   "requestPath.keyword",
