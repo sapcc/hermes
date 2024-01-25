@@ -90,22 +90,22 @@ func (es *ElasticSearch) init() {
 // .raw because it's tokenizing the ID in searches, and won't match. .raw is not analyzed, and not tokenized.
 // For more on Elasticsearch tokenization
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html
-// The .raw field is created on string fields with a different schema allowing aggregation and exact match searches.
+// The .keyword field is created on string fields with a different schema allowing aggregation and exact match searches.
 // We're aggregating in the Attributes call, and doing exact match searches in GetEvents.
 
 // New Schema that changes all pieces to keywords.
 var esFieldMapping = map[string]string{
-	"time":           "eventTime",
-	"action":         "action",
-	"outcome":        "outcome",
-	"request_path":   "requestPath",
-	"observer_id":    "observer.id",
-	"observer_type":  "observer.typeURI",
-	"target_id":      "target.id",
-	"target_type":    "target.typeURI",
-	"initiator_id":   "initiator.id",
-	"initiator_type": "initiator.typeURI",
-	"initiator_name": "initiator.name",
+	"time":           "eventTime.keyword",
+	"action":         "action.keyword",
+	"outcome":        "outcome.keyword",
+	"request_path":   "requestPath.keyword",
+	"observer_id":    "observer.id.keyword",
+	"observer_type":  "observer.typeURI.keyword",
+	"target_id":      "target.id.keyword",
+	"target_type":    "target.typeURI.keyword",
+	"initiator_id":   "initiator.id.keyword",
+	"initiator_type": "initiator.typeURI.keyword",
+	"initiator_name": "initiator.name.keyword",
 }
 
 // FilterQuery takes filter requests, and adds their filter to the ElasticSearch Query
