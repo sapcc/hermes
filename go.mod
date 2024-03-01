@@ -15,7 +15,7 @@ require (
 	github.com/sapcc/go-api-declarations v1.10.9
 	github.com/sapcc/go-bits v0.0.0-20240229224940-f0612298e3a6
 	github.com/spf13/viper v1.18.2
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 )
 
 require (
