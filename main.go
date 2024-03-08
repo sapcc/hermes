@@ -20,14 +20,9 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"os"
-
 	policy "github.com/databus23/goslo.policy"
 	"github.com/sapcc/go-bits/logg"
 	"github.com/sapcc/go-bits/must"
-	"github.com/sapcc/go-bits/osext"
 	"github.com/spf13/viper"
 
 	"github.com/sapcc/hermes/internal/api"
@@ -36,28 +31,16 @@ import (
 	"github.com/sapcc/hermes/internal/util"
 )
 
-var configPath *string
-
 func main() {
-	logg.ShowDebug = osext.GetenvBool("HERMES_DEBUG")
-	parseCmdlineFlags()
-
 	setDefaultConfig()
-	readConfig(configPath)
+	bindEnvVariables()
+
+	logg.ShowDebug = viper.GetBool("hermes.debug")
+
 	keystoneDriver := configuredKeystoneDriver()
 	storageDriver := configuredStorageDriver()
 	readPolicy()
 	must.Succeed(api.Server(keystoneDriver, storageDriver))
-}
-
-func parseCmdlineFlags() {
-	// Get config file location
-	configPath = flag.String("f", "hermes.conf", "specifies the location of the TOML-format configuration file")
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-		flag.PrintDefaults()
-	}
-	flag.Parse()
 }
 
 func setDefaultConfig() {
@@ -65,44 +48,57 @@ func setDefaultConfig() {
 	if err != nil {
 		panic(err)
 	}
+
+	viper.SetDefault("hermes.debug", false)
+
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
 	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
+	viper.SetDefault("hermes.PolicyFilePath", "etc/policy.json")
+
+	viper.SetDefault("elasticsearch.url", "http://localhost:9200")
+
+	// Replace with your Keystone authentication URL
+	viper.SetDefault("keystone.auth_url", "https://identity-3.domain.com/v3/")
+
+	// Replace with your Keystone authentication details
+	viper.SetDefault("keystone.username", "hermes")
+	viper.SetDefault("keystone.password", "PASSWORD")
+	viper.SetDefault("keystone.user_domain_name", "Default")
+	viper.SetDefault("keystone.project_name", "service")
+	viper.SetDefault("keystone.project_domain_name", "Default")
+	viper.SetDefault("keystone.token_cache_time", 900)
+	viper.SetDefault("keystone.memcached_servers", "")
+
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
-	viper.SetDefault("elasticsearch.url", "localhost:9200")
+
 	// index.max_result_window defaults to 10000, as per
 	// https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html
 	// Increasing max_result_window to 20000, with corresponding changes to Elasticsearch to handle the increase.
 	viper.SetDefault("elasticsearch.max_result_window", "20000")
 }
 
-func readConfig(configPath *string) {
-	// Enable viper to read Environment Variables
-	viper.AutomaticEnv()
+// bindEnvVariables binds environment variables to viper keys
+func bindEnvVariables() {
+	must.Succeed(viper.BindEnv("hermes.keystone_driver", "HERMES_KEYSTONE_DRIVER"))
+	must.Succeed(viper.BindEnv("hermes.storage_driver", "HERMES_STORAGE_DRIVER"))
+	must.Succeed(viper.BindEnv("hermes.PolicyFilePath", "HERMES_POLICY_FILE_PATH"))
 
-	// Bind the specific environment variable to a viper key
-	err := viper.BindEnv("elasticsearch.username", "HERMES_ES_USERNAME")
-	if err != nil {
-		logg.Fatal(err.Error())
-	}
-	err = viper.BindEnv("elasticsearch.password", "HERMES_ES_PASSWORD")
-	if err != nil {
-		logg.Fatal(err.Error())
-	}
+	must.Succeed(viper.BindEnv("elasticsearch.url", "HERMES_ES_URL"))
 
-	// Don't read config file if the default config file isn't there,
-	//  as we will just fall back to config defaults in that case
-	var shouldReadConfig = true
-	if _, err := os.Stat(*configPath); os.IsNotExist(err) {
-		shouldReadConfig = *configPath != flag.Lookup("f").DefValue
-	}
-	// Now we sorted that out, read the config
-	logg.Debug("Should read config: %v, config file is %s", shouldReadConfig, *configPath)
-	if shouldReadConfig {
-		viper.SetConfigFile(*configPath)
-		viper.SetConfigType("toml")
-		must.Succeed(viper.ReadInConfig())
-	}
+	must.Succeed(viper.BindEnv("keystone.auth_url", "HERMES_OS_AUTH_URL"))
+	must.Succeed(viper.BindEnv("keystone.username", "HERMES_OS_USERNAME"))
+	must.Succeed(viper.BindEnv("keystone.password", "HERMES_OS_PASSWORD"))
+	must.Succeed(viper.BindEnv("keystone.user_domain_name", "HERMES_OS_USER_DOMAIN_NAME"))
+	must.Succeed(viper.BindEnv("keystone.project_name", "HERMES_OS_PROJECT_NAME"))
+	must.Succeed(viper.BindEnv("keystone.project_domain_name", "HERMES_OS_PROJECT_DOMAIN_NAME"))
+	must.Succeed(viper.BindEnv("keystone.token_cache_time", "HERMES_OS_TOKEN_CACHE_TIME"))
+	must.Succeed(viper.BindEnv("keystone.memcached_servers", "HERMES_OS_MEMCACHED_SERVERS"))
+
+	must.Succeed(viper.BindEnv("API.ListenAddress", "HERMES_API_LISTEN_ADDRESS"))
+	must.Succeed(viper.BindEnv("elasticsearch.username", "HERMES_ES_USERNAME"))
+	must.Succeed(viper.BindEnv("elasticsearch.password", "HERMES_ES_PASSWORD"))
+	must.Succeed(viper.BindEnv("elasticsearch.max_result_window", "HERMES_ES_MAX_RESULT_WINDOW"))
 }
 
 var keystoneIdentity = identity.Keystone{}
@@ -138,12 +134,14 @@ func configuredStorageDriver() storage.Storage {
 }
 
 func readPolicy() {
-	//load the policy file
-	policyEnforcer, err := util.LoadPolicyFile(viper.GetString("hermes.PolicyFilePath"))
-	if err != nil {
-		logg.Fatal(err.Error())
-	}
-	if policyEnforcer != nil {
-		viper.Set("hermes.PolicyEnforcer", policyEnforcer)
+	policyFilePath := viper.GetString("hermes.PolicyFilePath")
+	if policyFilePath != "" {
+		policyEnforcer, err := util.LoadPolicyFile(policyFilePath)
+		if err != nil {
+			logg.Fatal(err.Error())
+		}
+		if policyEnforcer != nil {
+			viper.Set("hermes.PolicyEnforcer", policyEnforcer)
+		}
 	}
 }
