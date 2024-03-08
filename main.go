@@ -36,12 +36,12 @@ func main() {
 	bindEnvVariables()
 
 	// Validate required Keystone authentication details
-    if viper.GetString("keystone.username") == "" {
-        logg.Fatal("Keystone username is not set")
-    }
-    if viper.GetString("keystone.password") == "" {
-        logg.Fatal("Keystone password is not set")
-    }
+	if viper.GetString("keystone.username") == "" {
+		logg.Fatal("Keystone username is not set")
+	}
+	if viper.GetString("keystone.password") == "" {
+		logg.Fatal("Keystone password is not set")
+	}
 	if viper.GetString("elasticsearch.url") == "" {
 		logg.Fatal("Elasticsearch URL is not set")
 	}
