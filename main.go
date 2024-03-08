@@ -54,7 +54,7 @@ func setDefaultConfig() {
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
 	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
-	viper.SetDefault("hermes.PolicyFilePath", "etc/policy.json")
+	viper.SetDefault("hermes.PolicyFilePath", "/etc/policy.json")
 
 	viper.SetDefault("elasticsearch.url", "http://localhost:9200")
 
