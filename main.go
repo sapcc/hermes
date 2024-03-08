@@ -35,6 +35,20 @@ func main() {
 	setDefaultConfig()
 	bindEnvVariables()
 
+	// Validate required Keystone authentication details
+    if viper.GetString("keystone.username") == "" {
+        logg.Fatal("Keystone username is not set")
+    }
+    if viper.GetString("keystone.password") == "" {
+        logg.Fatal("Keystone password is not set")
+    }
+	if viper.GetString("elasticsearch.url") == "" {
+		logg.Fatal("Elasticsearch URL is not set")
+	}
+	if viper.GetString("keystone.auth_url") == "" {
+		logg.Fatal("Keystone authentication URL is not set")
+	}
+
 	logg.ShowDebug = viper.GetBool("hermes.debug")
 
 	keystoneDriver := configuredKeystoneDriver()
@@ -56,14 +70,14 @@ func setDefaultConfig() {
 	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
 	viper.SetDefault("hermes.PolicyFilePath", "/etc/policy.json")
 
-	viper.SetDefault("elasticsearch.url", "http://localhost:9200")
+	viper.SetDefault("elasticsearch.url", "")
 
 	// Replace with your Keystone authentication URL
-	viper.SetDefault("keystone.auth_url", "https://identity-3.domain.com/v3/")
+	viper.SetDefault("keystone.auth_url", "")
 
 	// Replace with your Keystone authentication details
-	viper.SetDefault("keystone.username", "hermes")
-	viper.SetDefault("keystone.password", "PASSWORD")
+	viper.SetDefault("keystone.username", "")
+	viper.SetDefault("keystone.password", "")
 	viper.SetDefault("keystone.user_domain_name", "Default")
 	viper.SetDefault("keystone.project_name", "service")
 	viper.SetDefault("keystone.project_domain_name", "Default")
