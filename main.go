@@ -20,7 +20,6 @@
 package main
 
 import (
-	policy "github.com/databus23/goslo.policy"
 	"github.com/sapcc/go-bits/logg"
 	"github.com/sapcc/go-bits/must"
 	"github.com/spf13/viper"
@@ -37,16 +36,16 @@ func main() {
 
 	// Validate required Keystone authentication details
 	if viper.GetString("keystone.username") == "" {
-		logg.Fatal("Keystone username is not set")
+		logg.Fatal("HERMES_OS_USERNAME is not set")
 	}
 	if viper.GetString("keystone.password") == "" {
-		logg.Fatal("Keystone password is not set")
+		logg.Fatal("HERMES_OS_PASSWORD is not set")
 	}
 	if viper.GetString("elasticsearch.url") == "" {
-		logg.Fatal("Elasticsearch URL is not set")
+		logg.Fatal("HERMES_ES_URL is not set")
 	}
 	if viper.GetString("keystone.auth_url") == "" {
-		logg.Fatal("Keystone authentication URL is not set")
+		logg.Fatal("HERMES_OS_AUTH_URL is not set")
 	}
 
 	logg.ShowDebug = viper.GetBool("hermes.debug")
@@ -58,26 +57,12 @@ func main() {
 }
 
 func setDefaultConfig() {
-	var nullEnforcer, err = policy.NewEnforcer(make(map[string]string))
-	if err != nil {
-		panic(err)
-	}
-
 	viper.SetDefault("hermes.debug", false)
 
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
-	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
 	viper.SetDefault("hermes.PolicyFilePath", "/etc/policy.json")
 
-	viper.SetDefault("elasticsearch.url", "")
-
-	// Replace with your Keystone authentication URL
-	viper.SetDefault("keystone.auth_url", "")
-
-	// Replace with your Keystone authentication details
-	viper.SetDefault("keystone.username", "")
-	viper.SetDefault("keystone.password", "")
 	viper.SetDefault("keystone.user_domain_name", "Default")
 	viper.SetDefault("keystone.project_name", "service")
 	viper.SetDefault("keystone.project_domain_name", "Default")
