@@ -8,6 +8,9 @@ binaries:
     fromPackage: .
     installTo:   bin/
 
+golang:
+  setGoModVersion: true
+
 dockerfile:
   enabled: true
 
