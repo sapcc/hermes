@@ -2,7 +2,7 @@
   "extends": [
     "config:base",
     "default:pinDigestsDisabled",
-    "github>whitesource/merge-confidence:beta",
+    "mergeConfidence:all-badges",
     "docker:disable"
   ],
   "assignees": [
@@ -10,7 +10,7 @@
   ],
   "commitMessageAction": "Renovate: Update",
   "constraints": {
-    "go": "1.21"
+    "go": "1.22"
   },
   "postUpdateOptions": [
     "gomodTidy",
@@ -21,7 +21,7 @@
       "matchPackageNames": [
         "golang"
       ],
-      "allowedVersions": "1.21.x"
+      "allowedVersions": "1.22.x"
     },
     {
       "matchPackagePatterns": [
