@@ -204,7 +204,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	searchResult, err := esSearch.Do(context.Background()) // execute
 	//errcheck already within an errchecek, this is for additional detail.
 	if err != nil {
-		e, _ := err.(*elastic.Error)             //nolint:errcheck
+		e, _ := err.(*elastic.Error)             //nolint:errcheck,errorlint
 		errdetails, _ := json.Marshal(e.Details) //nolint:errcheck
 		log.Printf("Elastic failed with status %d and error %s.", e.Status, errdetails)
 		return nil, 0, err
@@ -278,7 +278,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	searchResult, err := esSearch.Do(context.Background())
 	//errcheck already within an errcheck, this is for additional detail.
 	if err != nil {
-		e, _ := err.(*elastic.Error)             //nolint:errcheck
+		e, _ := err.(*elastic.Error)             //nolint:errcheck,errorlint
 		errdetails, _ := json.Marshal(e.Details) //nolint:errcheck
 		log.Printf("Elastic failed with status %d and error %s.", e.Status, errdetails)
 		return nil, err
