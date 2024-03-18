@@ -1,6 +1,6 @@
-FROM golang:1.21.5-alpine3.19 as builder
+FROM golang:1.22.1-alpine3.19 as builder
 
-RUN apk add --no-cache --no-progress gcc git make musl-dev
+RUN apk add --no-cache --no-progress ca-certificates gcc git make musl-dev
 
 COPY . /src
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION # provided to 'make install'
@@ -14,12 +14,15 @@ RUN addgroup -g 4200 appgroup \
   && adduser -h /home/appuser -s /sbin/nologin -G appgroup -D -u 4200 appuser
 
 # upgrade all installed packages to fix potential CVEs in advance
-# also remove apk package manager to hopefully remove dependecy on openssl 🤞
+# also remove apk package manager to hopefully remove dependency on OpenSSL 🤞
 RUN apk upgrade --no-cache --no-progress \
-  && apk add --no-cache --no-progress ca-certificates \
   && apk del --no-cache --no-progress apk-tools alpine-keys
 
+COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs/
+COPY --from=builder /etc/ssl/cert.pem /etc/ssl/cert.pem
 COPY --from=builder /pkg/ /usr/
+# make sure all binaries can be executed
+RUN hermes --version 2>/dev/null
 
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION
 LABEL source_repository="https://github.com/sapcc/hermes" \

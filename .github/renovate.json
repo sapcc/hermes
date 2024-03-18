@@ -12,6 +12,8 @@
   "constraints": {
     "go": "1.22"
   },
+  "dependencyDashboardOSVVulnerabilitySummary": "all",
+  "osvVulnerabilityAlerts": true,
   "postUpdateOptions": [
     "gomodTidy",
     "gomodUpdateImportPaths"

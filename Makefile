@@ -14,12 +14,17 @@ endif
 
 default: build-all
 
+prepare-static-check: FORCE
+	@if ! hash golangci-lint 2>/dev/null; then printf "\e[1;36m>> Installing golangci-lint (this may take a while)...\e[0m\n"; go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; fi
+	@if ! hash go-licence-detector 2>/dev/null; then printf "\e[1;36m>> Installing go-licence-detector...\e[0m\n"; go install go.elastic.co/go-licence-detector@latest; fi
+	@if ! hash addlicense 2>/dev/null; then  printf "\e[1;36m>> Installing addlicense...\e[0m\n";  go install github.com/google/addlicense@latest; fi
+
 GO_BUILDFLAGS =
 GO_LDFLAGS =
 GO_TESTENV =
 
 # These definitions are overridable, e.g. to provide fixed version/commit values when
-# no .git directory is present or to provide a fixed build date for reproducability.
+# no .git directory is present or to provide a fixed build date for reproducibility.
 BININFO_VERSION     ?= $(shell git describe --tags --always --abbrev=7)
 BININFO_COMMIT_HASH ?= $(shell git rev-parse --verify HEAD)
 BININFO_BUILD_DATE  ?= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -40,7 +45,7 @@ install: FORCE build/hermes
 	install -d -m 0755 "$(DESTDIR)$(PREFIX)/bin"
 	install -m 0755 build/hermes "$(DESTDIR)$(PREFIX)/bin/hermes"
 
-# which packages to test with "go test"
+# which packages to test with test runner
 GO_TESTPKGS := $(shell go list -f '{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' ./...)
 # which packages to measure coverage for
 GO_COVERPKGS := $(shell go list ./...)
@@ -52,18 +57,13 @@ comma := ,
 check: FORCE static-check build/cover.html build-all
 	@printf "\e[1;32m>> All checks successful.\e[0m\n"
 
-prepare-static-check: FORCE
-	@if ! hash golangci-lint 2>/dev/null; then printf "\e[1;36m>> Installing golangci-lint (this may take a while)...\e[0m\n"; go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; fi
-	@if ! hash go-licence-detector 2>/dev/null; then printf "\e[1;36m>> Installing go-licence-detector...\e[0m\n"; go install go.elastic.co/go-licence-detector@latest; fi
-	@if ! hash addlicense 2>/dev/null; then  printf "\e[1;36m>> Installing addlicense...\e[0m\n";  go install github.com/google/addlicense@latest; fi
-
 run-golangci-lint: FORCE prepare-static-check
 	@printf "\e[1;36m>> golangci-lint\e[0m\n"
 	@golangci-lint run
 
 build/cover.out: FORCE | build
-	@printf "\e[1;36m>> go test\e[0m\n"
-	@env $(GO_TESTENV) go test $(GO_BUILDFLAGS) -ldflags '-s -w -X github.com/sapcc/go-api-declarations/bininfo.binName=hermes -X github.com/sapcc/go-api-declarations/bininfo.version=$(BININFO_VERSION) -X github.com/sapcc/go-api-declarations/bininfo.commit=$(BININFO_COMMIT_HASH) -X github.com/sapcc/go-api-declarations/bininfo.buildDate=$(BININFO_BUILD_DATE) $(GO_LDFLAGS)' -shuffle=on -p 1 -coverprofile=$@ -covermode=count -coverpkg=$(subst $(space),$(comma),$(GO_COVERPKGS)) $(GO_TESTPKGS)
+	@printf "\e[1;36m>> Running tests\e[0m\n"
+	@env $(GO_TESTENV) go test -shuffle=on -p 1 -coverprofile=$@ $(GO_BUILDFLAGS) -ldflags '-s -w -X github.com/sapcc/go-api-declarations/bininfo.binName=hermes -X github.com/sapcc/go-api-declarations/bininfo.version=$(BININFO_VERSION) -X github.com/sapcc/go-api-declarations/bininfo.commit=$(BININFO_COMMIT_HASH) -X github.com/sapcc/go-api-declarations/bininfo.buildDate=$(BININFO_BUILD_DATE) $(GO_LDFLAGS)' -covermode=count -coverpkg=$(subst $(space),$(comma),$(GO_COVERPKGS)) $(GO_TESTPKGS)
 
 build/cover.html: build/cover.out
 	@printf "\e[1;36m>> go tool cover > build/cover.html\e[0m\n"
@@ -80,11 +80,11 @@ tidy-deps: FORCE
 
 license-headers: FORCE prepare-static-check
 	@printf "\e[1;36m>> addlicense\e[0m\n"
-	@addlicense -c "SAP SE"  -- $(patsubst $(shell go list .)%,.%/*.go,$(shell go list ./...))
+	@addlicense -c "SAP SE"  -- $(patsubst $(shell awk '$$1 == "module" {print $$2}' go.mod)%,.%/*.go,$(shell go list ./...))
 
 check-license-headers: FORCE prepare-static-check
 	@printf "\e[1;36m>> addlicense --check\e[0m\n"
-	@addlicense --check  -- $(patsubst $(shell go list .)%,.%/*.go,$(shell go list ./...))
+	@addlicense --check  -- $(patsubst $(shell awk '$$1 == "module" {print $$2}' go.mod)%,.%/*.go,$(shell go list ./...))
 
 check-dependency-licenses: FORCE prepare-static-check
 	@printf "\e[1;36m>> go-licence-detector\e[0m\n"
@@ -113,6 +113,9 @@ help: FORCE
 	@printf "  \e[36mvars\e[0m                       Display values of relevant Makefile variables.\n"
 	@printf "  \e[36mhelp\e[0m                       Display this help.\n"
 	@printf "\n"
+	@printf "\e[1mPrepare\e[0m\n"
+	@printf "  \e[36mprepare-static-check\e[0m       Install any tools required by static-check. This is used in CI before dropping privileges, you should probably install all the tools using your package manager\n"
+	@printf "\n"
 	@printf "\e[1mBuild\e[0m\n"
 	@printf "  \e[36mbuild-all\e[0m                  Build all binaries.\n"
 	@printf "  \e[36mbuild/hermes\e[0m               Build hermes.\n"
@@ -120,7 +123,6 @@ help: FORCE
 	@printf "\n"
 	@printf "\e[1mTest\e[0m\n"
 	@printf "  \e[36mcheck\e[0m                      Run the test suite (unit tests and golangci-lint).\n"
-	@printf "  \e[36mprepare-static-check\e[0m       Install any tools required by static-check. This is used in CI before dropping privileges, you should probably install all the tools using your package manager\n"
 	@printf "  \e[36mrun-golangci-lint\e[0m          Install and run golangci-lint. Installing is used in CI, but you should probably install golangci-lint using your package manager.\n"
 	@printf "  \e[36mbuild/cover.out\e[0m            Run tests and generate coverage report.\n"
 	@printf "  \e[36mbuild/cover.html\e[0m           Generate an HTML file with source code annotations from the coverage report.\n"

@@ -4,7 +4,7 @@
 ################################################################################
 
 run:
-  deadline: 3m # 1m by default
+  timeout: 3m # 1m by default
   modules-download-mode: readonly
 
 output:
@@ -91,7 +91,8 @@ linters-settings:
     http-method: true
     http-status-code: true
     os-dev-null: true
-    rpc-default-path: true
+    sql-isolation-level: true
+    syslog-priority: true
     time-weekday: true
     time-month: true
     time-layout: true
