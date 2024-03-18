@@ -36,11 +36,20 @@ import (
 	"github.com/sapcc/hermes/internal/util"
 )
 
+const version = "1.2.0"
+
 var configPath *string
+var showVersion *bool // Add a flag to check for the version.
 
 func main() {
 	logg.ShowDebug = osext.GetenvBool("HERMES_DEBUG")
 	parseCmdlineFlags()
+
+	// Check if the version flag is set, and if so, print the version and exit.
+	if *showVersion {
+		fmt.Println("Hermes version:", version)
+		os.Exit(0)
+	}
 
 	setDefaultConfig()
 	readConfig(configPath)
@@ -53,6 +62,7 @@ func main() {
 func parseCmdlineFlags() {
 	// Get config file location
 	configPath = flag.String("f", "hermes.conf", "specifies the location of the TOML-format configuration file")
+	showVersion = flag.Bool("version", false, "prints the version of the application")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
