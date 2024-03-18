@@ -34,8 +34,8 @@ type Mock struct{}
 // }
 
 // Client for mocking keystone
-func (d Mock) Client() *gophercloud.ProviderClient {
-	return nil
+func (d Mock) Client() (*gophercloud.ProviderClient, error) {
+	return nil, nil
 }
 
 // ValidateToken for mocking keystone

@@ -79,7 +79,7 @@ func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 		opts := d.AuthOptions()
 		providerClient, err = openstack.AuthenticatedClient(*opts)
 		if err != nil {
-			return nil, fmt.Errorf("cannot initialize OpenStack client: %v", err)
+			return nil, fmt.Errorf("cannot initialize OpenStack client: %w", err)
 		}
 	}
 
@@ -90,15 +90,15 @@ func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 }
 
 // Client for Keystone connection
-func (d Keystone) Client() *gophercloud.ProviderClient {
+func (d Keystone) Client() (*gophercloud.ProviderClient, error) {
 	var kc Keystone
 
 	err := viper.UnmarshalKey("Keystone", &kc)
 	if err != nil {
-		fmt.Printf("unable to decode into struct, %v", err)
+		return nil, fmt.Errorf("unable to decode into struct, %w", err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 // ValidateToken checks a token with Keystone
@@ -162,7 +162,7 @@ func (d Keystone) DomainName(id string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	url := client.ServiceURL(fmt.Sprintf("domains/%s", id))
+	url := client.ServiceURL("domains/" + id)
 	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
@@ -191,7 +191,7 @@ func (d Keystone) ProjectName(id string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	url := client.ServiceURL(fmt.Sprintf("projects/%s", id))
+	url := client.ServiceURL("projects/" + id)
 	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
@@ -220,7 +220,7 @@ func (d Keystone) UserName(id string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	url := client.ServiceURL(fmt.Sprintf("users/%s", id))
+	url := client.ServiceURL("users/" + id)
 	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
@@ -250,7 +250,7 @@ func (d Keystone) UserID(name string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	url := client.ServiceURL(fmt.Sprintf("users?name=%s", name))
+	url := client.ServiceURL("users?name=" + name)
 	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
@@ -290,7 +290,7 @@ func (d Keystone) RoleName(id string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	url := client.ServiceURL(fmt.Sprintf("roles/%s", id))
+	url := client.ServiceURL("roles/" + id)
 	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
@@ -319,7 +319,7 @@ func (d Keystone) GroupName(id string) (string, error) {
 	}
 
 	var result gophercloud.Result
-	url := client.ServiceURL(fmt.Sprintf("groups/%s", id))
+	url := client.ServiceURL("groups/" + id)
 	_, err = client.Get(url, &result.Body, nil)
 	if err != nil {
 		return "", err
@@ -416,7 +416,7 @@ func (d Keystone) RefreshToken() error {
 	eo := gophercloud.EndpointOpts{Region: ""}
 	keystone, err := openstack.NewIdentityV3(providerClient, eo)
 	if err != nil {
-		return fmt.Errorf("cannot initialize Identity client: %v", err)
+		return fmt.Errorf("cannot initialize Identity client: %w", err)
 	}
 
 	logg.Debug("Identity URL: %s", keystone.Endpoint)
@@ -424,11 +424,11 @@ func (d Keystone) RefreshToken() error {
 	result := tokens.Create(keystone, d.AuthOptions())
 	token, err := result.ExtractToken()
 	if err != nil {
-		return fmt.Errorf("cannot read token: %v", err)
+		return fmt.Errorf("cannot read token: %w", err)
 	}
 	catalog, err := result.ExtractServiceCatalog()
 	if err != nil {
-		return fmt.Errorf("cannot read service catalog: %v", err)
+		return fmt.Errorf("cannot read service catalog: %w", err)
 	}
 
 	providerClient.TokenID = token.ID

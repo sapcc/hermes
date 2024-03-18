@@ -31,7 +31,7 @@ type Identity interface {
 	//Return the main gophercloud client from which the respective service
 	//clients can be derived. For Mock drivers, this returns nil, so test code
 	//should be prepared to handle a nil Client() where appropriate.
-	Client() *gophercloud.ProviderClient
+	Client() (*gophercloud.ProviderClient, error)
 	AuthOptions() *gophercloud.AuthOptions
 	/********** requests to Keystone **********/
 	ValidateToken(token string) (policy.Context, error)

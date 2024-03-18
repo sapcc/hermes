@@ -42,8 +42,6 @@ func Server(keystone identity.Identity, storageInterface storage.Storage) error 
 	fmt.Println("API")
 	mainRouter := setupRouter(keystone, storageInterface)
 
-	http.Handle("/", mainRouter)
-
 	//start HTTP server
 	listenaddress := viper.GetString("API.ListenAddress")
 	logg.Info("listening on %s", listenaddress)
