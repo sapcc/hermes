@@ -28,6 +28,7 @@ import (
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gorilla/mux"
+	"github.com/sapcc/go-bits/errext"
 	"github.com/sapcc/go-bits/logg"
 	"github.com/spf13/viper"
 )
@@ -53,8 +54,7 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 	t.context, t.err = p.keystone.ValidateToken(str)
 	if t.err != nil {
 		logg.Debug("Error connection to identity server %s", t.err)
-		switch t.err.(type) { //nolint:errorlint
-		case gophercloud.ErrDefault404:
+		if _, ok := errext.As[gophercloud.ErrDefault404](t.err); ok { // nolint: errcheck // type checking
 			t.err = errors.New("X-Auth-Token is invalid or expired")
 		}
 	}
@@ -82,7 +82,7 @@ func (t *Token) Require(w http.ResponseWriter, rule string) bool {
 	}
 
 	if os.Getenv("DEBUG") == "1" {
-		t.context.Logger = log.Printf //or any other function with the same signature
+		t.context.Logger = log.Printf // or any other function with the same signature
 	}
 	if !t.enforcer.Enforce(rule, t.context) {
 		http.Error(w, "Forbidden", http.StatusForbidden)

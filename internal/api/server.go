@@ -42,10 +42,10 @@ func Server(keystone identity.Identity, storageInterface storage.Storage) error 
 	fmt.Println("API")
 	mainRouter := setupRouter(keystone, storageInterface)
 
-	//start HTTP server
+	// start HTTP server
 	listenaddress := viper.GetString("API.ListenAddress")
 	logg.Info("listening on %s", listenaddress)
-	//enable cors support
+	// enable cors support
 	c := cors.New(cors.Options{
 		AllowedHeaders: []string{"X-Auth-Token", "Content-Type", "Accept"},
 		AllowedMethods: []string{"GET", "HEAD"},
@@ -59,12 +59,12 @@ func Server(keystone identity.Identity, storageInterface storage.Storage) error 
 
 func setupRouter(keystone identity.Identity, storageInterface storage.Storage) http.Handler {
 	mainRouter := mux.NewRouter()
-	//hook up the v1 API (this code is structured so that a newer API version can
-	//be added easily later)
+	// hook up the v1 API (this code is structured so that a newer API version can
+	// be added easily later)
 	v1Router, v1VersionData := NewV1Handler(keystone, storageInterface)
 	mainRouter.PathPrefix("/v1/").Handler(v1Router)
 
-	//add the version advertisement that lists all available API versions
+	// add the version advertisement that lists all available API versions
 	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		allVersions := struct {
 			Versions []VersionData `json:"versions"`

@@ -75,7 +75,7 @@ func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 	}
 	if providerClient == nil {
 		var err error
-		//providerClient, err = openstack.NewClient(viper.GetString("Keystone.auth_url"))
+		// providerClient, err = openstack.NewClient(viper.GetString("Keystone.auth_url"))
 		opts := d.AuthOptions()
 		providerClient, err = openstack.AuthenticatedClient(*opts)
 		if err != nil {
@@ -115,11 +115,11 @@ func (d Keystone) ValidateToken(token string) (policy.Context, error) {
 
 	response := tokens.Get(client, token)
 	if response.Err != nil {
-		//this includes 4xx responses, so after this point, we can be sure that the token is valid
+		// this includes 4xx responses, so after this point, we can be sure that the token is valid
 		return policy.Context{}, response.Err
 	}
 
-	//use a custom token struct instead of tMap.Token which is way incomplete
+	// use a custom token struct instead of tMap.Token which is way incomplete
 	var tokenData keystoneToken
 	err = response.ExtractInto(&tokenData)
 	if err != nil {
@@ -137,10 +137,10 @@ func (d Keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Con
 	}
 	response := tokens.Create(client, credentials)
 	if response.Err != nil {
-		//this includes 4xx responses, so after this point, we can be sure that the token is valid
+		// this includes 4xx responses, so after this point, we can be sure that the token is valid
 		return policy.Context{}, response.Err
 	}
-	//use a custom token struct instead of tMap.Token which is way incomplete
+	// use a custom token struct instead of tMap.Token which is way incomplete
 	var tokenData keystoneToken
 	err = response.ExtractInto(&tokenData)
 	if err != nil {
@@ -400,10 +400,10 @@ func (t *keystoneToken) ToContext() policy.Context {
 // to fetch the initial token on startup.
 func (d Keystone) RefreshToken() error {
 	//NOTE: This function is very similar to v3auth() in
-	//gophercloud/openstack/client.go, but with a few differences:
+	// gophercloud/openstack/client.go, but with a few differences:
 	//
-	//1. thread-safe token renewal
-	//2. proper support for cross-domain scoping
+	// 1. thread-safe token renewal
+	// 2. proper support for cross-domain scoping
 
 	logg.Debug("Getting service user Identity token...")
 

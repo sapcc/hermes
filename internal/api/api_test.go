@@ -35,7 +35,7 @@ import (
 )
 
 func setupTest(t *testing.T) http.Handler {
-	//load test policy (where everything is allowed)
+	// load test policy (where everything is allowed)
 	policyBytes, err := os.ReadFile("../test/policy.json")
 	if err != nil {
 		t.Fatal(err)
@@ -51,7 +51,7 @@ func setupTest(t *testing.T) http.Handler {
 	}
 	viper.Set("hermes.PolicyEnforcer", policyEnforcer)
 
-	//create test driver with the domains and projects from start-data.sql
+	// create test driver with the domains and projects from start-data.sql
 	keystone := identity.Mock{}
 	storageInterface := storage.Mock{}
 

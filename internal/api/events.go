@@ -59,7 +59,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)   //nolint:errcheck
 
 	// Parse the sort query string
-	//slice of a struct, key and direction.
+	// slice of a struct, key and direction.
 
 	sortSpec := []hermes.FieldOrder{}
 	validSortTopics := map[string]bool{
@@ -86,7 +86,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	if sortParam != "" {
 		for _, sortElement := range strings.Split(sortParam, ",") {
 			keyVal := strings.SplitN(sortElement, ":", 2)
-			//`time`, `source`, `resource_type`, `resource_name`, and `event_type`.
+			// `time`, `source`, `resource_type`, `resource_name`, and `event_type`.
 			sortfield := keyVal[0]
 			if !validSortTopics[sortfield] {
 				err := fmt.Errorf("not a valid topic: %s, valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
@@ -223,8 +223,8 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 	}
 	// Sanitize user input
 	eventID := mux.Vars(req)["event_id"]
-	eventID = strings.Replace(eventID, "\n", "", -1)
-	eventID = strings.Replace(eventID, "\r", "", -1)
+	eventID = strings.ReplaceAll(eventID, "\n", "")
+	eventID = strings.ReplaceAll(eventID, "\r", "")
 
 	// Validate if eventID is a valid UUID
 	if _, err := uuid.Parse(eventID); err != nil {
@@ -261,8 +261,8 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 
 	// Handle QueryParams, Sanitize user input
 	queryName := mux.Vars(req)["attribute_name"]
-	queryName = strings.Replace(queryName, "\n", "", -1)
-	queryName = strings.Replace(queryName, "\r", "", -1)
+	queryName = strings.ReplaceAll(queryName, "\n", "")
+	queryName = strings.ReplaceAll(queryName, "\r", "")
 	if queryName == "" {
 		logg.Debug("attribute_name empty")
 		return
@@ -313,8 +313,8 @@ func getIndexID(token *Token, r *http.Request, w http.ResponseWriter) (string, e
 
 	// Sanitize user input
 	projectid := r.FormValue("project_id")
-	projectid = strings.Replace(projectid, "\n", "", -1)
-	projectid = strings.Replace(projectid, "\r", "", -1)
+	projectid = strings.ReplaceAll(projectid, "\n", "")
+	projectid = strings.ReplaceAll(projectid, "\r", "")
 	// When the projectid argument is defined, check for the cluster_viewer rule
 	if v := projectid; v != "" {
 		if !token.Require(w, "cluster_viewer") {

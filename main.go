@@ -148,7 +148,7 @@ func configuredStorageDriver() storage.Storage {
 }
 
 func readPolicy() {
-	//load the policy file
+	// load the policy file
 	policyEnforcer, err := util.LoadPolicyFile(viper.GetString("hermes.PolicyFilePath"))
 	if err != nil {
 		logg.Fatal(err.Error())

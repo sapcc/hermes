@@ -74,7 +74,7 @@ type EventFilter struct {
 // FieldOrder is an embedded struct for Event Filtering
 type FieldOrder struct {
 	Fieldname string
-	Order     string //asc or desc
+	Order     string // asc or desc
 }
 
 // AttributeFilter maps to the filtering allowed by the API for Attributes

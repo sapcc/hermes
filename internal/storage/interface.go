@@ -73,7 +73,7 @@ type Storage interface {
 // FieldOrder maps the sort Fieldname and Order
 type FieldOrder struct {
 	Fieldname string
-	Order     string //asc or desc
+	Order     string // asc or desc
 }
 
 // EventFilter is similar to hermes.EventFilter, but using IDs instead of names

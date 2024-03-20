@@ -28,9 +28,9 @@ import (
 // token checking of API users. Because it is an interface, the real implementation
 // can be mocked away in unit tests.
 type Identity interface {
-	//Return the main gophercloud client from which the respective service
-	//clients can be derived. For Mock drivers, this returns nil, so test code
-	//should be prepared to handle a nil Client() where appropriate.
+	// Return the main gophercloud client from which the respective service
+	// clients can be derived. For Mock drivers, this returns nil, so test code
+	// should be prepared to handle a nil Client() where appropriate.
 	Client() (*gophercloud.ProviderClient, error)
 	AuthOptions() *gophercloud.AuthOptions
 	/********** requests to Keystone **********/
