@@ -129,7 +129,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 	query := elastic.NewBoolQuery()
 
 	if filter.ObserverType != "" {
-		//logg.Debug("Filtering on ObserverType %s", filter.ObserverType)
+		// logg.Debug("Filtering on ObserverType %s", filter.ObserverType)
 		query = FilterQuery(filter.ObserverType, esFieldMapping["observer_type"], query)
 	}
 	if filter.TargetType != "" {
@@ -202,7 +202,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 		From(int(filter.Offset)).Size(int(filter.Limit))
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
-	//errcheck already within an errchecek, this is for additional detail.
+	// errcheck already within an errchecek, this is for additional detail.
 	if err != nil {
 		e, _ := err.(*elastic.Error)             //nolint:errcheck,errorlint
 		errdetails, _ := json.Marshal(e.Details) //nolint:errcheck
@@ -212,7 +212,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 
 	logg.Debug("Got %d hits", searchResult.TotalHits())
 
-	//Construct EventDetail array from search results
+	// Construct EventDetail array from search results
 	var events []*cadf.Event
 	for _, hit := range searchResult.Hits.Hits {
 		var de cadf.Event
@@ -276,7 +276,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 
 	esSearch := es.client().Search().Index(index).Size(int(filter.Limit)).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
-	//errcheck already within an errcheck, this is for additional detail.
+	// errcheck already within an errcheck, this is for additional detail.
 	if err != nil {
 		e, _ := err.(*elastic.Error)             //nolint:errcheck,errorlint
 		errdetails, _ := json.Marshal(e.Details) //nolint:errcheck

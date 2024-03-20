@@ -53,7 +53,7 @@ func Test_Policy_AuditViewerTrue(t *testing.T) {
 		},
 		// Auth will only have one entry
 		Auth: map[string]string{
-			//"domain_id":           "ca1b267e149d4e44bf53d28d1c8d6bc9",
+			// "domain_id":           "ca1b267e149d4e44bf53d28d1c8d6bc9",
 			"project_id": "7a09c05926ec452ca7992af4aa03c31d",
 		},
 		Request: map[string]string{
@@ -72,7 +72,7 @@ func Test_Policy_UnknownRoleFalse(t *testing.T) {
 		},
 		Auth: map[string]string{
 			"domain_id": "ca1b267e149d4e44bf53d28d1c8d6bc9",
-			//"project_id":          "7a09c05926ec452ca7992af4aa03c31d",
+			// "project_id":          "7a09c05926ec452ca7992af4aa03c31d",
 		},
 		Request: map[string]string{
 			"domain_id": "ca1b267e149d4e44bf53d28d1c8d6bc9",
@@ -150,17 +150,17 @@ func TestPolicy(t *testing.T) {
 	if enforcer.Enforce("non_existent_rule", serviceContext) {
 		t.Error("Non existent rule should not pass")
 	}
-	//if !enforcer.Enforce("cloud_admin", adminContext) {
+	// if !enforcer.Enforce("cloud_admin", adminContext) {
 	//	t.Error("cloud_admin check should pass")
 	//}
-	//if !enforcer.Enforce("service_admin_or_owner", adminContext) {
+	// if !enforcer.Enforce("service_admin_or_owner", adminContext) {
 	//	t.Error("service_admin_or_owner should pass for admin")
 	//}
-	//if !enforcer.Enforce("service_admin_or_owner", userContext) {
+	// if !enforcer.Enforce("service_admin_or_owner", userContext) {
 	//	t.Error("service_admin_or_owner should pass for owner")
 	//}
-	//userContext.Request["user_id"] = "u-2"
-	//if enforcer.Enforce("service_admin_or_owner", userContext) {
+	// userContext.Request["user_id"] = "u-2"
+	// if enforcer.Enforce("service_admin_or_owner", userContext) {
 	//	t.Error("service_admin_or_owner should pass for non owning user")
 	//}
 }
