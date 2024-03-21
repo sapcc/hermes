@@ -54,7 +54,7 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 	t.context, t.err = p.keystone.ValidateToken(str)
 	if t.err != nil {
 		logg.Debug("Error connection to identity server %s", t.err)
-		if _, ok := errext.As[gophercloud.ErrDefault404](t.err); ok { // nolint: errcheck // type checking
+		if _, ok := errext.As[gophercloud.ErrDefault404](t.err); ok { //nolint: errcheck // type checking
 			t.err = errors.New("X-Auth-Token is invalid or expired")
 		}
 	}
