@@ -1,0 +1,38 @@
+PUT /events/export
+{
+  "mappings": {
+    "properties": {
+      "project_id": {
+        "type": "keyword"
+      },
+      "enabled": {
+        "type": "boolean"
+      },
+      "retention_period": {
+        "type": "integer"
+      },
+      "bucket_name": {
+        "type": "keyword"
+      },
+      "last_run_time": {
+        "type": "date"
+      },
+      "filters": {
+        "properties": {
+          "event_types": {
+            "type": "keyword"
+          },
+          "resource_types": {
+            "type": "keyword"
+          },
+          "exclude_event_types": {
+            "type": "keyword"
+          },
+          "exclude_resource_types": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
