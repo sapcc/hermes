@@ -20,6 +20,11 @@ The ExportEvents feature will be implemented as an extension to the existing Her
   - `retention_period` (integer): The retention period for the exported audit events in the S3 (Swift) bucket.
   - `bucket_name` (string): The name of the S3 (Swift) bucket where the exported audit events will be stored.
   - `last_run_time` (timestamp): The timestamp of the last successful export run for the project.
+  - `filters` (object): An object containing the filter configuration for the project.
+    - `event_types` (array of strings): An array of event types to include in the export (e.g., ["identity.user.created", "compute.instance.created"]).
+    - `resource_types` (array of strings): An array of resource types to include in the export (e.g., ["user", "instance"]).
+    - `exclude_event_types` (array of strings): An array of event types to exclude from the export (e.g., ["identity.role.deleted"]).
+    - `exclude_resource_types` (array of strings): An array of resource types to exclude from the export (e.g., ["volume"]).
 
 ## Export Worker
 - The export worker will be implemented in `storage/exportevents/worker.go`.
@@ -33,14 +38,12 @@ The ExportEvents feature will be implemented as an extension to the existing Her
   - Update the last run time in the project's export configuration.
 
 ## API Endpoints
-- `POST /v1/project/{project_id}/export-events`: Enables or updates the export configuration for a project.
-- `GET /v1/project/{project_id}/export-events`: Retrieves the export configuration for a project.
-- The API endpoints will allow users to enable/disable the export feature, set the retention period, specify the S3 (Swift) bucket, and configure event filters.
+- `POST /v1/project/{project_id}/export-events`: Enables or updates the export configuration for a project, including filter options.
+- `GET /v1/project/{project_id}/export-events`: Retrieves the export configuration for a project, including filter options.
 
 ## CLI Commands
-- `hermes export-events enable --project-id <project_id> --bucket-name <bucket_name> --retention-period <retention_period>`: Enables the ExportEvents feature for a project.
-- `hermes export-events disable --project-id <project_id>`: Disables the ExportEvents feature for a project.
-- `hermes export-events status --project-id <project_id>`: Retrieves the export configuration for a project.
+- `hermes export-events enable --project-id <project_id> --bucket-name <bucket_name> --retention-period <retention_period> --event-types <event_types> --resource-types <resource_types> --exclude-event-types <exclude_event_types> --exclude-resource-types <exclude_resource_types>`: Enables the ExportEvents feature for a project with filter options.
+- `hermes export-events update --project-id <project_id> --event-types <event_types> --resource-types <resource_types> --exclude-event-types <exclude_event_types> --exclude-resource-types <exclude_resource_types>`: Updates the filter configuration for a project.
 
 ## UI Integration
 - The Hermes module in the Elektra OpenStack Dashboard will be extended to include a section for the ExportEvents feature.
