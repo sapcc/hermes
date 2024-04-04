@@ -25,6 +25,8 @@ issues:
   max-same-issues: 0
 
 linters-settings:
+  copyloopvar:
+    ignore-alias: true
   dupl:
     # Tokens count to trigger issue, 150 by default.
     threshold: 100
@@ -76,8 +78,9 @@ linters-settings:
       # created file permissions are restricted by umask if necessary
       - G306
   govet:
-    # Report about shadowed variables.
-    check-shadowing: true
+    enable-all: true
+    disable:
+      - fieldalignment
   nolintlint:
     require-specific: true
   stylecheck:
@@ -108,12 +111,12 @@ linters:
   enable:
     - bodyclose
     - containedctx
+    - copyloopvar
     - dupl
     - dupword
     - durationcheck
     - errcheck
     - errorlint
-    - exportloopref
     - forbidigo
     - ginkgolinter
     - gocheckcompilerdirectives
@@ -124,6 +127,7 @@ linters:
     - gosimple
     - govet
     - ineffassign
+    - intrange
     - misspell
     - noctx
     - nolintlint
