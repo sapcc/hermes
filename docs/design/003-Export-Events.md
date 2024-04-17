@@ -17,7 +17,6 @@ The ExportEvents feature will be implemented as an extension to the existing Her
 - Fields:
   - `project_id` (string): The ID of the project.
   - `enabled` (boolean): Indicates whether the export is enabled for the project.
-  - `retention_period` (integer): The retention period for the exported audit events in the S3 (Swift) bucket.
   - `bucket_name` (string): The name of the S3 (Swift) bucket where the exported audit events will be stored.
   - `last_run_time` (timestamp): The timestamp of the last successful export run for the project.
   - `filters` (object): An object containing the filter configuration for the project.
@@ -47,7 +46,7 @@ The ExportEvents feature will be implemented as an extension to the existing Her
 
 ## UI Integration
 - The Hermes module in the Elektra OpenStack Dashboard will be extended to include a section for the ExportEvents feature.
-- It will provide a user-friendly interface for enabling/disabling the feature, setting the retention period, specifying the S3 (Swift) bucket, and configuring event filters.
+- It will provide a user-friendly interface for enabling/disabling the feature, specifying the S3 (Swift) bucket, and configuring event filters.
 - The UI will integrate with the API endpoints to manage the export configuration for projects.
 
 ## Testing
