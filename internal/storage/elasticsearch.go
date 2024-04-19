@@ -24,6 +24,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 
 	elastic "github.com/olivere/elastic/v7"
@@ -83,6 +85,38 @@ func (es *ElasticSearch) init() {
 		// TODO - Add instrumentation here for failed elasticsearch connection
 		// If issues - https://github.com/olivere/elastic/wiki/Connection-Problems#how-to-figure-out-connection-problems
 		panic(err)
+	}
+
+	// Ensure the index template is checked and created if not exists
+	es.EnsureIndexTemplate()
+}
+
+// EnsureIndexTemplate checks if the composable index template exists, and if not, creates it.
+func (es *ElasticSearch) EnsureIndexTemplate() {
+	templateName := "export_events"
+	templatePath := filepath.Join(".", "etc", "export_events.tpl")
+
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		logg.Error("Failed to read index template file: %v", err)
+		return
+	}
+
+	// Initialize the component template service
+	service := elastic.NewIndicesPutComponentTemplateService(es.client())
+	service.Name(templateName).BodyString(string(templateContent))
+
+	// Execute the request to create or update the component template
+	response, err := service.Do(context.Background())
+	if err != nil {
+		logg.Error("Failed to create or update the component template: %v", err)
+		return
+	}
+
+	if response.Acknowledged {
+		logg.Info("Component template created or updated successfully")
+	} else {
+		logg.Info("Component template creation or update not acknowledged")
 	}
 }
 
