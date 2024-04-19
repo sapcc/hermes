@@ -94,7 +94,8 @@ func (es *ElasticSearch) init() {
 // EnsureIndexTemplate checks if the composable index template exists, and if not, creates it.
 func (es *ElasticSearch) EnsureIndexTemplate() {
 	templateName := "export_events"
-	templatePath := filepath.Join(".", "etc", "export_events.tpl")
+	// TODO read from config file the path to the template
+	templatePath := filepath.Join("etc", "export_events.tpl")
 
 	templateContent, err := os.ReadFile(templatePath)
 	if err != nil {
