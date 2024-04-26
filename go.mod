@@ -12,8 +12,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.19.0
 	github.com/rs/cors v1.10.1
-	github.com/sapcc/go-api-declarations v1.10.12
-	github.com/sapcc/go-bits v0.0.0-20240418035538-c509bd89fb1a
+	github.com/sapcc/go-api-declarations v1.11.0
+	github.com/sapcc/go-bits v0.0.0-20240425084953-de3210f2772e
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 )
@@ -31,7 +31,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_model v0.6.0 // indirect
-	github.com/prometheus/common v0.52.3 // indirect
+	github.com/prometheus/common v0.53.0 // indirect
 	github.com/prometheus/procfs v0.13.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
