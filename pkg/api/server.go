@@ -33,8 +33,8 @@ import (
 	"github.com/sapcc/go-bits/httpext"
 	"github.com/sapcc/go-bits/logg"
 
-	"github.com/sapcc/hermes/internal/identity"
-	"github.com/sapcc/hermes/internal/storage"
+	"github.com/sapcc/hermes/pkg/identity"
+	"github.com/sapcc/hermes/pkg/storage"
 )
 
 // Server Set up and start the API server, hooking it up to the API router
