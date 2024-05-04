@@ -30,10 +30,10 @@ import (
 	"github.com/sapcc/go-bits/osext"
 	"github.com/spf13/viper"
 
-	"github.com/sapcc/hermes/internal/api"
-	"github.com/sapcc/hermes/internal/identity"
-	"github.com/sapcc/hermes/internal/storage"
-	"github.com/sapcc/hermes/internal/util"
+	"github.com/sapcc/hermes/pkg/api"
+	"github.com/sapcc/hermes/pkg/identity"
+	"github.com/sapcc/hermes/pkg/storage"
+	"github.com/sapcc/hermes/pkg/util"
 )
 
 const version = "1.2.0"

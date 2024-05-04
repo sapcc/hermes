@@ -26,8 +26,8 @@ import (
 	"github.com/sapcc/go-api-declarations/cadf"
 	"github.com/sapcc/go-bits/logg"
 
-	"github.com/sapcc/hermes/internal/identity"
-	"github.com/sapcc/hermes/internal/storage"
+	"github.com/sapcc/hermes/pkg/identity"
+	"github.com/sapcc/hermes/pkg/storage"
 )
 
 // ListEvent contains high-level data about an event, intended as a list item

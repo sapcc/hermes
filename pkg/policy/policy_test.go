@@ -30,7 +30,7 @@ import (
 
 	"github.com/sapcc/go-bits/logg"
 
-	"github.com/sapcc/hermes/internal/util"
+	"github.com/sapcc/hermes/pkg/util"
 )
 
 // Setup test
