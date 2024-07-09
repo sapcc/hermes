@@ -91,34 +91,34 @@ func Test_API(t *testing.T) {
 }
 
 func TestExportEvents(t *testing.T) {
-    router := setupTest(t)
+	router := setupTest(t)
 
-    req := httptest.NewRequest("GET", "/v1/export-events?project_id=test-project", nil)
-    req.Header.Set("X-Auth-Token", "test-token")
-    
-    recorder := httptest.NewRecorder()
-    router.ServeHTTP(recorder, req)
+	req := httptest.NewRequest(http.MethodGet, "/v1/export-events?project_id=test-project", http.NoBody)
+	req.Header.Set("X-Auth-Token", "test-token")
 
-    if recorder.Code != http.StatusOK {
-        t.Errorf("Expected status code %d, got %d", http.StatusOK, recorder.Code)
-    }
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, req)
 
-    var response struct {
-        Message   string `json:"message"`
-        ProjectID string `json:"project_id"`
-    }
-    err := json.Unmarshal(recorder.Body.Bytes(), &response)
-    if err != nil {
-        t.Fatalf("Failed to parse JSON response: %v", err)
-    }
+	if recorder.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, recorder.Code)
+	}
 
-    expectedMessage := "Export Events feature is being implemented"
-    if response.Message != expectedMessage {
-        t.Errorf("Expected message '%s', got '%s'", expectedMessage, response.Message)
-    }
+	var response struct {
+		Message   string `json:"message"`
+		ProjectID string `json:"project_id"`
+	}
+	err := json.Unmarshal(recorder.Body.Bytes(), &response)
+	if err != nil {
+		t.Fatalf("Failed to parse JSON response: %v", err)
+	}
 
-    expectedProjectID := "test-project"
-    if response.ProjectID != expectedProjectID {
-        t.Errorf("Expected project_id '%s', got '%s'", expectedProjectID, response.ProjectID)
-    }
+	expectedMessage := "Export Events feature is being implemented"
+	if response.Message != expectedMessage {
+		t.Errorf("Expected message '%s', got '%s'", expectedMessage, response.Message)
+	}
+
+	expectedProjectID := "test-project"
+	if response.ProjectID != expectedProjectID {
+		t.Errorf("Expected project_id '%s', got '%s'", expectedProjectID, response.ProjectID)
+	}
 }

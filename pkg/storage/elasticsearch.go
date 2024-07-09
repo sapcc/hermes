@@ -24,8 +24,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
 	"os"
+	"strings"
 
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/sapcc/go-api-declarations/cadf"
@@ -87,9 +87,9 @@ func (es *ElasticSearch) init() {
 	}
 
 	err = es.EnsureIndexTemplate()
-    if err != nil {
-        logg.Error("Failed to ensure index template: %v", err)
-    }
+	if err != nil {
+		logg.Error("Failed to ensure index template: %v", err)
+	}
 }
 
 // Mapping for attributes based on return values to API
@@ -352,29 +352,29 @@ func indexName(tenantID string) string {
 
 // EnsureIndexTemplate checks if the index template exists, and if not, creates it.
 func (es *ElasticSearch) EnsureIndexTemplate() error {
-    templateName := "export_events"
-    templatePath := viper.GetString("ElasticTemplatePath")
-    
-    templateContent, err := os.ReadFile(templatePath)
-    if err != nil {
-        return fmt.Errorf("failed to read index template file: %w", err)
-    }
+	templateName := "export_events"
+	templatePath := viper.GetString("ElasticTemplatePath")
 
-    // Initialize the index template service
-    service := elastic.NewIndicesPutIndexTemplateService(es.client())
-    service.Name(templateName).BodyString(string(templateContent))
+	templateContent, err := os.ReadFile(templatePath)
+	if err != nil {
+		return fmt.Errorf("failed to read index template file: %w", err)
+	}
 
-    // Execute the request to create or update the index template
-    response, err := service.Do(context.Background())
-    if err != nil {
-        return fmt.Errorf("failed to create or update the index template: %w", err)
-    }
+	// Initialize the index template service
+	service := elastic.NewIndicesPutIndexTemplateService(es.client())
+	service.Name(templateName).BodyString(string(templateContent))
 
-    if response.Acknowledged {
-        logg.Info("Index template created or updated successfully")
-    } else {
-        logg.Info("Index template creation or update not acknowledged")
-    }
+	// Execute the request to create or update the index template
+	response, err := service.Do(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to create or update the index template: %w", err)
+	}
 
-    return nil
+	if response.Acknowledged {
+		logg.Info("Index template created or updated successfully")
+	} else {
+		logg.Info("Index template creation or update not acknowledged")
+	}
+
+	return nil
 }
