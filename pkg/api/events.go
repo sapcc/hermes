@@ -302,6 +302,32 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	ReturnJSON(res, http.StatusOK, attribute)
 }
 
+func (p *v1Provider) ExportEvents(w http.ResponseWriter, r *http.Request) {
+    // Check if the user has permission to export events
+    token := p.CheckToken(r)
+    if !token.Require(w, "event:export") {
+        logg.Error("Permission denied for event:export")
+        return
+    }
+
+    // Parse query parameters
+    projectID := r.URL.Query().Get("project_id")
+    if projectID == "" {
+        http.Error(w, "project_id is required", http.StatusBadRequest)
+        return
+    }
+
+    // For now, just return a JSON response indicating the feature is in progress
+    response := struct {
+        Message string `json:"message"`
+        ProjectID string `json:"project_id"`
+    }{
+        Message: "Export Events feature is being implemented",
+        ProjectID: projectID,
+    }
+    ReturnJSON(w, http.StatusOK, response)
+}
+
 func getIndexID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
 	// Get index ID from a token
 	// Defaults to a token project scope

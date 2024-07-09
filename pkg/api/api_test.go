@@ -22,6 +22,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 
@@ -87,4 +88,37 @@ func Test_API(t *testing.T) {
 			}.Check(t, router)
 		})
 	}
+}
+
+func TestExportEvents(t *testing.T) {
+    router := setupTest(t)
+
+    req := httptest.NewRequest("GET", "/v1/export-events?project_id=test-project", nil)
+    req.Header.Set("X-Auth-Token", "test-token")
+    
+    recorder := httptest.NewRecorder()
+    router.ServeHTTP(recorder, req)
+
+    if recorder.Code != http.StatusOK {
+        t.Errorf("Expected status code %d, got %d", http.StatusOK, recorder.Code)
+    }
+
+    var response struct {
+        Message   string `json:"message"`
+        ProjectID string `json:"project_id"`
+    }
+    err := json.Unmarshal(recorder.Body.Bytes(), &response)
+    if err != nil {
+        t.Fatalf("Failed to parse JSON response: %v", err)
+    }
+
+    expectedMessage := "Export Events feature is being implemented"
+    if response.Message != expectedMessage {
+        t.Errorf("Expected message '%s', got '%s'", expectedMessage, response.Message)
+    }
+
+    expectedProjectID := "test-project"
+    if response.ProjectID != expectedProjectID {
+        t.Errorf("Expected project_id '%s', got '%s'", expectedProjectID, response.ProjectID)
+    }
 }

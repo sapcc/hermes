@@ -73,6 +73,8 @@ func NewV1Handler(keystone identity.Identity, storageInterface storage.Storage) 
 		observeDuration(observeResponseSize(p.GetEventDetails, "GetEventDetails"), "GetEventDetails"))
 	r.Methods("GET").Path("/v1/attributes/{attribute_name}").HandlerFunc(
 		observeDuration(observeResponseSize(p.GetAttributes, "GetAttributes"), "GetAttributes"))
+	r.Methods("GET").Path("/v1/export-events").HandlerFunc(
+		observeDuration(observeResponseSize(p.ExportEvents, "ExportEvents"), "ExportEvents"))
 
 	return r, p.versionData
 }

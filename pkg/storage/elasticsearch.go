@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"os"
 
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/sapcc/go-api-declarations/cadf"
@@ -84,6 +85,11 @@ func (es *ElasticSearch) init() {
 		// If issues - https://github.com/olivere/elastic/wiki/Connection-Problems#how-to-figure-out-connection-problems
 		panic(err)
 	}
+
+	err = es.EnsureIndexTemplate()
+    if err != nil {
+        logg.Error("Failed to ensure index template: %v", err)
+    }
 }
 
 // Mapping for attributes based on return values to API
@@ -342,4 +348,33 @@ func indexName(tenantID string) string {
 		index = fmt.Sprintf("audit-%s-*", tenantID)
 	}
 	return index
+}
+
+// EnsureIndexTemplate checks if the index template exists, and if not, creates it.
+func (es *ElasticSearch) EnsureIndexTemplate() error {
+    templateName := "export_events"
+    templatePath := viper.GetString("ElasticTemplatePath")
+    
+    templateContent, err := os.ReadFile(templatePath)
+    if err != nil {
+        return fmt.Errorf("failed to read index template file: %w", err)
+    }
+
+    // Initialize the index template service
+    service := elastic.NewIndicesPutIndexTemplateService(es.client())
+    service.Name(templateName).BodyString(string(templateContent))
+
+    // Execute the request to create or update the index template
+    response, err := service.Do(context.Background())
+    if err != nil {
+        return fmt.Errorf("failed to create or update the index template: %w", err)
+    }
+
+    if response.Acknowledged {
+        logg.Info("Index template created or updated successfully")
+    } else {
+        logg.Info("Index template creation or update not acknowledged")
+    }
+
+    return nil
 }
