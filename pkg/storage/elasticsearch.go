@@ -339,7 +339,7 @@ func (es ElasticSearch) MaxLimit() uint {
 func indexName(tenantID string) string {
 	index := "audit-*"
 	if tenantID != "" {
-		index = fmt.Sprintf("audit-%s-*", tenantID)
+		index = fmt.Sprintf("audit-%s*", tenantID)
 	}
 	return index
 }
