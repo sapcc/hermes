@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/v2"
 
 	"github.com/sapcc/go-bits/logg"
 )

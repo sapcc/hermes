@@ -21,7 +21,7 @@ package identity
 
 import (
 	policy "github.com/databus23/goslo.policy"
-	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/v2"
 )
 
 // Identity is an interface that wraps the authentication of the service user and
