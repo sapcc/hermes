@@ -20,6 +20,7 @@
 package identity
 
 import (
+	"context"
 	"fmt"
 
 	"sync"
@@ -68,7 +69,7 @@ type keystoneNameID struct {
 	Name string `json:"name"`
 }
 
-func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
+func (d Keystone) keystoneClient(ctx context.Context) (*gophercloud.ServiceClient, error) {
 	logg.Debug("Getting service user Identity token...")
 	if d.TokenRenewalMutex == nil {
 		d.TokenRenewalMutex = &sync.Mutex{}
@@ -77,7 +78,7 @@ func (d Keystone) keystoneClient() (*gophercloud.ServiceClient, error) {
 		var err error
 		// providerClient, err = openstack.NewClient(viper.GetString("Keystone.auth_url"))
 		opts := d.AuthOptions()
-		providerClient, err = openstack.AuthenticatedClient(*opts)
+		providerClient, err = openstack.AuthenticatedClient(ctx, opts)
 		if err != nil {
 			return nil, fmt.Errorf("cannot initialize OpenStack client: %w", err)
 		}
@@ -102,18 +103,18 @@ func (d Keystone) Client() (*gophercloud.ProviderClient, error) {
 }
 
 // ValidateToken checks a token with Keystone
-func (d Keystone) ValidateToken(token string) (policy.Context, error) {
+func (d Keystone) ValidateToken(ctx context.Context, token string) (policy.Context, error) {
 	cachedToken := getCachedToken(tokenCache, token)
 	if cachedToken != nil {
 		return cachedToken.ToContext(), nil
 	}
 
-	client, err := d.keystoneClient()
+	client, err := d.keystoneClient(ctx)
 	if err != nil {
 		return policy.Context{}, err
 	}
 
-	response := tokens.Get(client, token)
+	response := tokens.Get(ctx, client, token)
 	if response.Err != nil {
 		// this includes 4xx responses, so after this point, we can be sure that the token is valid
 		return policy.Context{}, response.Err
@@ -130,12 +131,12 @@ func (d Keystone) ValidateToken(token string) (policy.Context, error) {
 }
 
 // Authenticate with Keystone
-func (d Keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error) {
-	client, err := d.keystoneClient()
+func (d Keystone) Authenticate(ctx context.Context, credentials gophercloud.AuthOptions) (policy.Context, error) {
+	client, err := d.keystoneClient(ctx)
 	if err != nil {
 		return policy.Context{}, err
 	}
-	response := tokens.Create(client, credentials)
+	response := tokens.Create(ctx, client, &credentials)
 	if response.Err != nil {
 		// this includes 4xx responses, so after this point, we can be sure that the token is valid
 		return policy.Context{}, response.Err
@@ -150,20 +151,20 @@ func (d Keystone) Authenticate(credentials *gophercloud.AuthOptions) (policy.Con
 }
 
 // DomainName with caching
-func (d Keystone) DomainName(id string) (string, error) {
+func (d Keystone) DomainName(ctx context.Context, id string) (string, error) {
 	cachedName, hit := getFromCache(domainNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
 
-	client, err := d.keystoneClient()
+	client, err := d.keystoneClient(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	var result gophercloud.Result
 	url := client.ServiceURL("domains/" + id)
-	_, err = client.Get(url, &result.Body, nil)
+	_, err = client.Get(ctx, url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -179,20 +180,20 @@ func (d Keystone) DomainName(id string) (string, error) {
 }
 
 // ProjectName with caching
-func (d Keystone) ProjectName(id string) (string, error) {
+func (d Keystone) ProjectName(ctx context.Context, id string) (string, error) {
 	cachedName, hit := getFromCache(projectNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
 
-	client, err := d.keystoneClient()
+	client, err := d.keystoneClient(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	var result gophercloud.Result
 	url := client.ServiceURL("projects/" + id)
-	_, err = client.Get(url, &result.Body, nil)
+	_, err = client.Get(ctx, url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -208,20 +209,20 @@ func (d Keystone) ProjectName(id string) (string, error) {
 }
 
 // UserName with Caching
-func (d Keystone) UserName(id string) (string, error) {
+func (d Keystone) UserName(ctx context.Context, id string) (string, error) {
 	cachedName, hit := getFromCache(userNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
 
-	client, err := d.keystoneClient()
+	client, err := d.keystoneClient(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	var result gophercloud.Result
 	url := client.ServiceURL("users/" + id)
-	_, err = client.Get(url, &result.Body, nil)
+	_, err = client.Get(ctx, url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -238,20 +239,20 @@ func (d Keystone) UserName(id string) (string, error) {
 }
 
 // UserID with caching
-func (d Keystone) UserID(name string) (string, error) {
+func (d Keystone) UserID(ctx context.Context, name string) (string, error) {
 	cachedID, hit := getFromCache(userIDCache, name)
 	if hit {
 		return cachedID, nil
 	}
 
-	client, err := d.keystoneClient()
+	client, err := d.keystoneClient(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	var result gophercloud.Result
 	url := client.ServiceURL("users?name=" + name)
-	_, err = client.Get(url, &result.Body, nil)
+	_, err = client.Get(ctx, url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -278,20 +279,20 @@ func (d Keystone) UserID(name string) (string, error) {
 }
 
 // RoleName with caching
-func (d Keystone) RoleName(id string) (string, error) {
+func (d Keystone) RoleName(ctx context.Context, id string) (string, error) {
 	cachedName, hit := getFromCache(roleNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
 
-	client, err := d.keystoneClient()
+	client, err := d.keystoneClient(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	var result gophercloud.Result
 	url := client.ServiceURL("roles/" + id)
-	_, err = client.Get(url, &result.Body, nil)
+	_, err = client.Get(ctx, url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -307,20 +308,20 @@ func (d Keystone) RoleName(id string) (string, error) {
 }
 
 // GroupName with caching
-func (d Keystone) GroupName(id string) (string, error) {
+func (d Keystone) GroupName(ctx context.Context, id string) (string, error) {
 	cachedName, hit := getFromCache(groupNameCache, id)
 	if hit {
 		return cachedName, nil
 	}
 
-	client, err := d.keystoneClient()
+	client, err := d.keystoneClient(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	var result gophercloud.Result
 	url := client.ServiceURL("groups/" + id)
-	_, err = client.Get(url, &result.Body, nil)
+	_, err = client.Get(ctx, url, &result.Body, nil)
 	if err != nil {
 		return "", err
 	}
@@ -398,7 +399,7 @@ func (t *keystoneToken) ToContext() policy.Context {
 
 // RefreshToken fetches a new Identity auth token. It is also used
 // to fetch the initial token on startup.
-func (d Keystone) RefreshToken() error {
+func (d Keystone) RefreshToken(ctx context.Context) error {
 	//NOTE: This function is very similar to v3auth() in
 	// gophercloud/openstack/client.go, but with a few differences:
 	//
@@ -421,7 +422,8 @@ func (d Keystone) RefreshToken() error {
 
 	logg.Debug("Identity URL: %s", keystone.Endpoint)
 
-	result := tokens.Create(keystone, d.AuthOptions())
+	opts := d.AuthOptions()
+	result := tokens.Create(ctx, keystone, &opts)
 	token, err := result.ExtractToken()
 	if err != nil {
 		return fmt.Errorf("cannot read token: %w", err)
@@ -440,8 +442,8 @@ func (d Keystone) RefreshToken() error {
 }
 
 // AuthOptions fills in Keystone options with hermes config values
-func (d Keystone) AuthOptions() *gophercloud.AuthOptions {
-	return &gophercloud.AuthOptions{
+func (d Keystone) AuthOptions() gophercloud.AuthOptions {
+	return gophercloud.AuthOptions{
 		IdentityEndpoint: viper.GetString("Keystone.auth_url"),
 		Username:         viper.GetString("Keystone.username"),
 		Password:         viper.GetString("Keystone.password"),
