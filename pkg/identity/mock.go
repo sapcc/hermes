@@ -21,7 +21,7 @@ package identity
 
 import (
 	policy "github.com/databus23/goslo.policy"
-	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/spf13/viper"
 )
 
