@@ -26,7 +26,7 @@ import (
 	"os"
 
 	policy "github.com/databus23/goslo.policy"
-	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gorilla/mux"
 	"github.com/sapcc/go-bits/errext"
 	"github.com/sapcc/go-bits/logg"
