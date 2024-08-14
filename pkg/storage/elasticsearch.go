@@ -157,7 +157,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 		query = FilterQuery(filter.RequestPath, esFieldMapping["request_path"], query)
 	}
 
-	if filter.Time != nil && len(filter.Time) > 0 {
+	if len(filter.Time) > 0 {
 		for key, value := range filter.Time {
 			timeField := esFieldMapping["time"]
 			switch key {
