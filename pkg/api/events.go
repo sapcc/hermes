@@ -23,6 +23,7 @@ import (
 	"net/http"
 
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -193,14 +194,25 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 	// What protocol to use for PrevURL and NextURL?
 	protocol := getProtocol(req)
-	// Do we need a NextURL?
-	if int(filter.Offset+filter.Limit) < total {
-		req.Form.Set("offset", strconv.FormatUint(uint64(filter.Offset+filter.Limit), 10))
+
+	// Calculate and set the NextURL if there are more events to fetch
+	if uint64(filter.Offset)+uint64(filter.Limit) < uint64(total) {
+		// Calculate the offset for the next page, ensuring it doesn't exceed MaxUint32
+		nextOffset := uint64(filter.Offset) + uint64(filter.Limit)
+		if nextOffset > math.MaxUint32 {
+			nextOffset = math.MaxUint32
+		}
+		// Update the offset in the query parameters and construct the NextURL
+		req.Form.Set("offset", strconv.FormatUint(nextOffset, 10))
 		eventList.NextURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
-	// Do we need a PrevURL?
-	if int(filter.Offset-filter.Limit) >= 0 {
-		req.Form.Set("offset", strconv.FormatUint(uint64(filter.Offset-filter.Limit), 10))
+
+	// Calculate and set the PrevURL if we're not on the first page
+	if filter.Offset >= filter.Limit {
+		// Calculate the offset for the previous page
+		prevOffset := filter.Offset - filter.Limit
+		// Update the offset in the query parameters and construct the PrevURL
+		req.Form.Set("offset", strconv.FormatUint(uint64(prevOffset), 10))
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
