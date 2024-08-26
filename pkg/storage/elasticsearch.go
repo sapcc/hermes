@@ -216,7 +216,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 
 	esSearch = esSearch.
 		Sort(esFieldMapping["time"], false).
-		From(int(filterOffset)).Size(filterLimit))
+		From(filterOffset).Size(filterLimit)
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
 	// errcheck already within an errchecek, this is for additional detail.
@@ -297,7 +297,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 		filterLimit = int(filter.Limit)
 	}
 
-	queryAgg := elastic.NewTermsAggregation().Size(filterLimit)).Field(esName)
+	queryAgg := elastic.NewTermsAggregation().Size(filterLimit).Field(esName)
 
 	esSearch := es.client().Search().Index(index).Size(filterLimit).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
