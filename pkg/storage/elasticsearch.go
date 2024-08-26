@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"strings"
 
 	elastic "github.com/olivere/elastic/v7"
@@ -197,9 +198,25 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 		}
 	}
 
+	// Check if filter.Limit conversion is safe
+	var filterLimit int
+	if filter.Limit > uint32(math.MaxInt32) {
+		filterLimit = math.MaxInt32
+	} else {
+		filterLimit = int(filter.Limit)
+	}
+
+	// Check if filter.Limit conversion is safe
+	var filterOffset int
+	if filter.Offset > uint32(math.MaxInt32) {
+		filterOffset = math.MaxInt32
+	} else {
+		filterOffset = int(filter.Offset)
+	}
+
 	esSearch = esSearch.
 		Sort(esFieldMapping["time"], false).
-		From(int(filter.Offset)).Size(int(filter.Limit))
+		From(int(filterOffset)).Size(filterLimit))
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
 	// errcheck already within an errchecek, this is for additional detail.
@@ -272,9 +289,17 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	}
 	logg.Debug("Mapped Queryname: %s --> %s", filter.QueryName, esName)
 
-	queryAgg := elastic.NewTermsAggregation().Size(int(filter.Limit)).Field(esName)
+	// Check if filter.Limit conversion is safe
+	var filterLimit int
+	if filter.Limit > uint32(math.MaxInt32) {
+		filterLimit = math.MaxInt32
+	} else {
+		filterLimit = int(filter.Limit)
+	}
 
-	esSearch := es.client().Search().Index(index).Size(int(filter.Limit)).Aggregation("attributes", queryAgg)
+	queryAgg := elastic.NewTermsAggregation().Size(filterLimit)).Field(esName)
+
+	esSearch := es.client().Search().Index(index).Size(filterLimit).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
 	// errcheck already within an errcheck, this is for additional detail.
 	if err != nil {
@@ -304,16 +329,34 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	logg.Debug("Number of Buckets: %d", len(termsAggRes.Buckets))
 
 	var unique []string
+	import (
+		"math"
+		"strings"
+	)
+	
 	for _, bucket := range termsAggRes.Buckets {
 		logg.Debug("key: %s count: %d", bucket.Key, bucket.DocCount)
-		attribute := bucket.Key.(string) //nolint:errcheck
-
+		attribute, ok := bucket.Key.(string)
+		if !ok {
+			logg.Debug("Failed to convert bucket key to string")
+			continue
+		}
+	
 		// Hierarchical Depth Handling
 		var att string
 		if filter.MaxDepth != 0 && strings.Contains(attribute, "/") {
 			s := strings.Split(attribute, "/")
 			l := len(s)
-			for i := 0; i < int(filter.MaxDepth) && i < l; i++ {
+
+			// Check if MaxDepth conversion is safe
+			var maxDepth int
+			if filter.MaxDepth > uint32(math.MaxInt32) {
+				maxDepth = math.MaxInt32
+			} else {
+				maxDepth = int(filter.MaxDepth)
+			}
+	
+			for i := 0; i < maxDepth && i < l; i++ {
 				if i != 0 {
 					att += "/"
 				}
@@ -321,7 +364,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 			}
 			attribute = att
 		}
-
+	
 		unique = append(unique, attribute)
 	}
 
