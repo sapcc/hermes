@@ -329,10 +329,6 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	logg.Debug("Number of Buckets: %d", len(termsAggRes.Buckets))
 
 	var unique []string
-	import (
-		"math"
-		"strings"
-	)
 	
 	for _, bucket := range termsAggRes.Buckets {
 		logg.Debug("key: %s count: %d", bucket.Key, bucket.DocCount)
