@@ -20,8 +20,10 @@
 package identity
 
 import (
+	"context"
+
 	policy "github.com/databus23/goslo.policy"
-	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/v2"
 )
 
 // Identity is an interface that wraps the authentication of the service user and
@@ -32,14 +34,14 @@ type Identity interface {
 	// clients can be derived. For Mock drivers, this returns nil, so test code
 	// should be prepared to handle a nil Client() where appropriate.
 	Client() (*gophercloud.ProviderClient, error)
-	AuthOptions() *gophercloud.AuthOptions
+	AuthOptions() gophercloud.AuthOptions
 	/********** requests to Keystone **********/
-	ValidateToken(token string) (policy.Context, error)
-	Authenticate(credentials *gophercloud.AuthOptions) (policy.Context, error)
-	DomainName(id string) (string, error)
-	ProjectName(id string) (string, error)
-	UserName(id string) (string, error)
-	UserID(name string) (string, error)
-	RoleName(id string) (string, error)
-	GroupName(id string) (string, error)
+	ValidateToken(ctx context.Context, token string) (policy.Context, error)
+	Authenticate(ctx context.Context, credentials gophercloud.AuthOptions) (policy.Context, error)
+	DomainName(ctx context.Context, id string) (string, error)
+	ProjectName(ctx context.Context, id string) (string, error)
+	UserName(ctx context.Context, id string) (string, error)
+	UserID(ctx context.Context, name string) (string, error)
+	RoleName(ctx context.Context, id string) (string, error)
+	GroupName(ctx context.Context, id string) (string, error)
 }

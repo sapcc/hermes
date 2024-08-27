@@ -26,9 +26,8 @@ import (
 	"os"
 
 	policy "github.com/databus23/goslo.policy"
-	"github.com/gophercloud/gophercloud"
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gorilla/mux"
-	"github.com/sapcc/go-bits/errext"
 	"github.com/sapcc/go-bits/logg"
 	"github.com/spf13/viper"
 )
@@ -51,10 +50,11 @@ func (p *v1Provider) CheckToken(r *http.Request) *Token {
 	}
 
 	t := &Token{enforcer: viper.Get("hermes.PolicyEnforcer").(*policy.Enforcer)}
-	t.context, t.err = p.keystone.ValidateToken(str)
+	ctx := r.Context()
+	t.context, t.err = p.keystone.ValidateToken(ctx, str)
 	if t.err != nil {
-		logg.Debug("Error connection to identity server %s", t.err)
-		if _, ok := errext.As[gophercloud.ErrDefault404](t.err); ok { //nolint: errcheck // type checking
+		logg.Debug("Error connecting to identity server %s", t.err)
+		if gophercloud.ResponseCodeIs(t.err, http.StatusNotFound) {
 			t.err = errors.New("X-Auth-Token is invalid or expired")
 		}
 	}

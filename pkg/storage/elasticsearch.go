@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"math"
 	"strings"
 
 	elastic "github.com/olivere/elastic/v7"
@@ -163,7 +164,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 		query = FilterQuery(filter.RequestPath, esFieldMapping["request_path"], query)
 	}
 
-	if filter.Time != nil && len(filter.Time) > 0 {
+	if len(filter.Time) > 0 {
 		for key, value := range filter.Time {
 			timeField := esFieldMapping["time"]
 			switch key {
@@ -203,9 +204,12 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 		}
 	}
 
+	offset := int(math.Min(float64(filter.Offset), float64(math.MaxInt32)))
+	limit := int(math.Min(float64(filter.Limit), float64(math.MaxInt32)))
+
 	esSearch = esSearch.
 		Sort(esFieldMapping["time"], false).
-		From(int(filter.Offset)).Size(int(filter.Limit))
+		From(offset).Size(limit)
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
 	// errcheck already within an errchecek, this is for additional detail.
@@ -278,9 +282,10 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	}
 	logg.Debug("Mapped Queryname: %s --> %s", filter.QueryName, esName)
 
-	queryAgg := elastic.NewTermsAggregation().Size(int(filter.Limit)).Field(esName)
+	limit := int(math.Min(float64(filter.Limit), float64(math.MaxInt32)))
+	queryAgg := elastic.NewTermsAggregation().Size(limit).Field(esName)
 
-	esSearch := es.client().Search().Index(index).Size(int(filter.Limit)).Aggregation("attributes", queryAgg)
+	esSearch := es.client().Search().Index(index).Size(limit).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
 	// errcheck already within an errcheck, this is for additional detail.
 	if err != nil {
@@ -309,6 +314,8 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	}
 	logg.Debug("Number of Buckets: %d", len(termsAggRes.Buckets))
 
+	maxDepth := int(math.Min(float64(filter.MaxDepth), float64(math.MaxInt32)))
+
 	var unique []string
 	for _, bucket := range termsAggRes.Buckets {
 		logg.Debug("key: %s count: %d", bucket.Key, bucket.DocCount)
@@ -319,7 +326,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 		if filter.MaxDepth != 0 && strings.Contains(attribute, "/") {
 			s := strings.Split(attribute, "/")
 			l := len(s)
-			for i := 0; i < int(filter.MaxDepth) && i < l; i++ {
+			for i := 0; i < maxDepth && i < l; i++ {
 				if i != 0 {
 					att += "/"
 				}
@@ -337,7 +344,11 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 
 // MaxLimit grabs the configured maxlimit for results
 func (es ElasticSearch) MaxLimit() uint {
-	return uint(viper.GetInt("elasticsearch.max_result_window"))
+	maxLimit := viper.GetInt("elasticsearch.max_result_window")
+	if maxLimit < 0 {
+		return 0
+	}
+	return uint(maxLimit)
 }
 
 // indexName Generates the index name for a given TenantId. If no tenantID defaults to audit-*
@@ -345,7 +356,7 @@ func (es ElasticSearch) MaxLimit() uint {
 func indexName(tenantID string) string {
 	index := "audit-*"
 	if tenantID != "" {
-		index = fmt.Sprintf("audit-%s-*", tenantID)
+		index = fmt.Sprintf("audit-%s*", tenantID)
 	}
 	return index
 }
