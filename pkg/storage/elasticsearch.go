@@ -24,8 +24,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"math"
+	"os"
 	"strings"
 
 	elastic "github.com/olivere/elastic/v7"
