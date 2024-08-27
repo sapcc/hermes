@@ -56,8 +56,16 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	// QueryParams
 	// Parse the integers for offset & limit
 	// Error check is failing, TODO sort out. Does it need to check if exists?
-	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32) //nolint:errcheck
-	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)   //nolint:errcheck
+	offset, err := strconv.ParseUint(req.FormValue("offset"), 10, 32)
+	if err != nil {
+		http.Error(res, "Invalid offset", http.StatusBadRequest)
+		return
+	}
+	limit, err := strconv.ParseUint(req.FormValue("limit"), 10, 32)
+	if err != nil {
+		http.Error(res, "Invalid limit", http.StatusBadRequest)
+		return
+	}
 
 	// Parse the sort query string
 	// slice of a struct, key and direction.
