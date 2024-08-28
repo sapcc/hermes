@@ -22,6 +22,7 @@ package api
 import (
 	"net/http"
 
+	"encoding/json"
 	"fmt"
 	"math"
 	"reflect"
@@ -185,7 +186,14 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 	events, total, err := hermes.GetEvents(&filter, indexID, p.keystone, p.storage)
 	if ReturnError(res, err) {
-		logg.Error("api.ListEvents: error %s", err)
+		logg.Error("api.ListEvents: error calling hermes.GetEvents(): %s", err.Error())
+
+		// Check for UnmarshalTypeError and log it
+		var unmarshalErr *json.UnmarshalTypeError
+		if errors.As(err, &unmarshalErr) {
+			logg.Error("api.ListEvents: JSON unmarshal error: Type=%v, Value=%v, Offset=%v, Struct=%v, Field=%v",
+				unmarshalErr.Type, unmarshalErr.Value, unmarshalErr.Offset, unmarshalErr.Struct, unmarshalErr.Field)
+		}
 		storageErrorsCounter.Add(1)
 		return
 	}
