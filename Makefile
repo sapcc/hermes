@@ -84,11 +84,11 @@ tidy-deps: FORCE
 
 license-headers: FORCE prepare-static-check
 	@printf "\e[1;36m>> addlicense\e[0m\n"
-	@addlicense -c "SAP SE"  -- $(patsubst $(shell awk '$$1 == "module" {print $$2}' go.mod)%,.%/*.go,$(shell go list ./...))
+	@addlicense -c "SAP SE" -- $(patsubst $(shell awk '$$1 == "module" {print $$2}' go.mod)%,.%/*.go,$(shell go list ./...))
 
 check-license-headers: FORCE prepare-static-check
 	@printf "\e[1;36m>> addlicense --check\e[0m\n"
-	@addlicense --check  -- $(patsubst $(shell awk '$$1 == "module" {print $$2}' go.mod)%,.%/*.go,$(shell go list ./...))
+	@addlicense --check -- $(patsubst $(shell awk '$$1 == "module" {print $$2}' go.mod)%,.%/*.go,$(shell go list ./...))
 
 check-dependency-licenses: FORCE prepare-static-check
 	@printf "\e[1;36m>> go-licence-detector\e[0m\n"
@@ -135,7 +135,7 @@ help: FORCE
 	@printf "\n"
 	@printf "\e[1mDevelopment\e[0m\n"
 	@printf "  \e[36mtidy-deps\e[0m                  Run go mod tidy and go mod verify.\n"
-	@printf "  \e[36mlicense-headers\e[0m            Add license headers to all non-vendored .go files.\n"
+	@printf "  \e[36mlicense-headers\e[0m            Add license headers to all non-vendored source code files.\n"
 	@printf "  \e[36mcheck-license-headers\e[0m      Check license headers in all non-vendored .go files.\n"
 	@printf "  \e[36mcheck-dependency-licenses\e[0m  Check all dependency licenses using go-licence-detector.\n"
 	@printf "  \e[36mclean\e[0m                      Run git clean.\n"
