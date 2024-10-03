@@ -24,7 +24,6 @@ import (
 
 	"encoding/json"
 	"fmt"
-	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -55,10 +54,28 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// QueryParams
-	// Parse the integers for offset & limit
-	// Error check is failing, TODO sort out. Does it need to check if exists?
-	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32) //nolint:errcheck
-	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)   //nolint:errcheck
+	offsetStr := req.FormValue("offset")
+	limitStr := req.FormValue("limit")
+
+	var offset, limit uint = 0, 10 // Default values
+
+	if offsetStr != "" {
+		parsedOffset, err := strconv.ParseUint(offsetStr, 10, 32)
+		if err != nil {
+			http.Error(res, "Invalid offset value", http.StatusBadRequest)
+			return
+		}
+		offset = uint(parsedOffset)
+	}
+
+	if limitStr != "" {
+		parsedLimit, err := strconv.ParseUint(limitStr, 10, 32)
+		if err != nil {
+			http.Error(res, "Invalid limit value", http.StatusBadRequest)
+			return
+		}
+		limit = uint(parsedLimit)
+	}
 
 	// Parse the sort query string
 	// slice of a struct, key and direction.
@@ -173,8 +190,8 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		Search:        req.FormValue("search"),
 		RequestPath:   req.FormValue("request_path"),
 		Time:          timeRange,
-		Offset:        uint(offset),
-		Limit:         uint(limit),
+		Offset:        offset,
+		Limit:         limit,
 		Sort:          sortSpec,
 		Details:       details,
 	}
@@ -203,22 +220,17 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	// What protocol to use for PrevURL and NextURL?
 	protocol := getProtocol(req)
 
-	// Calculate and set the NextURL if there are more events to fetch
-	if uint64(filter.Offset)+uint64(filter.Limit) < uint64(total) {
-		// Calculate the offset for the next page, ensuring it doesn't exceed MaxUint32
-		nextOffset := uint64(filter.Offset) + uint64(filter.Limit)
-		if nextOffset > math.MaxUint32 {
-			nextOffset = math.MaxUint32
-		}
+	if total >= 0 && filter.Offset+filter.Limit < uint(total) {
+		nextOffset := filter.Offset + filter.Limit
+
 		// Update the offset in the query parameters and construct the NextURL
-		req.Form.Set("offset", strconv.FormatUint(nextOffset, 10))
+		req.Form.Set("offset", strconv.FormatUint(uint64(nextOffset), 10))
 		eventList.NextURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
-	// Calculate and set the PrevURL if we're not on the first page
 	if filter.Offset >= filter.Limit {
-		// Calculate the offset for the previous page
 		prevOffset := filter.Offset - filter.Limit
+
 		// Update the offset in the query parameters and construct the PrevURL
 		req.Form.Set("offset", strconv.FormatUint(uint64(prevOffset), 10))
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
