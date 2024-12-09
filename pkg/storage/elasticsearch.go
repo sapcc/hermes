@@ -22,7 +22,6 @@ package storage
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -30,7 +29,9 @@ import (
 
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/sapcc/go-api-declarations/cadf"
+	"github.com/sapcc/go-bits/errext"
 	"github.com/sapcc/go-bits/logg"
+
 	"github.com/spf13/viper"
 )
 
@@ -208,8 +209,7 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
 	if err != nil {
-		var elasticErr *elastic.Error
-		if errors.As(err, &elasticErr) {
+		if elasticErr, ok := errext.As[*elastic.Error](err); ok {
 			errdetails, _ := json.Marshal(elasticErr.Details) //nolint:errcheck
 			log.Printf("Elastic failed with status %d and error %s.", elasticErr.Status, errdetails)
 		} else {
@@ -287,8 +287,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	searchResult, err := esSearch.Do(context.Background())
 
 	if err != nil {
-		var elasticErr *elastic.Error
-		if errors.As(err, &elasticErr) {
+		if elasticErr, ok := errext.As[*elastic.Error](err); ok {
 			errdetails, _ := json.Marshal(elasticErr.Details) //nolint:errcheck
 			log.Printf("Elastic failed with status %d and error %s.", elasticErr.Status, errdetails)
 		} else {
