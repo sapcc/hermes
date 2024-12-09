@@ -23,8 +23,6 @@ import (
 	"context"
 	"fmt"
 
-	"sync"
-
 	policy "github.com/databus23/goslo.policy"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
@@ -36,9 +34,7 @@ import (
 )
 
 // Keystone Openstack Keystone implementation
-type Keystone struct {
-	TokenRenewalMutex *sync.Mutex // Used for controlling the token refresh process
-}
+type Keystone struct{}
 
 // The JSON mappings here are for parsing Keystone responses
 type keystoneToken struct {
@@ -71,9 +67,6 @@ type keystoneNameID struct {
 
 func (d Keystone) keystoneClient(ctx context.Context) (*gophercloud.ServiceClient, error) {
 	logg.Debug("Getting service user Identity token...")
-	if d.TokenRenewalMutex == nil {
-		d.TokenRenewalMutex = &sync.Mutex{}
-	}
 	if providerClient == nil {
 		var err error
 		// providerClient, err = openstack.NewClient(viper.GetString("Keystone.auth_url"))
@@ -395,50 +388,6 @@ func (t *keystoneToken) ToContext() policy.Context {
 	}
 
 	return c
-}
-
-// RefreshToken fetches a new Identity auth token. It is also used
-// to fetch the initial token on startup.
-func (d Keystone) RefreshToken(ctx context.Context) error {
-	//NOTE: This function is very similar to v3auth() in
-	// gophercloud/openstack/client.go, but with a few differences:
-	//
-	// 1. thread-safe token renewal
-	// 2. proper support for cross-domain scoping
-
-	logg.Debug("Getting service user Identity token...")
-
-	d.TokenRenewalMutex.Lock()
-	defer d.TokenRenewalMutex.Unlock()
-
-	providerClient.TokenID = ""
-
-	//TODO: crashes with RegionName != ""
-	eo := gophercloud.EndpointOpts{Region: ""}
-	keystone, err := openstack.NewIdentityV3(providerClient, eo)
-	if err != nil {
-		return fmt.Errorf("cannot initialize Identity client: %w", err)
-	}
-
-	logg.Debug("Identity URL: %s", keystone.Endpoint)
-
-	opts := d.AuthOptions()
-	result := tokens.Create(ctx, keystone, &opts)
-	token, err := result.ExtractToken()
-	if err != nil {
-		return fmt.Errorf("cannot read token: %w", err)
-	}
-	catalog, err := result.ExtractServiceCatalog()
-	if err != nil {
-		return fmt.Errorf("cannot read service catalog: %w", err)
-	}
-
-	providerClient.TokenID = token.ID
-	providerClient.EndpointLocator = func(opts gophercloud.EndpointOpts) (string, error) {
-		return openstack.V3EndpointURL(catalog, opts)
-	}
-
-	return nil
 }
 
 // AuthOptions fills in Keystone options with hermes config values
