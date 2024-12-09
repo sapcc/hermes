@@ -22,6 +22,7 @@ package storage
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -206,11 +207,14 @@ func (es ElasticSearch) GetEvents(filter *EventFilter, tenantID string) ([]*cadf
 		From(offset).Size(limit)
 
 	searchResult, err := esSearch.Do(context.Background()) // execute
-	// errcheck already within an errchecek, this is for additional detail.
 	if err != nil {
-		e, _ := err.(*elastic.Error)             //nolint:errcheck,errorlint
-		errdetails, _ := json.Marshal(e.Details) //nolint:errcheck
-		log.Printf("Elastic failed with status %d and error %s.", e.Status, errdetails)
+		var elasticErr *elastic.Error
+		if errors.As(err, &elasticErr) {
+			errdetails, _ := json.Marshal(elasticErr.Details) //nolint:errcheck
+			log.Printf("Elastic failed with status %d and error %s.", elasticErr.Status, errdetails)
+		} else {
+			log.Printf("Unknown error occurred: %v", err)
+		}
 		return nil, 0, err
 	}
 
@@ -281,11 +285,15 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 
 	esSearch := es.client().Search().Index(index).Size(limit).Aggregation("attributes", queryAgg)
 	searchResult, err := esSearch.Do(context.Background())
-	// errcheck already within an errcheck, this is for additional detail.
+
 	if err != nil {
-		e, _ := err.(*elastic.Error)             //nolint:errcheck,errorlint
-		errdetails, _ := json.Marshal(e.Details) //nolint:errcheck
-		log.Printf("Elastic failed with status %d and error %s.", e.Status, errdetails)
+		var elasticErr *elastic.Error
+		if errors.As(err, &elasticErr) {
+			errdetails, _ := json.Marshal(elasticErr.Details) //nolint:errcheck
+			log.Printf("Elastic failed with status %d and error %s.", elasticErr.Status, errdetails)
+		} else {
+			log.Printf("Unknown error occurred: %v", err)
+		}
 		return nil, err
 	}
 
@@ -313,7 +321,7 @@ func (es ElasticSearch) GetAttributes(filter *AttributeFilter, tenantID string) 
 	var unique []string
 	for _, bucket := range termsAggRes.Buckets {
 		logg.Debug("key: %s count: %d", bucket.Key, bucket.DocCount)
-		attribute := bucket.Key.(string) //nolint:errcheck
+		attribute := bucket.Key.(string)
 
 		// Hierarchical Depth Handling
 		var att string
