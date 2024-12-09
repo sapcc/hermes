@@ -90,7 +90,7 @@ func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
 	elemsToRemove := []*list.Element{}
 	cache.RLock()
 	for e := cache.eList.Front(); e != nil; e = e.Next() {
-		expiryTime := (e.Value).(time.Time) //nolint:errcheck
+		expiryTime := (e.Value).(time.Time)
 		if now.Before(expiryTime) {
 			break // list is sorted, so we can stop once we get to an unexpired token
 		}
@@ -100,8 +100,8 @@ func getCachedToken(cache *keystoneTokenCache, id string) *keystoneToken {
 	cache.RUnlock()
 	cache.Lock()
 	for _, elem := range elemsToRemove {
-		cache.eList.Remove(elem)                 // Remove the cached expiry time from the sorted list
-		timeToRemove := (elem.Value).(time.Time) //nolint:errcheck
+		cache.eList.Remove(elem) // Remove the cached expiry time from the sorted list
+		timeToRemove := (elem.Value).(time.Time)
 		tokenIDs := cache.eMap[timeToRemove]
 		delete(cache.eMap, timeToRemove) // Remove the cached expiry time from the time:tokenIDs map
 		for _, tokenID := range tokenIDs {

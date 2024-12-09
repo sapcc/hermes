@@ -1,3 +1,6 @@
+# Copyright 2024 SAP SE
+# SPDX-License-Identifier: Apache-2.0
+
 { pkgs ? import <nixpkgs> { } }:
 
 with pkgs;
