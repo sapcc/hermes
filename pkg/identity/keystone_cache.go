@@ -29,22 +29,7 @@ import (
 	"github.com/sapcc/go-bits/logg"
 )
 
-// Cache type used for the name caches
-type cache struct {
-	// "Inherit from" sync.RWMutex, so the cache can be locked during access/update
-	sync.RWMutex
-	// The actual cache - a simple map with no expiry
-	//  (the total number of items will only be in the 10000s, ~100 bytes per item, so ~1Mb per cache)
-	m map[string]string
-}
-
 var providerClient *gophercloud.ProviderClient
-var domainNameCache *cache
-var projectNameCache *cache
-var userNameCache *cache
-var userIDCache *cache
-var roleNameCache *cache
-var groupNameCache *cache
 
 // Token cache
 type keystoneTokenCache struct {
@@ -63,30 +48,11 @@ type keystoneTokenCache struct {
 var tokenCache *keystoneTokenCache
 
 func init() {
-	domainNameCache = &cache{m: make(map[string]string)}
-	projectNameCache = &cache{m: make(map[string]string)}
-	userNameCache = &cache{m: make(map[string]string)}
-	userIDCache = &cache{m: make(map[string]string)}
-	roleNameCache = &cache{m: make(map[string]string)}
-	groupNameCache = &cache{m: make(map[string]string)}
 	tokenCache = &keystoneTokenCache{
 		tMap:  make(map[string]*keystoneToken),
 		eMap:  make(map[time.Time][]string),
 		eList: list.New(),
 	}
-}
-
-func updateCache(cache *cache, key, value string) {
-	cache.Lock()
-	cache.m[key] = value
-	cache.Unlock()
-}
-
-func getFromCache(cache *cache, key string) (string, bool) {
-	cache.RLock()
-	value, exists := cache.m[key]
-	cache.RUnlock()
-	return value, exists
 }
 
 func addTokenToCache(cache *keystoneTokenCache, id string, token *keystoneToken) {
