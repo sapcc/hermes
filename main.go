@@ -20,12 +20,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 
-	policy "github.com/databus23/goslo.policy"
+	"github.com/sapcc/go-bits/gopherpolicy"
 	"github.com/sapcc/go-bits/logg"
+	"github.com/sapcc/go-bits/mock"
 	"github.com/sapcc/go-bits/must"
 	"github.com/sapcc/go-bits/osext"
 	"github.com/spf13/viper"
@@ -33,7 +35,6 @@ import (
 	"github.com/sapcc/hermes/pkg/api"
 	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
-	"github.com/sapcc/hermes/pkg/util"
 )
 
 const version = "1.2.0"
@@ -55,7 +56,6 @@ func main() {
 	readConfig(configPath)
 	keystoneDriver := configuredKeystoneDriver()
 	storageDriver := configuredStorageDriver()
-	readPolicy()
 	must.Succeed(api.Server(keystoneDriver, storageDriver))
 }
 
@@ -71,13 +71,8 @@ func parseCmdlineFlags() {
 }
 
 func setDefaultConfig() {
-	var nullEnforcer, err = policy.NewEnforcer(make(map[string]string))
-	if err != nil {
-		panic(err)
-	}
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "elasticsearch")
-	viper.SetDefault("hermes.PolicyEnforcer", &nullEnforcer)
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
 	viper.SetDefault("elasticsearch.url", "localhost:9200")
 	// index.max_result_window defaults to 10000, as per
@@ -115,16 +110,13 @@ func readConfig(configPath *string) {
 	}
 }
 
-var keystoneIdentity = identity.Keystone{}
-var mockIdentity = identity.Mock{}
-
-func configuredKeystoneDriver() identity.Identity {
+func configuredKeystoneDriver() gopherpolicy.Validator {
 	driverName := viper.GetString("hermes.keystone_driver")
 	switch driverName {
 	case "keystone":
-		return keystoneIdentity
+		return must.Return(identity.NewTokenValidator(context.TODO()))
 	case "mock":
-		return mockIdentity
+		return mock.NewValidator(mock.NewEnforcer(), nil)
 	default:
 		logg.Error("Couldn't match a keystone driver for configured value \"%s\"", driverName)
 		return nil
@@ -144,16 +136,5 @@ func configuredStorageDriver() storage.Storage {
 	default:
 		logg.Error("Couldn't match a storage driver for configured value \"%s\"", driverName)
 		return nil
-	}
-}
-
-func readPolicy() {
-	// load the policy file
-	policyEnforcer, err := util.LoadPolicyFile(viper.GetString("hermes.PolicyFilePath"))
-	if err != nil {
-		logg.Fatal(err.Error())
-	}
-	if policyEnforcer != nil {
-		viper.Set("hermes.PolicyEnforcer", policyEnforcer)
 	}
 }

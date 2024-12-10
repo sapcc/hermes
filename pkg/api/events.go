@@ -32,6 +32,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+	"github.com/sapcc/go-bits/gopherpolicy"
 	"github.com/sapcc/go-bits/logg"
 
 	"github.com/sapcc/hermes/pkg/hermes"
@@ -48,7 +49,7 @@ type EventList struct {
 // ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	logg.Debug("* api.ListEvents: Check token")
-	token := p.CheckToken(req)
+	token := p.validator.CheckToken(req)
 	if !token.Require(res, "event:list") {
 		return
 	}
@@ -201,7 +202,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		return
 	}
-	events, total, err := hermes.GetEvents(&filter, indexID, p.keystone, p.storage)
+	events, total, err := hermes.GetEvents(&filter, indexID, p.storage)
 	if ReturnError(res, err) {
 		logg.Error("api.ListEvents: error calling hermes.GetEvents(): %s", err.Error())
 
@@ -249,7 +250,7 @@ func getProtocol(req *http.Request) string {
 
 // GetEvent handles GET /v1/events/:event_id.
 func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request) {
-	token := p.CheckToken(req)
+	token := p.validator.CheckToken(req)
 	if !token.Require(res, "event:show") {
 		return
 	}
@@ -269,7 +270,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	event, err := hermes.GetEvent(eventID, indexID, p.keystone, p.storage)
+	event, err := hermes.GetEvent(eventID, indexID, p.storage)
 
 	if ReturnError(res, err) {
 		logg.Error("error getting events from Storage: %s", err)
@@ -286,7 +287,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 
 // GetAttributes handles GET /v1/attributes/:attribute_name
 func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
-	token := p.CheckToken(req)
+	token := p.validator.CheckToken(req)
 	if !token.Require(res, "event:show") {
 		return
 	}
@@ -334,13 +335,13 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	ReturnJSON(res, http.StatusOK, attribute)
 }
 
-func getIndexID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
+func getIndexID(token *gopherpolicy.Token, r *http.Request, w http.ResponseWriter) (string, error) {
 	// Get index ID from a token
 	// Defaults to a token project scope
-	indexID := token.context.Auth["project_id"]
+	indexID := token.Context.Auth["project_id"]
 	if indexID == "" {
 		// Fallback to a token domain scope
-		indexID = token.context.Auth["domain_id"]
+		indexID = token.Context.Auth["domain_id"]
 	}
 
 	// Sanitize user input
