@@ -25,13 +25,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
 func Test_GetEvent(t *testing.T) {
 	eventID := "7be6c4ff-b761-5f1f-b234-f5d41616c2cd"
-	event, err := GetEvent(eventID, "", identity.Mock{}, storage.Mock{})
+	event, err := GetEvent(eventID, "", storage.Mock{})
 	require.Nil(t, err)
 	require.NotNil(t, event)
 	assert.Equal(t, "7be6c4ff-b761-5f1f-b234-f5d41616c2cd", event.ID)
@@ -41,7 +40,7 @@ func Test_GetEvent(t *testing.T) {
 }
 
 func Test_GetEvents(t *testing.T) {
-	events, total, err := GetEvents(&EventFilter{}, "", identity.Mock{}, storage.Mock{})
+	events, total, err := GetEvents(&EventFilter{}, "", storage.Mock{})
 	require.Nil(t, err)
 	require.NotNil(t, events)
 	assert.Equal(t, len(events), 4)

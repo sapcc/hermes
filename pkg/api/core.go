@@ -25,13 +25,13 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/sapcc/go-bits/gopherpolicy"
 
-	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
 type v1Provider struct {
-	keystone    identity.Identity
+	validator   gopherpolicy.Validator
 	storage     storage.Storage
 	versionData VersionData
 }
@@ -39,12 +39,12 @@ type v1Provider struct {
 // NewV1Handler creates a http.Handler that serves the Hermes v1 API.
 // It also returns the VersionData for this API version which is needed for the
 // version advertisement on "GET /".
-func NewV1Handler(keystone identity.Identity, storageInterface storage.Storage) (http.Handler, VersionData) {
+func NewV1Handler(validator gopherpolicy.Validator, storageInterface storage.Storage) (http.Handler, VersionData) {
 	r := mux.NewRouter()
 
 	p := &v1Provider{
-		keystone: keystone,
-		storage:  storageInterface,
+		validator: validator,
+		storage:   storageInterface,
 	}
 	p.versionData = VersionData{
 		Status: "CURRENT",
