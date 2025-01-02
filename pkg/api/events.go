@@ -50,6 +50,8 @@ type EventList struct {
 func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	logg.Debug("* api.ListEvents: Check token")
 	token := p.validator.CheckToken(req)
+	logg.Debug("Token context after validation: %+v", token.Context.Auth)
+
 	if !token.Require(res, "event:list") {
 		return
 	}
