@@ -348,8 +348,6 @@ func getIndexID(token *gopherpolicy.Token, r *http.Request, w http.ResponseWrite
 	if indexID == "" {
 		logg.Debug("Token context: %v", token.Context.Auth) // Log the token context for debugging
 		logg.Error("Neither project_id nor domain_id found in token context")
-		http.Error(w, "Unauthorized: Missing project or domain scope", http.StatusUnauthorized)
-		return "", errors.New("missing project_id and domain_id in token context")
 	}
 
 	// Sanitize user input
