@@ -49,27 +49,8 @@ type EventList struct {
 // ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	logg.Debug("* api.ListEvents: Check token")
-	token := p.validator.CheckToken(req)
-	logg.Debug("Token context after validation: %+v", token.Context.Auth)
-
-	// Initialize request context with URL vars
-	token.Context.Request = mux.Vars(req)
-
-	// Handle domain_id with form value priority
-	if formDomainID := req.FormValue("domain_id"); formDomainID != "" {
-		token.Context.Request["domain_id"] = formDomainID
-	} else {
-		token.Context.Request["domain_id"] = token.Context.Auth["domain_id"]
-	}
-
-	// Handle project_id with form value priority
-	if formProjectID := req.FormValue("project_id"); formProjectID != "" {
-		token.Context.Request["project_id"] = formProjectID
-	} else {
-		token.Context.Request["project_id"] = token.Context.Auth["project_id"]
-	}
-
-	if !token.Require(res, "event:list") {
+	token, ok := p.AuthHandler(res, req, "event:list")
+	if !ok {
 		return
 	}
 
@@ -269,10 +250,11 @@ func getProtocol(req *http.Request) string {
 
 // GetEvent handles GET /v1/events/:event_id.
 func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request) {
-	token := p.validator.CheckToken(req)
-	if !token.Require(res, "event:show") {
+	token, ok := p.AuthHandler(res, req, "event:show")
+	if !ok {
 		return
 	}
+
 	// Sanitize user input
 	eventID := mux.Vars(req)["event_id"]
 	eventID = strings.ReplaceAll(eventID, "\n", "")
@@ -306,8 +288,8 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 
 // GetAttributes handles GET /v1/attributes/:attribute_name
 func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
-	token := p.validator.CheckToken(req)
-	if !token.Require(res, "event:show") {
+	token, ok := p.AuthHandler(res, req, "event:list")
+	if !ok {
 		return
 	}
 
