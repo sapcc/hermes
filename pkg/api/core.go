@@ -88,7 +88,6 @@ func (p *v1Provider) Path(elements ...string) string {
 }
 
 // AuthHandler wraps endpoint handlers with consistent auth logic.
-// Returns both token and success status for flexible usage.
 func (p *v1Provider) AuthHandler(w http.ResponseWriter, r *http.Request, rule string) (*gopherpolicy.Token, bool) {
 	token := p.validator.CheckToken(r)
 
