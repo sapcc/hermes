@@ -86,3 +86,29 @@ func (p *v1Provider) Path(elements ...string) string {
 	parts = append(parts, elements...)
 	return strings.Join(parts, "/")
 }
+
+// AuthHandler wraps endpoint handlers with consistent auth logic.
+// Returns both token and success status for flexible usage.
+func (p *v1Provider) AuthHandler(w http.ResponseWriter, r *http.Request, rule string) (*gopherpolicy.Token, bool) {
+	token := p.validator.CheckToken(r)
+
+	// Initialize request context with URL vars
+	token.Context.Request = mux.Vars(r)
+
+	// Handle domain_id with form value priority
+	if formDomainID := r.FormValue("domain_id"); formDomainID != "" {
+		token.Context.Request["domain_id"] = formDomainID
+	} else {
+		token.Context.Request["domain_id"] = token.Context.Auth["domain_id"]
+	}
+
+	// Handle project_id with form value priority
+	if formProjectID := r.FormValue("project_id"); formProjectID != "" {
+		token.Context.Request["project_id"] = formProjectID
+	} else {
+		token.Context.Request["project_id"] = token.Context.Auth["project_id"]
+	}
+
+	ok := token.Require(w, rule)
+	return token, ok
+}
