@@ -52,6 +52,23 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	token := p.validator.CheckToken(req)
 	logg.Debug("Token context after validation: %+v", token.Context.Auth)
 
+	// Initialize request context with URL vars
+	token.Context.Request = mux.Vars(req)
+
+	// Handle domain_id with form value priority
+	if formDomainID := req.FormValue("domain_id"); formDomainID != "" {
+		token.Context.Request["domain_id"] = formDomainID
+	} else {
+		token.Context.Request["domain_id"] = token.Context.Auth["domain_id"]
+	}
+
+	// Handle project_id with form value priority
+	if formProjectID := req.FormValue("project_id"); formProjectID != "" {
+		token.Context.Request["project_id"] = formProjectID
+	} else {
+		token.Context.Request["project_id"] = token.Context.Auth["project_id"]
+	}
+
 	if !token.Require(res, "event:list") {
 		return
 	}
