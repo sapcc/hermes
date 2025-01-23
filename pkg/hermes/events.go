@@ -26,7 +26,6 @@ import (
 	"github.com/sapcc/go-api-declarations/cadf"
 	"github.com/sapcc/go-bits/logg"
 
-	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
@@ -85,7 +84,7 @@ type AttributeFilter struct {
 }
 
 // GetEvents returns a list of matching events (with filtering)
-func GetEvents(filter *EventFilter, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) ([]*ListEvent, int, error) {
+func GetEvents(filter *EventFilter, tenantID string, eventStore storage.Storage) ([]*ListEvent, int, error) {
 	storageFilter, err := storageFilter(filter, eventStore)
 	if err != nil {
 		return nil, 0, err
@@ -179,7 +178,7 @@ func eventsList(eventDetails []*cadf.Event, details bool) ([]*ListEvent, error) 
 }
 
 // GetEvent returns the CADF detail for event with the specified ID
-func GetEvent(eventID, tenantID string, keystoneDriver identity.Identity, eventStore storage.Storage) (*cadf.Event, error) {
+func GetEvent(eventID, tenantID string, eventStore storage.Storage) (*cadf.Event, error) {
 	event, err := eventStore.GetEvent(eventID, tenantID)
 
 	return event, err

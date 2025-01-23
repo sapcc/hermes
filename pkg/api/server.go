@@ -30,17 +30,17 @@ import (
 	"github.com/rs/cors"
 	"github.com/spf13/viper"
 
+	"github.com/sapcc/go-bits/gopherpolicy"
 	"github.com/sapcc/go-bits/httpext"
 	"github.com/sapcc/go-bits/logg"
 
-	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
 // Server Set up and start the API server, hooking it up to the API router
-func Server(keystone identity.Identity, storageInterface storage.Storage) error {
+func Server(validator gopherpolicy.Validator, storageInterface storage.Storage) error {
 	fmt.Println("API")
-	mainRouter := setupRouter(keystone, storageInterface)
+	mainRouter := setupRouter(validator, storageInterface)
 
 	// start HTTP server
 	listenaddress := viper.GetString("API.ListenAddress")
@@ -57,11 +57,11 @@ func Server(keystone identity.Identity, storageInterface storage.Storage) error 
 	return httpext.ListenAndServeContext(ctx, listenaddress, handler)
 }
 
-func setupRouter(keystone identity.Identity, storageInterface storage.Storage) http.Handler {
+func setupRouter(validator gopherpolicy.Validator, storageInterface storage.Storage) http.Handler {
 	mainRouter := mux.NewRouter()
 	// hook up the v1 API (this code is structured so that a newer API version can
 	// be added easily later)
-	v1Router, v1VersionData := NewV1Handler(keystone, storageInterface)
+	v1Router, v1VersionData := NewV1Handler(validator, storageInterface)
 	mainRouter.PathPrefix("/v1/").Handler(v1Router)
 
 	// add the version advertisement that lists all available API versions

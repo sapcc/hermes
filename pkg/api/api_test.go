@@ -28,9 +28,9 @@ import (
 
 	policy "github.com/databus23/goslo.policy"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sapcc/go-bits/mock"
 	"github.com/spf13/viper"
 
-	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
 )
@@ -53,11 +53,11 @@ func setupTest(t *testing.T) http.Handler {
 	viper.Set("hermes.PolicyEnforcer", policyEnforcer)
 
 	// create test driver with the domains and projects from start-data.sql
-	keystone := identity.Mock{}
+	validator := mock.NewValidator(mock.NewEnforcer(), nil)
 	storageInterface := storage.Mock{}
 
 	prometheus.DefaultRegisterer = prometheus.NewPedanticRegistry()
-	router, _ := NewV1Handler(keystone, storageInterface)
+	router, _ := NewV1Handler(validator, storageInterface)
 	return router
 }
 

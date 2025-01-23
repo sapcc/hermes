@@ -25,13 +25,13 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/sapcc/go-bits/gopherpolicy"
 
-	"github.com/sapcc/hermes/pkg/identity"
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
 type v1Provider struct {
-	keystone    identity.Identity
+	validator   gopherpolicy.Validator
 	storage     storage.Storage
 	versionData VersionData
 }
@@ -39,12 +39,12 @@ type v1Provider struct {
 // NewV1Handler creates a http.Handler that serves the Hermes v1 API.
 // It also returns the VersionData for this API version which is needed for the
 // version advertisement on "GET /".
-func NewV1Handler(keystone identity.Identity, storageInterface storage.Storage) (http.Handler, VersionData) {
+func NewV1Handler(validator gopherpolicy.Validator, storageInterface storage.Storage) (http.Handler, VersionData) {
 	r := mux.NewRouter()
 
 	p := &v1Provider{
-		keystone: keystone,
-		storage:  storageInterface,
+		validator: validator,
+		storage:   storageInterface,
 	}
 	p.versionData = VersionData{
 		Status: "CURRENT",
@@ -87,4 +87,29 @@ func (p *v1Provider) Path(elements ...string) string {
 	}
 	parts = append(parts, elements...)
 	return strings.Join(parts, "/")
+}
+
+// AuthHandler wraps endpoint handlers with consistent auth logic.
+func (p *v1Provider) AuthHandler(w http.ResponseWriter, r *http.Request, rule string) (*gopherpolicy.Token, bool) {
+	token := p.validator.CheckToken(r)
+
+	// Initialize request context with URL vars
+	token.Context.Request = mux.Vars(r)
+
+	// Handle domain_id with form value priority
+	if formDomainID := r.FormValue("domain_id"); formDomainID != "" {
+		token.Context.Request["domain_id"] = formDomainID
+	} else {
+		token.Context.Request["domain_id"] = token.Context.Auth["domain_id"]
+	}
+
+	// Handle project_id with form value priority
+	if formProjectID := r.FormValue("project_id"); formProjectID != "" {
+		token.Context.Request["project_id"] = formProjectID
+	} else {
+		token.Context.Request["project_id"] = token.Context.Auth["project_id"]
+	}
+
+	ok := token.Require(w, rule)
+	return token, ok
 }

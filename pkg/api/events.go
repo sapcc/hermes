@@ -22,8 +22,8 @@ package api
 import (
 	"net/http"
 
+	"encoding/json"
 	"fmt"
-	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -32,6 +32,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+	"github.com/sapcc/go-bits/gopherpolicy"
 	"github.com/sapcc/go-bits/logg"
 
 	"github.com/sapcc/hermes/pkg/hermes"
@@ -48,16 +49,34 @@ type EventList struct {
 // ListEvents handles GET /v1/events.
 func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	logg.Debug("* api.ListEvents: Check token")
-	token := p.CheckToken(req)
-	if !token.Require(res, "event:list") {
+	token, ok := p.AuthHandler(res, req, "event:list")
+	if !ok {
 		return
 	}
 
 	// QueryParams
-	// Parse the integers for offset & limit
-	// Error check is failing, TODO sort out. Does it need to check if exists?
-	offset, _ := strconv.ParseUint(req.FormValue("offset"), 10, 32) //nolint:errcheck
-	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)   //nolint:errcheck
+	offsetStr := req.FormValue("offset")
+	limitStr := req.FormValue("limit")
+
+	var offset, limit uint = 0, 10 // Default values
+
+	if offsetStr != "" {
+		parsedOffset, err := strconv.ParseUint(offsetStr, 10, 32)
+		if err != nil {
+			http.Error(res, "Invalid offset value", http.StatusBadRequest)
+			return
+		}
+		offset = uint(parsedOffset)
+	}
+
+	if limitStr != "" {
+		parsedLimit, err := strconv.ParseUint(limitStr, 10, 32)
+		if err != nil {
+			http.Error(res, "Invalid limit value", http.StatusBadRequest)
+			return
+		}
+		limit = uint(parsedLimit)
+	}
 
 	// Parse the sort query string
 	// slice of a struct, key and direction.
@@ -172,8 +191,8 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		Search:        req.FormValue("search"),
 		RequestPath:   req.FormValue("request_path"),
 		Time:          timeRange,
-		Offset:        uint(offset),
-		Limit:         uint(limit),
+		Offset:        offset,
+		Limit:         limit,
 		Sort:          sortSpec,
 		Details:       details,
 	}
@@ -183,9 +202,16 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		return
 	}
-	events, total, err := hermes.GetEvents(&filter, indexID, p.keystone, p.storage)
+	events, total, err := hermes.GetEvents(&filter, indexID, p.storage)
 	if ReturnError(res, err) {
-		logg.Error("api.ListEvents: error %s", err)
+		logg.Error("api.ListEvents: error calling hermes.GetEvents(): %s", err.Error())
+
+		// Check for UnmarshalTypeError and log it
+		var unmarshalErr *json.UnmarshalTypeError
+		if errors.As(err, &unmarshalErr) {
+			logg.Error("api.ListEvents: JSON unmarshal error: Type=%v, Value=%v, Offset=%v, Struct=%v, Field=%v",
+				unmarshalErr.Type, unmarshalErr.Value, unmarshalErr.Offset, unmarshalErr.Struct, unmarshalErr.Field)
+		}
 		storageErrorsCounter.Add(1)
 		return
 	}
@@ -195,22 +221,17 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	// What protocol to use for PrevURL and NextURL?
 	protocol := getProtocol(req)
 
-	// Calculate and set the NextURL if there are more events to fetch
-	if uint64(filter.Offset)+uint64(filter.Limit) < uint64(total) {
-		// Calculate the offset for the next page, ensuring it doesn't exceed MaxUint32
-		nextOffset := uint64(filter.Offset) + uint64(filter.Limit)
-		if nextOffset > math.MaxUint32 {
-			nextOffset = math.MaxUint32
-		}
+	if total >= 0 && filter.Offset+filter.Limit < uint(total) {
+		nextOffset := filter.Offset + filter.Limit
+
 		// Update the offset in the query parameters and construct the NextURL
-		req.Form.Set("offset", strconv.FormatUint(nextOffset, 10))
+		req.Form.Set("offset", strconv.FormatUint(uint64(nextOffset), 10))
 		eventList.NextURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
-	// Calculate and set the PrevURL if we're not on the first page
 	if filter.Offset >= filter.Limit {
-		// Calculate the offset for the previous page
 		prevOffset := filter.Offset - filter.Limit
+
 		// Update the offset in the query parameters and construct the PrevURL
 		req.Form.Set("offset", strconv.FormatUint(uint64(prevOffset), 10))
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
@@ -229,10 +250,11 @@ func getProtocol(req *http.Request) string {
 
 // GetEvent handles GET /v1/events/:event_id.
 func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request) {
-	token := p.CheckToken(req)
-	if !token.Require(res, "event:show") {
+	token, ok := p.AuthHandler(res, req, "event:show")
+	if !ok {
 		return
 	}
+
 	// Sanitize user input
 	eventID := mux.Vars(req)["event_id"]
 	eventID = strings.ReplaceAll(eventID, "\n", "")
@@ -249,7 +271,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	event, err := hermes.GetEvent(eventID, indexID, p.keystone, p.storage)
+	event, err := hermes.GetEvent(eventID, indexID, p.storage)
 
 	if ReturnError(res, err) {
 		logg.Error("error getting events from Storage: %s", err)
@@ -266,8 +288,8 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 
 // GetAttributes handles GET /v1/attributes/:attribute_name
 func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
-	token := p.CheckToken(req)
-	if !token.Require(res, "event:show") {
+	token, ok := p.AuthHandler(res, req, "event:list")
+	if !ok {
 		return
 	}
 
@@ -343,10 +365,16 @@ func (p *v1Provider) ExportEvents(w http.ResponseWriter, r *http.Request) {
 func getIndexID(token *Token, r *http.Request, w http.ResponseWriter) (string, error) {
 	// Get index ID from a token
 	// Defaults to a token project scope
-	indexID := token.context.Auth["project_id"]
+	indexID := token.Context.Auth["project_id"]
 	if indexID == "" {
 		// Fallback to a token domain scope
-		indexID = token.context.Auth["domain_id"]
+		indexID = token.Context.Auth["domain_id"]
+	}
+
+	// Log and handle the case where neither project_id nor domain_id is found
+	if indexID == "" {
+		logg.Debug("Token context: %v", token.Context.Auth) // Log the token context for debugging
+		logg.Error("Neither project_id nor domain_id found in token context")
 	}
 
 	// Sanitize user input
