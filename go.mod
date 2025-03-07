@@ -5,12 +5,12 @@ go 1.24
 require (
 	github.com/databus23/goslo.policy v0.0.0-20210929125152-81bf2876dbdb
 	github.com/google/uuid v1.6.0
-	github.com/gophercloud/gophercloud/v2 v2.5.0
+	github.com/gophercloud/gophercloud/v2 v2.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/jinzhu/copier v0.4.0
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.21.0
+	github.com/prometheus/client_golang v1.21.1
 	github.com/rs/cors v1.11.1
 	github.com/sapcc/go-api-declarations v1.14.0
 	github.com/sapcc/go-bits v0.0.0-20250303205011-14acb783d1d1
