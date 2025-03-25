@@ -173,10 +173,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	details := false
-	if req.Form.Has("details") {
-		details = true
-	}
+	details := req.Form.Has("details")
 
 	logg.Debug("api.ListEvents: Create filter")
 	filter := hermes.EventFilter{
