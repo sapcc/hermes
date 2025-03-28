@@ -3,7 +3,7 @@ module github.com/sapcc/hermes
 go 1.24
 
 require (
-	github.com/databus23/goslo.policy v0.0.0-20210929125152-81bf2876dbdb
+	github.com/databus23/goslo.policy v0.0.0-20250326134918-4afc2c56a903
 	github.com/google/uuid v1.6.0
 	github.com/gophercloud/gophercloud/v2 v2.6.0
 	github.com/gorilla/mux v1.8.1
@@ -12,8 +12,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.21.1
 	github.com/rs/cors v1.11.1
-	github.com/sapcc/go-api-declarations v1.14.1
-	github.com/sapcc/go-bits v0.0.0-20250320011137-5ec7b29ab444
+	github.com/sapcc/go-api-declarations v1.14.2
+	github.com/sapcc/go-bits v0.0.0-20250327084830-778195481ca6
 	github.com/spf13/viper v1.20.0
 	github.com/stretchr/testify v1.10.0
 )
