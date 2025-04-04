@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/databus23/goslo.policy v0.0.0-20250326134918-4afc2c56a903
 	github.com/google/uuid v1.6.0
-	github.com/gophercloud/gophercloud/v2 v2.6.0
+	github.com/gophercloud/gophercloud/v2 v2.7.0
 	github.com/gorilla/mux v1.8.1
 	github.com/jinzhu/copier v0.4.0
 	github.com/olivere/elastic/v7 v7.0.32
