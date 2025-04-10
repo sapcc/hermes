@@ -1,12 +1,26 @@
-# Hermes
-
-[![CI](https://github.com/sapcc/hermes/actions/workflows/ci.yaml/badge.svg)](https://github.com/sapcc/hermes/actions/workflows/ci.yaml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/sapcc/hermes)](https://goreportcard.com/report/github.com/sapcc/hermes)
-[![GoDoc](https://godoc.org/github.com/sapcc/hermes?status.svg)](https://godoc.org/github.com/sapcc/hermes)
+<!-- Logo and Title -->
+<div align="center">
+  <img src=".github/assets/hermes.png" alt="Hermes Logo" width="250"/>
+  <h1>Hermes</h1>
+  <p><em>An OpenStack audit trail service</em></p>
+  
+  <!-- Badges -->
+  <p>
+    <a href="https://github.com/sapcc/hermes/actions/workflows/ci.yaml">
+      <img src="https://github.com/sapcc/hermes/actions/workflows/ci.yaml/badge.svg" alt="CI Status"/>
+    </a>
+    <a href="https://goreportcard.com/report/github.com/sapcc/hermes">
+      <img src="https://goreportcard.com/badge/github.com/sapcc/hermes" alt="Go Report Card"/>
+    </a>
+    <a href="https://godoc.org/github.com/sapcc/hermes">
+      <img src="https://godoc.org/github.com/sapcc/hermes?status.svg" alt="GoDoc"/>
+    </a>
+  </p>
+</div>
 
 ----
 
-**Hermes** is an audit trail service for OpenStack, originally designed for SAP's internal Openstack Cloud. 
+**Hermes** is an audit trail service for OpenStack, originally designed for SAP's internal OpenStack Cloud. 
 
 It is named after the Futurama character, not the Greek god.
 
@@ -27,7 +41,7 @@ Hermes enables customer access for audit relevant events that occur from OpenSta
 ## Dependencies
 - OpenStack
 - [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware) - To Generate audit events in a WSGI Pipeline
-- RabbitMQ - To queue audit events from Openstack
+- RabbitMQ - To queue audit events from OpenStack
 - Logstash - To transform and route audit events
 - Elasticsearch or Opensearch - To store audit events for the API to query
 
