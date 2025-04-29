@@ -301,9 +301,9 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 	maxdepth, _ := strconv.ParseUint(req.FormValue("max_depth"), 10, 32) //nolint:errcheck
 	limit, _ := strconv.ParseUint(req.FormValue("limit"), 10, 32)        //nolint:errcheck
 
-	// Default Limit of 50 if not specified by queryparam
+	// Default Limit of 10000 if not specified by queryparam, which is the max opensearch supports.
 	if limit == 0 {
-		limit = 50
+		limit = 10000
 	}
 
 	logg.Debug("api.GetAttributes: Create filter")
