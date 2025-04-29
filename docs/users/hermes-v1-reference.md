@@ -212,7 +212,7 @@ returns
 | **Name** | **Type** | **Description** | **Default** |
 | --- | --- | --- | --- | 
 | max_depth | integer | max. depth / level of detail of hierarchical values | infinity / unlimited |
-| limit | integer | limit of values returned | 50 | 
+| limit | integer | limit of values returned | 10000 | 
 
 ### Hierarchical Values
 
