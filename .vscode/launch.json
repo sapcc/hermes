@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Hermes",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "args": [
+        "-f=${workspaceFolder}/etc/hermes.conf"
+      ],
+      "env": {
+        "GOMEMLIMIT": "300",
+        "HERMES_DEBUG": "1"
+      },
+      "showLog": true,
+      "trace": "verbose"
+    },
+    {
+      "name": "Launch test",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${fileDirname}",
+      "args": [],
+      "env": {
+        "GOMEMLIMIT": "300"
+      },
+      "showLog": true,
+      "trace": "verbose"
+    }
+  ]
+}
+  
