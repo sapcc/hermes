@@ -16,3 +16,29 @@ path = [
 ]
 SPDX-FileCopyrightText = "SAP SE"
 SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [
+  ".github/assets/hermes.png",
+  "AppStructure.png",
+]
+SPDX-FileCopyrightText = "SAP SE"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [
+  "docs/example-policy.json",
+  "etc/permissive-policy.json",
+  "etc/policy.json",
+  "pkg/api/fixtures/*.json",
+  "pkg/test/policy.json",
+]
+SPDX-FileCopyrightText = "SAP SE"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [
+  "go.sum",
+]
+SPDX-FileCopyrightText = "SAP SE"
+SPDX-License-Identifier = "Apache-2.0"

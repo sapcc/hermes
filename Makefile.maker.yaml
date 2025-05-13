@@ -31,3 +31,26 @@ renovate:
   enabled: true
   assignees:
     - notque
+
+reuse:
+  annotations:
+    # Image files
+    - paths:
+        - ".github/assets/hermes.png"
+        - "AppStructure.png"
+      SPDX-FileCopyrightText: "SAP SE"
+      SPDX-License-Identifier: "Apache-2.0"
+    # JSON config/policy/example/fixture files
+    - paths:
+        - "docs/example-policy.json"
+        - "etc/permissive-policy.json"
+        - "etc/policy.json"
+        - "pkg/api/fixtures/*.json" # Glob for fixtures
+        - "pkg/test/policy.json"
+      SPDX-FileCopyrightText: "SAP SE"
+      SPDX-License-Identifier: "Apache-2.0"
+    # Add go.sum based on majewsky's previous comment
+    - paths:
+        - "go.sum"
+      SPDX-FileCopyrightText: "SAP SE"
+      SPDX-License-Identifier: "Apache-2.0"
