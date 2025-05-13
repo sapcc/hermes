@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 SAP SE
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Hermes v1 API Reference
 
 The URLs indicated in the headers of each section are relative to the endpoint URL advertised in the Keystone catalog 

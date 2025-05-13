@@ -97,7 +97,21 @@ tidy-deps: FORCE
 
 license-headers: FORCE install-addlicense
 	@printf "\e[1;36m>> addlicense (for license headers on source code files)\e[0m\n"
-	@echo -n $(patsubst $(shell awk '$$1 == "module" {print $$2}' go.mod)%,.%/*.go,$(shell go list ./...)) | xargs -d" " -I{} bash -c 'year="$$(rg -P "Copyright.* (\d{4})" -Nor "\$$1" {} | head -n1)"; awk -i inplace '"'"'{if (display) {print} else {!/^\/\*/ && !/^\*/ && !/^\$$/}}; /^package /{print;display=1}'"'"' {}; addlicense -c "SAP SE" -s=only -y "$$year" -- {}; sed -i '"'"'1s+// Copyright +// SPDX-FileCopyrightText: +'"'"' {}'
+	@# Use find to process Go files individually. Pass filename via environment variable 'f'.
+	@find . -name '*.go' -not -path './vendor/*' -exec env f={} bash -c '\
+	    # Exit immediately if file env var is empty (safety check) \
+	    if [ -z "$f" ]; then printf "Error: Environment variable '\''f'\'' is empty\n"; exit 1; fi; \
+	    current_year=$$(date +%Y); \
+	    printf "Processing Go file: [%s]\n" "$f"; \
+	    # Run addlicense with current year (review diff later for accuracy) \
+	    addlicense -c "SAP SE" -y "$$current_year" -s=only -- "$f"; \
+	    # If addlicense succeeded, fix the header format using macOS sed \
+	    if [ $$? -eq 0 ]; then \
+	        sed -i "" "1s|// Copyright|// SPDX-FileCopyrightText:|" "$f"; \
+	    else \
+	        printf "Warning: addlicense failed for [%s]\n" "$f"; \
+	    fi; \
+	    ' \;
 	@printf "\e[1;36m>> reuse annotate (for license headers on other files)\e[0m\n"
 	@reuse lint -j | jq -r '.non_compliant.missing_licensing_info[]' | grep -vw vendor | xargs reuse annotate -c 'SAP SE' -l Apache-2.0 --skip-unrecognised
 	@printf "\e[1;36m>> reuse download --all\e[0m\n"

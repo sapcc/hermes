@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 SAP SE
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Getting Started with Hermes
 
 Hermes is an audit trail service for OpenStack that enables easy access to audit events on a tenant basis. With Hermes, you can view project-level audit events through an API or as an optional module in the OpenStack dashboard, Elektra.

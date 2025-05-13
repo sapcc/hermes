@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 SAP SE
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <!-- Logo and Title -->
 <div align="center">
   <img src=".github/assets/hermes.png" alt="Hermes Logo" width="250"/>

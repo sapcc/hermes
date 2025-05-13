@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 SAP SE
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 * Replacement of Logstash for transferring events from RabbitMQ to 
     * If we wish to configure the service via API, it would be significantly easier to have an API against which to edit the configuration. Logstash doesn't enable this, using config files. Those config files can be live changed while the service runs, but this isn't ideal. In later versions of ElasticSearch/Logstash there is an API for configuration changes, but it doesn't enable the granular changes we require.
     * We want to send all events to OpenStack Swift, as well as ElasticSearch. Logstash can possibly use this with the s3 api, however if we want to do anything like putting events into ProjectID buckets, we're going to be unable to do that.
