@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Using the Hermes API
 
 The Hermes API allows you to access audit events on a tenant basis, providing detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This guide will walk you through the process of getting a token, finding the Hermes endpoint, and using the API.
