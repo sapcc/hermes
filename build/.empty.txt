@@ -1,1 +1,6 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company
+#
+# SPDX-License-Identifier: Apache-2.0
+
+
 keep this file, otherwise make will break since it requires a "build" directory
