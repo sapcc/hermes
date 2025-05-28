@@ -4,15 +4,15 @@ SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# Getting Started with Hermes
+# Getting Started with Hermetis
 
-Hermes is an audit trail service for OpenStack that enables easy access to audit events on a tenant basis. With Hermes, you can view project-level audit events through an API or as an optional module in the OpenStack dashboard, Elektra.
+Hermetis is an audit trail service for OpenStack that enables easy access to audit events on a tenant basis. With Hermetis, you can view project-level audit events through an API or as an optional module in the OpenStack dashboard, Elektra.
 
 ## What is an audit event?
 An audit event is a JSON record that contains the details of a given OpenStack event, such as the user who made the request, the request itself, and when it occurred. The event log contains information about actions taken within your OpenStack tenant or domain.
 
 ## 7 “W”s of audit
-Hermes provides detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This information is presented in the CADF format, which includes both mandatory and optional properties.
+Hermetis provides detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This information is presented in the CADF format, which includes both mandatory and optional properties.
 
 | “W” Component | CADF Mandatory Properties  | CADF Optional Properties (where applicable) | Description |
 | --- | --- | --- | --- |
@@ -27,10 +27,10 @@ Hermes provides detailed information about each event, including the 7 “W”s 
 
 ## Available clients
 
-* Hermes command line client [HermesCli](https://github.com/sapcc/hermescli)
+* Hermetis command line client [HermetisCli](https://github.com/sapcc/hermescli)
 * You can send requests to [the HTTP API](./hermes-v1-reference.md) directly, as shown [in this guide](./api-example.md).
 * The OpenStack web dashboard [Elektra](https://github.com/sapcc/elektra) contains an optional *Audit*
-  module that becomes accessible if Hermes is deployed in the target OpenStack cluster.
+  module that becomes accessible if Hermetis is deployed in the target OpenStack cluster.
 
 ## Retention of audit events
 
