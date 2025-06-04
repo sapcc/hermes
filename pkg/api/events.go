@@ -85,76 +85,122 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		"event_type":    true,
 	}
 	validSortDirection := map[string]bool{"asc": true, "desc": true}
+
+	// Parse the sort query string.
+	// The sort parameter is a comma-separated list of "field:direction" pairs.
+	// Example: "time:desc,initiator_name:asc"
 	sortParam := req.FormValue("sort")
 
-	if sortParam != "" {
-		for _, sortElement := range strings.Split(sortParam, ",") {
-			keyVal := strings.SplitN(sortElement, ":", 2)
-			// `time`, `source`, `resource_type`, `resource_name`, and `event_type`.
-			sortfield := keyVal[0]
-			if !validSortTopics[sortfield] {
-				err := fmt.Errorf("not a valid topic: %s, valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
+	for sortElement := range strings.SplitSeq(sortParam, ",") {
+		sortElement = strings.TrimSpace(sortElement)
+
+		if sortElement == "" {
+			if strings.TrimSpace(sortParam) != "" {
+				http.Error(res, "Invalid sort parameter", http.StatusBadRequest)
+				return
+			}
+			continue
+		}
+
+		sortfield, direction, foundColon := strings.Cut(sortElement, ":")
+
+		if sortfield == "" {
+			http.Error(res, "Invalid sort parameter: field name cannot be empty", http.StatusBadRequest)
+			return
+		}
+
+		if !validSortTopics[sortfield] {
+			err := fmt.Errorf("not a valid topic: %s, valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		defsortorder := "asc"
+		if foundColon {
+			sortDirection := strings.TrimSpace(direction)
+			if sortDirection == "" {
+				err := fmt.Errorf("sort direction for field %s cannot be empty", sortfield)
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 
-			defsortorder := "asc"
-			if len(keyVal) == 2 {
-				sortDirection := keyVal[1]
-				if !validSortDirection[sortDirection] {
-					err := fmt.Errorf("sort direction %s is invalid, must be asc or desc", sortDirection)
-					http.Error(res, err.Error(), http.StatusBadRequest)
-					return
-				}
-				defsortorder = sortDirection
+			if !validSortDirection[sortDirection] {
+				err := fmt.Errorf("sort direction %s is invalid, must be asc or desc", sortDirection)
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
 			}
-
-			s := hermes.FieldOrder{Fieldname: sortfield, Order: defsortorder}
-			sortSpec = append(sortSpec, s)
+			defsortorder = sortDirection
 		}
+
+		fieldOrder := hermes.FieldOrder{Fieldname: sortfield, Order: defsortorder}
+		sortSpec = append(sortSpec, fieldOrder)
 	}
 
 	// Next, parse the elements of the time range filter
 	timeRange := make(map[string]string)
 	validOperators := map[string]bool{"lt": true, "lte": true, "gt": true, "gte": true}
+
 	timeParam := req.FormValue("time")
-	if timeParam != "" {
-		for _, timeElement := range strings.Split(timeParam, ",") {
-			keyVal := strings.SplitN(timeElement, ":", 2)
-			operator := keyVal[0]
-			if !validOperators[operator] {
-				err := fmt.Errorf("time operator %s is not valid. Must be lt, lte, gt or gte", operator)
-				http.Error(res, err.Error(), http.StatusBadRequest)
+	for timeElement := range strings.SplitSeq(timeParam, ",") {
+		timeElement = strings.TrimSpace(timeElement)
+
+		if timeElement == "" {
+			if strings.TrimSpace(req.FormValue("time")) != "" {
+				http.Error(res, "Invalid time parameter: an element is empty", http.StatusBadRequest)
 				return
 			}
-			_, exists := timeRange[operator]
-			if exists {
-				err := fmt.Errorf("time operator %s can only occur once", operator)
-				http.Error(res, err.Error(), http.StatusBadRequest)
-				return
-			}
-			if len(keyVal) != 2 {
-				err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
-				http.Error(res, err.Error(), http.StatusBadRequest)
-				return
-			}
-			validTimeFormats := []string{time.RFC3339, "2006-01-02T15:04:05-0700", "2006-01-02T15:04:05"}
-			var isValidTimeFormat bool
-			timeStr := keyVal[1]
-			for _, timeFormat := range validTimeFormats {
-				_, err := time.Parse(timeFormat, timeStr)
-				if err != nil {
-					isValidTimeFormat = true
-					break
-				}
-			}
-			if !isValidTimeFormat {
-				err := fmt.Errorf("invalid time format: %s", timeStr)
-				http.Error(res, err.Error(), http.StatusBadRequest)
-				return
-			}
-			timeRange[operator] = timeStr
+			continue
 		}
+
+		operator, value, foundColon := strings.Cut(timeElement, ":")
+		if operator == "" {
+			http.Error(res, "Invalid time parameter: operator cannot be empty", http.StatusBadRequest)
+			return
+		}
+
+		if !validOperators[operator] {
+			err := fmt.Errorf("time operator %s is not valid. Must be lt, lte, gt or gte", operator)
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if !foundColon {
+			err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		timeStr := strings.TrimSpace(value)
+		if timeStr == "" {
+			err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		_, exists := timeRange[operator]
+		if exists {
+			err := fmt.Errorf("time operator %s can only occur once", operator)
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		validTimeFormats := []string{time.RFC3339, "2006-01-02T15:04:05-0700", "2006-01-02T15:04:05"}
+		var isValidTimeFormat bool
+		isValidTimeFormat = false
+		// Check if the timeStr matches any of the valid time formats
+		for _, timeFormat := range validTimeFormats {
+			_, err := time.Parse(timeFormat, timeStr)
+			if err == nil { // If parsing succeeds (no error)
+				isValidTimeFormat = true
+				break
+			}
+		}
+		if !isValidTimeFormat {
+			err := fmt.Errorf("invalid time format: %s", timeStr)
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+		timeRange[operator] = timeStr
 	}
 
 	details := req.Form.Has("details")

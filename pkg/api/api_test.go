@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	policy "github.com/databus23/goslo.policy"
 	"github.com/prometheus/client_golang/prometheus"
@@ -69,6 +70,69 @@ func Test_API(t *testing.T) {
 				ExpectStatusCode: tc.statuscode,
 				ExpectJSON:       tc.json,
 			}.Check(t, router)
+		})
+	}
+}
+
+func TestListEvents_ParameterParsing(t *testing.T) {
+	validTimeStr := time.Now().UTC().Format(time.RFC3339)
+	anotherValidTimeStr := time.Now().UTC().Add(1 * time.Hour).Format(time.RFC3339)
+
+	tt := []struct {
+		name             string
+		path             string // Query string part
+		expectStatusCode int
+		// ExpectJSON will be "" for Bad Request (plain text error from http.Error)
+		// For the one OK case, we won't specify ExpectJSON to avoid diffs with the mock.
+		expectJSON string
+	}{
+		// --- Minimal "Loop Runs" Case (will get static data from mock) ---
+		// This ensures the loop itself doesn't panic and can process a valid item.
+		// We don't check the body because the mock returns static data.
+		// TODO: Add a real test fixture for this.
+		{"Sort_MinimalValidToRunLoop", "?sort=time", http.StatusOK, ""},
+
+		// --- Sort Parameter Parsing Errors ---
+		{"Sort_InvalidField", "?sort=invalidfield", http.StatusBadRequest, ""},
+		{"Sort_InvalidDirection", "?sort=time:wrongdir", http.StatusBadRequest, ""},
+		// Cases leading to empty sortElement or sortfield
+		{"Sort_EmptyElementMiddle_FromCut", "?sort=time,,initiator_id", http.StatusBadRequest, ""},
+		{"Sort_EmptyElementLeading_FromCut", "?sort=,time", http.StatusBadRequest, ""},
+		{"Sort_OnlyCommas_FromCut", "?sort=,,", http.StatusBadRequest, ""},
+		{"Sort_EmptyFieldNameExplicit", "?sort=:asc", http.StatusBadRequest, ""},
+
+		// --- Time Parameter Parsing Errors ---
+		// Minimal valid case for time loop
+		{"Time_MinimalValidToRunLoop", "?time=lt:" + validTimeStr, http.StatusOK, ""},
+
+		// Invalid cases
+		{"Time_InvalidOperator", "?time=xx:" + validTimeStr, http.StatusBadRequest, ""},
+		{"Time_DuplicateOperator", "?time=lt:" + validTimeStr + ",lt:" + anotherValidTimeStr, http.StatusBadRequest, ""},
+		{"Time_MissingValue", "?time=lt:", http.StatusBadRequest, ""},
+		{"Time_InvalidFormat", "?time=lt:not-a-time-format", http.StatusBadRequest, ""},
+		// Cases leading to empty timeElement or operator
+		{"Time_EmptyElementMiddle_FromCut", "?time=lt:" + validTimeStr + ",,gte:" + anotherValidTimeStr, http.StatusBadRequest, ""},
+		{"Time_EmptyElementLeading_FromCut", "?time=,lt:" + validTimeStr, http.StatusBadRequest, ""},
+		{"Time_OnlyCommas_FromCut", "?time=,,", http.StatusBadRequest, ""},
+		{"Time_EmptyOperatorNameExplicit", "?time=:" + validTimeStr, http.StatusBadRequest, ""},
+	}
+
+	router := setupTest(t)
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			req := test.APIRequest{
+				Method:           "GET",
+				Path:             "/v1/events" + tc.path,
+				ExpectStatusCode: tc.expectStatusCode,
+			}
+			// Only set ExpectJSON if we actually expect a specific JSON fixture (which we don't here for 200s)
+			// For 400s, http.Error writes plain text, so ExpectJSON should be "" or nil.
+			if tc.expectStatusCode != http.StatusOK {
+				req.ExpectJSON = "" // For http.Error, response is not JSON
+			}
+
+			req.Check(t, router)
 		})
 	}
 }
