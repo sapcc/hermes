@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # SAP Open Source Code of Conduct
 
 SAP adopts the [Contributor's Covenant 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/)
