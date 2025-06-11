@@ -43,8 +43,8 @@ $ openstack catalog list
 |               |               |                                                                          |
 | ...           | ...           | ...                                                                      |
 |               |               |                                                                          |
-| hermes        | audit-data    | staging                                                                  |
-|               |               |   public: https://hermes.example.com                                     |
+| hermez        | audit-data    | staging                                                                  |
+|               |               |   public: https://hermez.example.com                                     |
 |               |               |                                                                          |
 | ...           | ...           | ...                                                                      |
 |               |               |                                                                          |
@@ -53,12 +53,12 @@ $ openstack catalog list
 
 ### Using Hermez
 
-In this case, the endpoint URL for Hermez is `https://hermes.example.com`, so you can build a request URL by appending 
+In this case, the endpoint URL for Hermez is `https://hermez.example.com`, so you can build a request URL by appending 
 one of the paths from the [API reference][v1-api]. For example, to show quota and usage data for a project, use the
 following command:
 
 ```bash
-curl -H "X-Auth-Token: $OS_AUTH_TOKEN" https://hermes.example.com/v1/events
+curl -H "X-Auth-Token: $OS_AUTH_TOKEN" https://hermez.example.com/v1/events
 ```
 
 `$OS_AUTH_TOKEN` is the token from the first step. `$DOMAIN_ID` and `$PROJECT_ID` need to be set by you to the project
