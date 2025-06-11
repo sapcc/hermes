@@ -31,3 +31,10 @@ renovate:
   enabled: true
   assignees:
     - notque
+
+reuse:
+  annotations:
+    - paths:
+      - .github/assets/*.png
+      SPDX-FileCopyrightText: SAP SE or an SAP affiliate company
+      SPDX-License-Identifier: Apache-2.0

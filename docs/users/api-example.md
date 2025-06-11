@@ -4,11 +4,11 @@ SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# Using the Hermes API
+# Using the Hermez API
 
-The Hermes API allows you to access audit events on a tenant basis, providing detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This guide will walk you through the process of getting a token, finding the Hermes endpoint, and using the API.
+The Hermez API allows you to access audit events on a tenant basis, providing detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This guide will walk you through the process of getting a token, finding the Hermez endpoint, and using the API.
 
-If you would prefer to use a command line to access the API please use [HermesCLI](https://github.com/sapcc/hermescli)
+If you would prefer to use a command line to access the API please use [HermezCLI](https://github.com/sapcc/hermescli)
 
 ## Getting a Token
 
@@ -25,9 +25,9 @@ export OS_AUTH_TOKEN="$(openstack token issue -f value -c id)"
 
 This command will not print any output if it is successful.
 
-## Finding Hermes
+## Finding Hermez
 
-Query the service catalog to find the Hermes endpoint. It can be identified by looking for the `resources` service type:
+Query the service catalog to find the Hermez endpoint. It can be identified by looking for the `resources` service type:
 
 ```bash
 $ openstack catalog list
@@ -43,22 +43,22 @@ $ openstack catalog list
 |               |               |                                                                          |
 | ...           | ...           | ...                                                                      |
 |               |               |                                                                          |
-| hermes        | audit-data    | staging                                                                  |
-|               |               |   public: https://hermes.example.com                                     |
+| hermez        | audit-data    | staging                                                                  |
+|               |               |   public: https://hermez.example.com                                     |
 |               |               |                                                                          |
 | ...           | ...           | ...                                                                      |
 |               |               |                                                                          |
 +---------------+---------------+--------------------------------------------------------------------------+
 ```
 
-### Using Hermes
+### Using Hermez
 
-In this case, the endpoint URL for Hermes is `https://hermes.example.com`, so you can build a request URL by appending 
+In this case, the endpoint URL for Hermez is `https://hermez.example.com`, so you can build a request URL by appending 
 one of the paths from the [API reference][v1-api]. For example, to show quota and usage data for a project, use the
 following command:
 
 ```bash
-curl -H "X-Auth-Token: $OS_AUTH_TOKEN" https://hermes.example.com/v1/events
+curl -H "X-Auth-Token: $OS_AUTH_TOKEN" https://hermez.example.com/v1/events
 ```
 
 `$OS_AUTH_TOKEN` is the token from the first step. `$DOMAIN_ID` and `$PROJECT_ID` need to be set by you to the project
