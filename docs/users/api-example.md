@@ -4,11 +4,11 @@ SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# Using the Hermetis API
+# Using the Hermez API
 
-The Hermetis API allows you to access audit events on a tenant basis, providing detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This guide will walk you through the process of getting a token, finding the Hermetis endpoint, and using the API.
+The Hermez API allows you to access audit events on a tenant basis, providing detailed information about each event, including the 7 “W”s of audit: What, When, Who, FromWhere, OnWhat, Where, ToWhere. This guide will walk you through the process of getting a token, finding the Hermez endpoint, and using the API.
 
-If you would prefer to use a command line to access the API please use [HermetisCLI](https://github.com/sapcc/hermescli)
+If you would prefer to use a command line to access the API please use [HermezCLI](https://github.com/sapcc/hermescli)
 
 ## Getting a Token
 
@@ -25,9 +25,9 @@ export OS_AUTH_TOKEN="$(openstack token issue -f value -c id)"
 
 This command will not print any output if it is successful.
 
-## Finding Hermetis
+## Finding Hermez
 
-Query the service catalog to find the Hermetis endpoint. It can be identified by looking for the `resources` service type:
+Query the service catalog to find the Hermez endpoint. It can be identified by looking for the `resources` service type:
 
 ```bash
 $ openstack catalog list
@@ -51,9 +51,9 @@ $ openstack catalog list
 +---------------+---------------+--------------------------------------------------------------------------+
 ```
 
-### Using Hermetis
+### Using Hermez
 
-In this case, the endpoint URL for Hermetis is `https://hermes.example.com`, so you can build a request URL by appending 
+In this case, the endpoint URL for Hermez is `https://hermes.example.com`, so you can build a request URL by appending 
 one of the paths from the [API reference][v1-api]. For example, to show quota and usage data for a project, use the
 following command:
 

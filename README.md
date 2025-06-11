@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <!-- Logo and Title -->
 <div align="center">
-  <img src=".github/assets/hermetis.png" alt="Hermetis Logo" width="250"/>
-  <h1>Hermetis</h1>
+  <img src=".github/assets/hermez.png" alt="Hermez Logo" width="250"/>
+  <h1>Hermez</h1>
   
   <p><em>An OpenStack audit trail service</em></p>
   <p>
@@ -32,7 +32,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ----
 
-**Hermetis** is an audit trail service for OpenStack, originally designed for SAP's internal OpenStack Cloud. 
+**Hermez** is an audit trail service for OpenStack, originally designed for SAP's internal OpenStack Cloud. 
 
 ----
 
@@ -42,13 +42,13 @@ SPDX-License-Identifier: Apache-2.0
 - 🔐 Identity v3 authentication & project/domain scoping
 - ⚙️ Integration with cloud-based audit APIs
 - 📈 Exposes Prometheus metrics
-- 🧾 CLI support via [HermetisCLI](https://github.com/sapcc/hermescli)
+- 🧾 CLI support via [HermezCLI](https://github.com/sapcc/hermescli)
 
 ----
 
 # The idea: Audit trail for OpenStack
 
-OpenStack has an audit log through OpenStack Audit Middleware, but no way for customers to view these audit events. Hermetis enables 
+OpenStack has an audit log through OpenStack Audit Middleware, but no way for customers to view these audit events. Hermez enables 
 easy access to audit events on a tenant basis, relying on the ELK stack for storage. Now cloud customers can view their project 
 level audit events through an API, or as a module in [Elektra](https://github.com/sapcc/elektra), an OpenStack Dashboard.
 
@@ -56,7 +56,7 @@ level audit events through an API, or as a module in [Elektra](https://github.co
 
 The Audit log can be used by information auditors or cloud based audit APIs to track events for a resource in a domain or project. Support teams can validate when customers communicate problems with cloud services, verify what occurred, and view additional detail about the customer issue.
 
-Hermetis enables customer access for audit relevant events that occur from OpenStack in an Open Standards CADF Format.
+Hermez enables customer access for audit relevant events that occur from OpenStack in an Open Standards CADF Format.
 - [CADF Format](https://www.dmtf.org/sites/default/files/standards/documents/DSP0262_1.0.0.pdf)
 - [CADF Standards](http://www.dmtf.org/standards/cadf)
 
@@ -75,15 +75,15 @@ Hermetis enables customer access for audit relevant events that occur from OpenS
 <details>
 <summary><strong>Installation</strong></summary>
 
-To install Hermetis, you can use the Helm charts available at [SAPCC Helm Charts](https://github.com/sapcc/helm-charts/tree/master/openstack/hermes). These charts provide a simple and efficient way to deploy Hermetis in a Kubernetes cluster.
+To install Hermez, you can use the Helm charts available at [SAPCC Helm Charts](https://github.com/sapcc/helm-charts/tree/master/openstack/hermes). These charts provide a simple and efficient way to deploy Hermez in a Kubernetes cluster.
 
-In addition to the Helm charts, you can also use the following related repositories and projects to further customize and integrate Hermetis into your OpenStack environment:
+In addition to the Helm charts, you can also use the following related repositories and projects to further customize and integrate Hermez into your OpenStack environment:
 
 Related Repositories:
 - [OpenStack Audit Middleware](https://github.com/sapcc/openstack-audit-middleware)
-- [Hermetis CLI Command Line Client](https://github.com/sapcc/hermescli)
-- [Hermetis Audit Tools for Creation of Events](https://github.com/sapcc/go-bits/tree/master/audittools)
-- [GopherCloud Extension for Hermetis Audit](https://github.com/sapcc/gophercloud-sapcc/tree/master/audit/v1)
+- [Hermez CLI Command Line Client](https://github.com/sapcc/hermescli)
+- [Hermez Audit Tools for Creation of Events](https://github.com/sapcc/go-bits/tree/master/audittools)
+- [GopherCloud Extension for Hermez Audit](https://github.com/sapcc/gophercloud-sapcc/tree/master/audit/v1)
 - [SAPCC Go Api Declarations](https://github.com/sapcc/go-api-declarations/tree/main/cadf)
 
 Related Projects:
@@ -117,12 +117,12 @@ Related Projects:
 
 ## For users
 
-- [Hermetis Users Guide](./docs/users/index.md)
-- [Hermetis API Reference](./docs/users/hermetis-v1-reference.md)
+- [Hermez Users Guide](./docs/users/index.md)
+- [Hermez API Reference](./docs/users/hermez-v1-reference.md)
 
 ## For operators
 
-- [Hermetis Operators Guide](./docs/operators/operators-guide.md)
+- [Hermez Operators Guide](./docs/operators/operators-guide.md)
 
 ## For Audit Clients submitting events
 
@@ -144,4 +144,4 @@ We as members, contributors, and leaders pledge to make participation in our com
 
 ## Licensing
 
-Copyright 2017-2025 SAP SE or an SAP affiliate company and hermetis contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/sapcc/hermes).
+Copyright 2017-2025 SAP SE or an SAP affiliate company and hermez contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/sapcc/hermes).
