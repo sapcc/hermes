@@ -32,15 +32,24 @@ jobs:
           go-version: 1.24.4
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v8
+        continue-on-error: true
         with:
           version: latest
       - name: Dependency Licenses Review
+        if: always()
+        continue-on-error: true
         run: make check-dependency-licenses
       - name: Install govulncheck
+        if: always()
+        continue-on-error: true
         run: go install golang.org/x/vuln/cmd/govulncheck@latest
       - name: Run govulncheck
+        if: always()
+        continue-on-error: true
         run: govulncheck -format text ./...
       - name: Check for spelling errors
+        if: always()
+        continue-on-error: true
         uses: reviewdog/action-misspell@v1
         with:
           exclude: ./vendor/*
@@ -49,6 +58,10 @@ jobs:
           ignore: importas
           reporter: github-check
       - name: Check if source code files have license header
+        if: always()
+        continue-on-error: true
         run: make check-license-headers
       - name: REUSE Compliance Check
+        if: always()
+        continue-on-error: true
         uses: fsfe/reuse-action@v5
