@@ -10,6 +10,7 @@ binaries:
 
 golang:
   setGoModVersion: true
+  autoupdateableDeps: ^github.com/(?:sapcc|sap-cloud-infrastructure)/
 
 dockerfile:
   enabled: true
