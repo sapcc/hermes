@@ -34,7 +34,7 @@ install-modernize: FORCE
 	@if ! hash modernize 2>/dev/null; then printf "\e[1;36m>> Installing modernize (this may take a while)...\e[0m\n"; go install golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest; fi
 
 install-shellcheck: FORCE
-	@if ! hash shellcheck 2>/dev/null; then printf "\e[1;36m>> Installing shellcheck...\e[0m\n"; SHELLCHECK_ARCH=$(shell uname -m); SHELLCHECK_OS=$(shell uname -s | tr '[:upper:]' '[:lower:]'); if [[ "$$SHELLCHECK_OS" == "darwin" ]]; then SHELLCHECK_OS=macos; fi; SHELLCHECK_VERSION="stable"; curl -sLo- "https://github.com/koalaman/shellcheck/releases/download/$$SHELLCHECK_VERSION/shellcheck-$$SHELLCHECK_VERSION.$$SHELLCHECK_OS.$$SHELLCHECK_ARCH.tar.xz" | tar -Jxf -; BIN=$(go env GOBIN); if [[ -z $$BIN ]]; then BIN=$$(go env GOPATH)/bin; fi; install -Dm755 shellcheck-$$SHELLCHECK_VERSION/shellcheck -t "$$BIN"; rm -rf shellcheck-$$SHELLCHECK_VERSION; fi
+	@if ! hash shellcheck 2>/dev/null; then printf "\e[1;36m>> Installing shellcheck...\e[0m\n"; SHELLCHECK_ARCH=$(shell uname -m); SHELLCHECK_OS=$(shell uname -s | tr '[:upper:]' '[:lower:]'); if [[ "$$SHELLCHECK_OS" == "darwin" ]]; then SHELLCHECK_OS=macos; fi; SHELLCHECK_VERSION="stable"; curl -sLo- "https://github.com/koalaman/shellcheck/releases/download/$$SHELLCHECK_VERSION/shellcheck-$$SHELLCHECK_VERSION.$$SHELLCHECK_OS.$$SHELLCHECK_ARCH.tar.xz" | tar -Jxf -; BIN=$$(go env GOBIN); if [[ -z $$BIN ]]; then BIN=$$(go env GOPATH)/bin; fi; install -Dm755 shellcheck-$$SHELLCHECK_VERSION/shellcheck -t "$$BIN"; rm -rf shellcheck-$$SHELLCHECK_VERSION; fi
 
 install-go-licence-detector: FORCE
 	@if ! hash go-licence-detector 2>/dev/null; then printf "\e[1;36m>> Installing go-licence-detector (this may take a while)...\e[0m\n"; go install go.elastic.co/go-licence-detector@latest; fi
@@ -120,7 +120,7 @@ check-license-headers: FORCE check-addlicense check-reuse
 __static-check: FORCE run-shellcheck run-golangci-lint run-modernize check-dependency-licenses check-license-headers
 
 static-check: FORCE
-	$(MAKE) --keep-going --no-print-directory __static-check
+	@$(MAKE) --keep-going --no-print-directory __static-check
 
 build:
 	@mkdir $@
