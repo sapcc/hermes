@@ -6,69 +6,34 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
+
 	"github.com/sapcc/go-bits/gopherpolicy"
+	"github.com/sapcc/go-bits/httpapi"
 
 	"github.com/sapcc/hermes/pkg/storage"
 )
 
+// VersionData is used by version advertisement handlers.
+type VersionData struct {
+	Status string            `json:"status"`
+	ID     string            `json:"id"`
+	Links  []versionLinkData `json:"links"`
+}
+
+// versionLinkData is used by version advertisement handlers, as part of the
+// VersionData struct.
+type versionLinkData struct {
+	URL      string `json:"href"`
+	Relation string `json:"rel"`
+	Type     string `json:"type,omitempty"`
+}
+
+// v1Provider provides backward compatibility for existing handler methods
 type v1Provider struct {
-	validator   gopherpolicy.Validator
-	storage     storage.Storage
-	versionData VersionData
-}
-
-// NewV1Handler creates a http.Handler that serves the Hermes v1 API.
-// It also returns the VersionData for this API version which is needed for the
-// version advertisement on "GET /".
-func NewV1Handler(validator gopherpolicy.Validator, storageInterface storage.Storage) (http.Handler, VersionData) {
-	r := mux.NewRouter()
-
-	p := &v1Provider{
-		validator: validator,
-		storage:   storageInterface,
-	}
-	p.versionData = VersionData{
-		Status: "CURRENT",
-		ID:     "v1",
-		Links: []versionLinkData{
-			{
-				Relation: "self",
-				URL:      p.Path(),
-			},
-			{
-				Relation: "describedby",
-				URL:      "https://github.com/sapcc/hermes/tree/master/docs",
-				Type:     "text/html",
-			},
-		},
-	}
-
-	r.Methods("GET").Path("/v1/").HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		p.versionData.Links[0].URL = fmt.Sprintf("%s://%s%s/", getProtocol(req), req.Host, p.Path())
-		ReturnJSON(res, 200, map[string]any{"version": p.versionData})
-	})
-
-	r.Methods("GET").Path("/v1/events").HandlerFunc(
-		observeDuration(observeResponseSize(p.ListEvents, "ListEvents"), "ListEvents"))
-	r.Methods("GET").Path("/v1/events/{event_id}").HandlerFunc(
-		observeDuration(observeResponseSize(p.GetEventDetails, "GetEventDetails"), "GetEventDetails"))
-	r.Methods("GET").Path("/v1/attributes/{attribute_name}").HandlerFunc(
-		observeDuration(observeResponseSize(p.GetAttributes, "GetAttributes"), "GetAttributes"))
-
-	return r, p.versionData
-}
-
-// Path constructs a full URL for a given URL path below the /v1/ endpoint.
-func (p *v1Provider) Path(elements ...string) string {
-	parts := []string{
-		strings.TrimSuffix( /*p.Driver.Cluster().Config.CatalogURL*/ "", "/"),
-		"v1",
-	}
-	parts = append(parts, elements...)
-	return strings.Join(parts, "/")
+	validator gopherpolicy.Validator
+	storage   storage.Storage
 }
 
 // AuthHandler wraps endpoint handlers with consistent auth logic.
@@ -94,4 +59,105 @@ func (p *v1Provider) AuthHandler(w http.ResponseWriter, r *http.Request, rule st
 
 	ok := token.Require(w, rule)
 	return token, ok
+}
+
+// V1API implements the v1 API endpoints using httpapi patterns
+type V1API struct {
+	validator   gopherpolicy.Validator
+	storage     storage.Storage
+	versionData VersionData
+	provider    *v1Provider
+}
+
+// NewV1API creates a new V1API instance with the provided validator and storage.
+//
+// Example:
+//
+//	validator := gopherpolicy.NewValidator(enforcer, logger)
+//	storage := elasticsearch.NewStorage(config)
+//	api := NewV1API(validator, storage)
+func NewV1API(validator gopherpolicy.Validator, storageInterface storage.Storage) *V1API {
+	api := &V1API{
+		validator: validator,
+		storage:   storageInterface,
+		provider: &v1Provider{
+			validator: validator,
+			storage:   storageInterface,
+		},
+	}
+
+	api.versionData = VersionData{
+		Status: "CURRENT",
+		ID:     "v1",
+		Links: []versionLinkData{
+			{
+				Relation: "self",
+				URL:      "/v1/",
+			},
+			{
+				Relation: "describedby",
+				URL:      "https://github.com/sapcc/hermes/tree/master/docs",
+				Type:     "text/html",
+			},
+		},
+	}
+
+	return api
+}
+
+// VersionData returns the version data for this API
+func (api *V1API) VersionData() VersionData {
+	return api.versionData
+}
+
+// AddTo implements httpapi.API interface
+func (api *V1API) AddTo(r *mux.Router) {
+	r.Methods("GET").Path("/v1/").Handler(
+		InstrumentDuration("version")(InstrumentResponseSize("version")(http.HandlerFunc(api.getVersion))))
+
+	r.Methods("GET").Path("/v1/events").Handler(
+		InstrumentDuration("ListEvents")(InstrumentResponseSize("ListEvents")(http.HandlerFunc(api.listEvents))))
+
+	r.Methods("GET").Path("/v1/events/{event_id}").Handler(
+		InstrumentDuration("GetEventDetails")(InstrumentResponseSize("GetEventDetails")(http.HandlerFunc(api.getEventDetails))))
+
+	r.Methods("GET").Path("/v1/attributes/{attribute_name}").Handler(
+		InstrumentDuration("GetAttributes")(InstrumentResponseSize("GetAttributes")(http.HandlerFunc(api.getAttributes))))
+}
+
+// Handler methods for V1API
+
+// getVersion handles GET /v1/
+func (api *V1API) getVersion(w http.ResponseWriter, r *http.Request) {
+	httpapi.IdentifyEndpoint(r, "/v1")
+
+	// Update the self link with the actual request URL
+	versionData := api.versionData
+	versionData.Links[0].URL = fmt.Sprintf("%s://%s/v1/", getProtocol(r), r.Host)
+
+	ReturnESJSON(w, http.StatusOK, map[string]any{"version": versionData})
+}
+
+// listEvents handles GET /v1/events
+func (api *V1API) listEvents(w http.ResponseWriter, r *http.Request) {
+	httpapi.IdentifyEndpoint(r, "/v1/events")
+
+	// Call existing v1Provider implementation for backward compatibility
+	api.provider.ListEvents(w, r)
+}
+
+// getEventDetails handles GET /v1/events/{event_id}
+func (api *V1API) getEventDetails(w http.ResponseWriter, r *http.Request) {
+	httpapi.IdentifyEndpoint(r, "/v1/events/:event_id")
+
+	// Call existing v1Provider implementation for backward compatibility
+	api.provider.GetEventDetails(w, r)
+}
+
+// getAttributes handles GET /v1/attributes/{attribute_name}
+func (api *V1API) getAttributes(w http.ResponseWriter, r *http.Request) {
+	httpapi.IdentifyEndpoint(r, "/v1/attributes/:attribute_name")
+
+	// Call existing v1Provider implementation for backward compatibility
+	api.provider.GetAttributes(w, r)
 }
