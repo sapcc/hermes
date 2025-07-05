@@ -12,8 +12,10 @@ import (
 
 	policy "github.com/databus23/goslo.policy"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/sapcc/go-bits/mock"
 	"github.com/spf13/viper"
+
+	"github.com/sapcc/go-bits/httpapi"
+	"github.com/sapcc/go-bits/mock"
 
 	"github.com/sapcc/hermes/pkg/storage"
 	"github.com/sapcc/hermes/pkg/test"
@@ -41,7 +43,19 @@ func setupTest(t *testing.T) http.Handler {
 	storageInterface := storage.Mock{}
 
 	prometheus.DefaultRegisterer = prometheus.NewPedanticRegistry()
-	router, _ := NewV1Handler(validator, storageInterface)
+
+	// Create API compositions using httpapi
+	v1API := NewV1API(validator, storageInterface)
+	versionAPI := NewVersionAPI(v1API.VersionData())
+	metricsAPI := NewMetricsAPI()
+
+	// Compose all APIs using httpapi
+	router := httpapi.Compose(
+		v1API,
+		versionAPI,
+		metricsAPI,
+	)
+
 	return router
 }
 

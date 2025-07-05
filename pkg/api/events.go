@@ -4,10 +4,10 @@
 package api
 
 import (
-	"net/http"
-
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
@@ -15,9 +15,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
+
+	"github.com/sapcc/go-bits/errext"
 	"github.com/sapcc/go-bits/gopherpolicy"
 	"github.com/sapcc/go-bits/logg"
+	"github.com/sapcc/go-bits/respondwith"
 
 	"github.com/sapcc/hermes/pkg/hermes"
 )
@@ -47,7 +49,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	if offsetStr != "" {
 		parsedOffset, err := strconv.ParseUint(offsetStr, 10, 32)
 		if err != nil {
-			http.Error(res, "Invalid offset value", http.StatusBadRequest)
+			ValidationError(res, fmt.Errorf("invalid offset value: %w", err))
 			return
 		}
 		offset = uint(parsedOffset)
@@ -56,7 +58,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	if limitStr != "" {
 		parsedLimit, err := strconv.ParseUint(limitStr, 10, 32)
 		if err != nil {
-			http.Error(res, "Invalid limit value", http.StatusBadRequest)
+			ValidationError(res, fmt.Errorf("invalid limit value: %w", err))
 			return
 		}
 		limit = uint(parsedLimit)
@@ -96,7 +98,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 		if sortElement == "" {
 			if strings.TrimSpace(sortParam) != "" {
-				http.Error(res, "Invalid sort parameter", http.StatusBadRequest)
+				ValidationError(res, errors.New("invalid sort parameter"))
 				return
 			}
 			continue
@@ -105,13 +107,13 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		sortfield, direction, foundColon := strings.Cut(sortElement, ":")
 
 		if sortfield == "" {
-			http.Error(res, "Invalid sort parameter: field name cannot be empty", http.StatusBadRequest)
+			ValidationError(res, errors.New("invalid sort parameter: field name cannot be empty"))
 			return
 		}
 
 		if !validSortTopics[sortfield] {
 			err := fmt.Errorf("not a valid topic: %s, valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			ValidationError(res, err)
 			return
 		}
 
@@ -120,13 +122,13 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			sortDirection := strings.TrimSpace(direction)
 			if sortDirection == "" {
 				err := fmt.Errorf("sort direction for field %s cannot be empty", sortfield)
-				http.Error(res, err.Error(), http.StatusBadRequest)
+				ValidationError(res, err)
 				return
 			}
 
 			if !validSortDirection[sortDirection] {
 				err := fmt.Errorf("sort direction %s is invalid, must be asc or desc", sortDirection)
-				http.Error(res, err.Error(), http.StatusBadRequest)
+				ValidationError(res, err)
 				return
 			}
 			defsortorder = sortDirection
@@ -146,7 +148,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 		if timeElement == "" {
 			if strings.TrimSpace(req.FormValue("time")) != "" {
-				http.Error(res, "Invalid time parameter: an element is empty", http.StatusBadRequest)
+				ValidationError(res, errors.New("invalid time parameter: an element is empty"))
 				return
 			}
 			continue
@@ -154,33 +156,33 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 		operator, value, foundColon := strings.Cut(timeElement, ":")
 		if operator == "" {
-			http.Error(res, "Invalid time parameter: operator cannot be empty", http.StatusBadRequest)
+			ValidationError(res, errors.New("invalid time parameter: operator cannot be empty"))
 			return
 		}
 
 		if !validOperators[operator] {
 			err := fmt.Errorf("time operator %s is not valid. Must be lt, lte, gt or gte", operator)
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			ValidationError(res, err)
 			return
 		}
 
 		if !foundColon {
 			err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			ValidationError(res, err)
 			return
 		}
 
 		timeStr := strings.TrimSpace(value)
 		if timeStr == "" {
 			err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			ValidationError(res, err)
 			return
 		}
 
 		_, exists := timeRange[operator]
 		if exists {
 			err := fmt.Errorf("time operator %s can only occur once", operator)
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			ValidationError(res, err)
 			return
 		}
 
@@ -197,7 +199,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		}
 		if !isValidTimeFormat {
 			err := fmt.Errorf("invalid time format: %s", timeStr)
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			ValidationError(res, err)
 			return
 		}
 		timeRange[operator] = timeStr
@@ -230,12 +232,11 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	events, total, err := hermes.GetEvents(&filter, indexID, p.storage)
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		logg.Error("api.ListEvents: error calling hermes.GetEvents(): %s", err.Error())
 
 		// Check for UnmarshalTypeError and log it
-		var unmarshalErr *json.UnmarshalTypeError
-		if errors.As(err, &unmarshalErr) {
+		if unmarshalErr, ok := errext.As[*json.UnmarshalTypeError](err); ok {
 			logg.Error("api.ListEvents: JSON unmarshal error: Type=%v, Value=%v, Offset=%v, Struct=%v, Field=%v",
 				unmarshalErr.Type, unmarshalErr.Value, unmarshalErr.Offset, unmarshalErr.Struct, unmarshalErr.Field)
 		}
@@ -264,15 +265,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
-	ReturnJSON(res, http.StatusOK, eventList)
-}
-
-func getProtocol(req *http.Request) string {
-	protocol := "http"
-	if req.TLS != nil || req.Header.Get("X-Forwarded-Proto") == "https" {
-		protocol = "https"
-	}
-	return protocol
+	ReturnESJSON(res, http.StatusOK, eventList)
 }
 
 // GetEvent handles GET /v1/events/:event_id.
@@ -289,7 +282,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 
 	// Validate if eventID is a valid UUID
 	if _, err := uuid.Parse(eventID); err != nil {
-		http.Error(res, "Invalid event ID format", http.StatusBadRequest)
+		ValidationError(res, fmt.Errorf("invalid event ID format: %w", err))
 		return
 	}
 
@@ -300,17 +293,16 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 
 	event, err := hermes.GetEvent(eventID, indexID, p.storage)
 
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		logg.Error("error getting events from Storage: %s", err)
 		storageErrorsCounter.Add(1)
 		return
 	}
 	if event == nil {
-		err := fmt.Errorf("event %s could not be found in project %s", eventID, indexID)
-		http.Error(res, err.Error(), http.StatusNotFound)
+		NotFoundError(res, fmt.Errorf("event %s could not be found in project %s", eventID, indexID))
 		return
 	}
-	ReturnJSON(res, http.StatusOK, event)
+	ReturnESJSON(res, http.StatusOK, event)
 }
 
 // GetAttributes handles GET /v1/attributes/:attribute_name
@@ -350,17 +342,16 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 
 	attribute, err := hermes.GetAttributes(&filter, indexID, p.storage)
 
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		logg.Error("could not get attributes from Storage: %s", err)
 		storageErrorsCounter.Add(1)
 		return
 	}
 	if attribute == nil {
-		err := fmt.Errorf("attribute %s could not be found in project %s", attribute, indexID)
-		http.Error(res, err.Error(), http.StatusNotFound)
+		NotFoundError(res, fmt.Errorf("attribute %s could not be found in project %s", queryName, indexID))
 		return
 	}
-	ReturnJSON(res, http.StatusOK, attribute)
+	ReturnESJSON(res, http.StatusOK, attribute)
 }
 
 func getIndexID(token *gopherpolicy.Token, r *http.Request, w http.ResponseWriter) (string, error) {
