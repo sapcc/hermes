@@ -47,7 +47,6 @@ func Server(validator gopherpolicy.Validator, storageInterface storage.Storage) 
 
 	// Start HTTP server
 	listenAddress := viper.GetString("API.ListenAddress")
-	logg.Info("listening on %s", listenAddress)
 
 	ctx := httpext.ContextWithSIGINT(context.Background(), 10*time.Second)
 	return httpext.ListenAndServeContext(ctx, listenAddress, handler)
