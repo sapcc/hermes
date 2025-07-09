@@ -43,24 +43,6 @@ func ReturnESJSON(w http.ResponseWriter, code int, data any) {
 	}
 }
 
-// ReturnError produces an error response with HTTP status code 500 if the given
-// error is non-nil. Otherwise, nothing is done and false is returned.
-//
-// Example:
-//
-//	events, err := storage.GetEvents(filter)
-//	if ReturnError(w, err) {
-//		return
-//	}
-func ReturnError(w http.ResponseWriter, err error) bool {
-	if err == nil {
-		return false
-	}
-
-	http.Error(w, err.Error(), http.StatusInternalServerError)
-	return true
-}
-
 // getProtocol determines the protocol (http or https) for building URLs.
 func getProtocol(req *http.Request) string {
 	protocol := "http"
@@ -68,24 +50,4 @@ func getProtocol(req *http.Request) string {
 		protocol = "https"
 	}
 	return protocol
-}
-
-// ValidationError writes a 400 Bad Request error response following go-bits patterns.
-func ValidationError(w http.ResponseWriter, err error) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusBadRequest)
-	_, writeErr := w.Write([]byte(err.Error()))
-	if writeErr != nil {
-		logg.Error("Failed to write validation error response: %s", writeErr.Error())
-	}
-}
-
-// NotFoundError writes a 404 Not Found error response following go-bits patterns.
-func NotFoundError(w http.ResponseWriter, err error) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusNotFound)
-	_, writeErr := w.Write([]byte(err.Error()))
-	if writeErr != nil {
-		logg.Error("Failed to write not found error response: %s", writeErr.Error())
-	}
 }

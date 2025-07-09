@@ -49,7 +49,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	if offsetStr != "" {
 		parsedOffset, err := strconv.ParseUint(offsetStr, 10, 32)
 		if err != nil {
-			ValidationError(res, fmt.Errorf("invalid offset value: %w", err))
+			http.Error(res, "Invalid offset value", http.StatusBadRequest)
 			return
 		}
 		offset = uint(parsedOffset)
@@ -58,7 +58,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 	if limitStr != "" {
 		parsedLimit, err := strconv.ParseUint(limitStr, 10, 32)
 		if err != nil {
-			ValidationError(res, fmt.Errorf("invalid limit value: %w", err))
+			http.Error(res, "Invalid limit value", http.StatusBadRequest)
 			return
 		}
 		limit = uint(parsedLimit)
@@ -98,7 +98,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 		if sortElement == "" {
 			if strings.TrimSpace(sortParam) != "" {
-				ValidationError(res, errors.New("invalid sort parameter"))
+				http.Error(res, "Invalid sort parameter", http.StatusBadRequest)
 				return
 			}
 			continue
@@ -107,13 +107,13 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		sortfield, direction, foundColon := strings.Cut(sortElement, ":")
 
 		if sortfield == "" {
-			ValidationError(res, errors.New("invalid sort parameter: field name cannot be empty"))
+			http.Error(res, "Invalid sort parameter: field name cannot be empty", http.StatusBadRequest)
 			return
 		}
 
 		if !validSortTopics[sortfield] {
 			err := fmt.Errorf("not a valid topic: %s, valid topics: %v", sortfield, reflect.ValueOf(validSortTopics).MapKeys())
-			ValidationError(res, err)
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -122,13 +122,13 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 			sortDirection := strings.TrimSpace(direction)
 			if sortDirection == "" {
 				err := fmt.Errorf("sort direction for field %s cannot be empty", sortfield)
-				ValidationError(res, err)
+				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 
 			if !validSortDirection[sortDirection] {
 				err := fmt.Errorf("sort direction %s is invalid, must be asc or desc", sortDirection)
-				ValidationError(res, err)
+				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 			defsortorder = sortDirection
@@ -148,7 +148,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 		if timeElement == "" {
 			if strings.TrimSpace(req.FormValue("time")) != "" {
-				ValidationError(res, errors.New("invalid time parameter: an element is empty"))
+				http.Error(res, "Invalid time parameter: an element is empty", http.StatusBadRequest)
 				return
 			}
 			continue
@@ -156,33 +156,33 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 
 		operator, value, foundColon := strings.Cut(timeElement, ":")
 		if operator == "" {
-			ValidationError(res, errors.New("invalid time parameter: operator cannot be empty"))
+			http.Error(res, "Invalid time parameter: operator cannot be empty", http.StatusBadRequest)
 			return
 		}
 
 		if !validOperators[operator] {
 			err := fmt.Errorf("time operator %s is not valid. Must be lt, lte, gt or gte", operator)
-			ValidationError(res, err)
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		if !foundColon {
 			err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
-			ValidationError(res, err)
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		timeStr := strings.TrimSpace(value)
 		if timeStr == "" {
 			err := fmt.Errorf("time operator %s missing :<timestamp>", operator)
-			ValidationError(res, err)
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		_, exists := timeRange[operator]
 		if exists {
 			err := fmt.Errorf("time operator %s can only occur once", operator)
-			ValidationError(res, err)
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -199,7 +199,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		}
 		if !isValidTimeFormat {
 			err := fmt.Errorf("invalid time format: %s", timeStr)
-			ValidationError(res, err)
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		timeRange[operator] = timeStr
@@ -282,7 +282,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 
 	// Validate if eventID is a valid UUID
 	if _, err := uuid.Parse(eventID); err != nil {
-		ValidationError(res, fmt.Errorf("invalid event ID format: %w", err))
+		http.Error(res, "Invalid event ID format", http.StatusBadRequest)
 		return
 	}
 
@@ -299,7 +299,8 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	if event == nil {
-		NotFoundError(res, fmt.Errorf("event %s could not be found in project %s", eventID, indexID))
+		err := fmt.Errorf("event %s could not be found in project %s", eventID, indexID)
+		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
 	ReturnESJSON(res, http.StatusOK, event)
@@ -348,7 +349,8 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if attribute == nil {
-		NotFoundError(res, fmt.Errorf("attribute %s could not be found in project %s", queryName, indexID))
+		err := fmt.Errorf("attribute %s could not be found in project %s", queryName, indexID)
+		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
 	ReturnESJSON(res, http.StatusOK, attribute)
