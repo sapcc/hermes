@@ -4,10 +4,10 @@
 package api
 
 import (
-	"net/http"
-
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
@@ -15,9 +15,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
+
+	"github.com/sapcc/go-bits/errext"
 	"github.com/sapcc/go-bits/gopherpolicy"
 	"github.com/sapcc/go-bits/logg"
+	"github.com/sapcc/go-bits/respondwith"
 
 	"github.com/sapcc/hermes/pkg/hermes"
 )
@@ -230,12 +232,11 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	events, total, err := hermes.GetEvents(&filter, indexID, p.storage)
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		logg.Error("api.ListEvents: error calling hermes.GetEvents(): %s", err.Error())
 
 		// Check for UnmarshalTypeError and log it
-		var unmarshalErr *json.UnmarshalTypeError
-		if errors.As(err, &unmarshalErr) {
+		if unmarshalErr, ok := errext.As[*json.UnmarshalTypeError](err); ok {
 			logg.Error("api.ListEvents: JSON unmarshal error: Type=%v, Value=%v, Offset=%v, Struct=%v, Field=%v",
 				unmarshalErr.Type, unmarshalErr.Value, unmarshalErr.Offset, unmarshalErr.Struct, unmarshalErr.Field)
 		}
@@ -264,15 +265,7 @@ func (p *v1Provider) ListEvents(res http.ResponseWriter, req *http.Request) {
 		eventList.PrevURL = fmt.Sprintf("%s://%s%s?%s", protocol, req.Host, req.URL.Path, req.Form.Encode())
 	}
 
-	ReturnJSON(res, http.StatusOK, eventList)
-}
-
-func getProtocol(req *http.Request) string {
-	protocol := "http"
-	if req.TLS != nil || req.Header.Get("X-Forwarded-Proto") == "https" {
-		protocol = "https"
-	}
-	return protocol
+	ReturnESJSON(res, http.StatusOK, eventList)
 }
 
 // GetEvent handles GET /v1/events/:event_id.
@@ -300,7 +293,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 
 	event, err := hermes.GetEvent(eventID, indexID, p.storage)
 
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		logg.Error("error getting events from Storage: %s", err)
 		storageErrorsCounter.Add(1)
 		return
@@ -310,7 +303,7 @@ func (p *v1Provider) GetEventDetails(res http.ResponseWriter, req *http.Request)
 		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
-	ReturnJSON(res, http.StatusOK, event)
+	ReturnESJSON(res, http.StatusOK, event)
 }
 
 // GetAttributes handles GET /v1/attributes/:attribute_name
@@ -350,17 +343,17 @@ func (p *v1Provider) GetAttributes(res http.ResponseWriter, req *http.Request) {
 
 	attribute, err := hermes.GetAttributes(&filter, indexID, p.storage)
 
-	if ReturnError(res, err) {
+	if respondwith.ErrorText(res, err) {
 		logg.Error("could not get attributes from Storage: %s", err)
 		storageErrorsCounter.Add(1)
 		return
 	}
 	if attribute == nil {
-		err := fmt.Errorf("attribute %s could not be found in project %s", attribute, indexID)
+		err := fmt.Errorf("attribute %s could not be found in project %s", queryName, indexID)
 		http.Error(res, err.Error(), http.StatusNotFound)
 		return
 	}
-	ReturnJSON(res, http.StatusOK, attribute)
+	ReturnESJSON(res, http.StatusOK, attribute)
 }
 
 func getIndexID(token *gopherpolicy.Token, r *http.Request, w http.ResponseWriter) (string, error) {

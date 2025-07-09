@@ -40,6 +40,7 @@ func main() {
 	readConfig(configPath)
 	keystoneDriver := configuredKeystoneDriver()
 	storageDriver := configuredStorageDriver()
+
 	must.Succeed(api.Server(keystoneDriver, storageDriver))
 }
 
