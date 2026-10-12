@@ -19,7 +19,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// DBMigrations contains the SQL migrations for the dataplane_config table.
+// DBMigrations contains the SQL migrations for the tables in the shared hermes
+// database: dataplane_config (written by hermez) and metering_records (written by log-router).
 // The keys are the schema versions. They need not be contiguous, but must be in ascending order.
 var DBMigrations = map[int64]string{
 	1: `
@@ -36,6 +37,32 @@ var DBMigrations = map[int64]string{
 		-- omitted: the hermes user lacks CREATEROLE, so role management belongs
 		-- in the chart, not in app migrations.
 		GRANT SELECT ON dataplane_config TO "log-router";
+	`,
+	2: `
+		-- log-router upserts one row per tenant/service/region/sink/hour after each
+		-- customer-copy flush, but runs no migrations itself. Schema copied from
+		-- log-router migrations/004_create_metering_records.up.sql.
+		CREATE TABLE IF NOT EXISTS metering_records (
+			id            BIGSERIAL PRIMARY KEY,
+			tenant_id     TEXT NOT NULL,
+			service       TEXT NOT NULL,
+			region        TEXT NOT NULL,
+			sink_name     TEXT NOT NULL DEFAULT '',
+			hour          TIMESTAMPTZ NOT NULL,
+			bytes_written BIGINT NOT NULL,
+			event_count   INT NOT NULL,
+			object_count  INT NOT NULL,
+			recorded_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			UNIQUE (tenant_id, service, region, sink_name, hour)
+		);
+
+		CREATE INDEX IF NOT EXISTS idx_metering_tenant_period ON metering_records (tenant_id, hour);
+
+		-- INSERT ... ON CONFLICT DO UPDATE needs INSERT and UPDATE, plus SELECT
+		-- because the SET clause reads the existing counters. The sequence grant
+		-- is needed for the BIGSERIAL id.
+		GRANT SELECT, INSERT, UPDATE ON metering_records TO "log-router";
+		GRANT USAGE ON SEQUENCE metering_records_id_seq TO "log-router";
 	`,
 }
 

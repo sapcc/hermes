@@ -97,7 +97,7 @@ On top of the policy, `authDataplaneConfig` in `pkg/api/dataplane_config.go` ret
 ### 5. Storage in hermez
 
 - Postgres through `database/sql`, `lib/pq` and `go.xyrillian.de/gg/pgruntime` (switched from easypg in #356).
-- Migrations are an inline Go map `DBMigrations` keyed by int64 version. There is one migration, version 1. No `.sql` files.
+- Migrations are an inline Go map `DBMigrations` keyed by int64 version. There are two migrations: version 1 (`dataplane_config`) and version 2 (`metering_records` for log-router). No `.sql` files.
 - pgruntime serializes migrations with `SELECT version FROM schema_migrations FOR UPDATE` (a row lock), not `pg_advisory_lock`. A replica that finds the schema already migrated past its target version gets an error. hermez wraps `NewPostgres` in `must.Return`, so that replica exits.
 - Pool: 16 open, 4 idle connections.
 - Selected by `hermes.routing_store_driver`. Default is `postgres`. The only other accepted value is `mock` (in-memory). Any other value, including `""`, is fatal at startup.
@@ -145,9 +145,9 @@ Metering: after each successful customer-copy flush, log-router upserts a row in
 ### 7. Database roles
 
 - hermez connects as `HERMES_PG_USERNAME` (default `hermes`), creates the table, and grants SELECT to the login role `log-router`. There is no intermediate NOLOGIN role; the migration does not run `CREATE ROLE`.
-- The `log-router` role must exist before hermez runs migration 1, otherwise the GRANT fails.
+- The `log-router` role must exist before hermez runs migrations 1 and 2, otherwise the GRANTs fail.
 - log-router gets its credentials only from the DSN in `LOG_ROUTER_DB_URL`.
-- log-router's binary runs no migrations. `metering_records` has to exist already; log-router ships its SQL (`migrations/004_create_metering_records.up.sql`) but does not apply it.
+- log-router's binary runs no migrations. hermez migration 2 creates `metering_records` (copied from log-router `migrations/004_create_metering_records.up.sql`) and grants `log-router` `SELECT, INSERT, UPDATE` on it plus `USAGE` on its id sequence.
 
 ## Failure behaviour
 

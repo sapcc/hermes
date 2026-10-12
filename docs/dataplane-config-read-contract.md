@@ -22,9 +22,9 @@ log-router's `internal/config/client.go` links to this file.
 | Reader DSN | `LOG_ROUTER_DB_URL` in log-router (`cmd/log-router/main.go:48`). `lib/pq` also honours the standard `PG*` env vars (e.g. `PGPASSWORD`) for anything the DSN leaves out. |
 | Reader writes | none to `dataplane_config`; log-router does upsert `metering_records` over the same connection |
 
-The GRANT fails if the `log-router` role does not exist when hermez runs migration 1. hermez does not create the role.
+The GRANT fails if the `log-router` role does not exist when hermez runs migrations 1 and 2. hermez does not create the role.
 
-log-router runs no migrations. `metering_records` must already exist in the database the DSN points at.
+log-router runs no migrations. hermez migration 2 in `pkg/routing/postgres.go` creates `metering_records` (schema copied from log-router `migrations/004_create_metering_records.up.sql`) and grants `SELECT, INSERT, UPDATE` on it and `USAGE` on `metering_records_id_seq` to `log-router`.
 
 ## Schema
 
@@ -97,4 +97,4 @@ So after a PUT or DELETE in hermez:
 - Which Postgres cluster and database name the deployed log-router DSN uses. log-router's README example uses database `log-router`; the table lives in hermez's database (default `hermes`).
 - How the `log-router` role is provisioned and in what order relative to hermez.
 - Effective privileges of the `log-router` role beyond the SELECT grant.
-- Any commitment on future schema changes. There is one migration today; column removals or renames are a process question, not something the code enforces.
+- Any commitment on future schema changes. There are two migrations today; column removals or renames are a process question, not something the code enforces.
