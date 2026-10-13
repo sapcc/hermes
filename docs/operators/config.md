@@ -112,8 +112,8 @@ lifetime, and no memcached support.
 
 No other config key can be set through the environment.
 
-The Postgres migration grants `SELECT` on the `dataplane_config` table to the role
-`log-router`, so that role must exist before Hermes starts with the `postgres` store.
+The Postgres migrations grant `SELECT` on `dataplane_config` and `SELECT, INSERT, UPDATE` on
+`metering_records` to the role `log-router`, so that role must exist before Hermes starts with the `postgres` store.
 
 ## Example
 
