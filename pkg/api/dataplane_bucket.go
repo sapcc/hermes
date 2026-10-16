@@ -71,6 +71,11 @@ func (p *v1Provider) ensureDataplaneBucket(ctx context.Context, token *gopherpol
 	if projectID == "" || token.Context.Auth["project_id"] != projectID {
 		return &bucketError{http.StatusConflict, "enable dataplane with a token scoped to the project; the bucket must be created by the project"}
 	}
+	// The handler validates both already; checking again here keeps the request
+	// URL below safe on its own.
+	if !projectIDPattern.MatchString(projectID) || !s3BucketNamePattern.MatchString(bucket) {
+		return &bucketError{http.StatusBadRequest, "invalid project_id or target_bucket"}
+	}
 	if p.dataplaneBucket.WriterUserID == "" {
 		logg.Error("dataplane-config PUT: hermes.dataplane_writer_user_id (HERMES_DATAPLANE_WRITER_USER_ID) is not set, cannot enable dataplane for project %s", projectID)
 		return &bucketError{http.StatusServiceUnavailable, "dataplane bucket provisioning is not configured on this Hermes instance"}

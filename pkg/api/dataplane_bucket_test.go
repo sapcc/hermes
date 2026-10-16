@@ -516,3 +516,25 @@ func TestSameACL(t *testing.T) {
 		}
 	}
 }
+
+// TestEnsureDataplaneBucket_RejectsUnsafeNames proves the provisioning step
+// checks the names it puts into the object store URL itself, even when called
+// without the handler's validation: nothing is sent to the object store.
+func TestEnsureDataplaneBucket_RejectsUnsafeNames(t *testing.T) {
+	rgw := newFakeRGW(t)
+	p := &v1Provider{dataplaneBucket: dataplaneBucketConfig{WriterUserID: testWriterUserID}}
+	for _, c := range []struct{ project, bucket string }{
+		{testProjectID, "../other"},
+		{testProjectID, "a/b"},
+		{testProjectID, "hermes-audit?x=1"},
+		{"bad/project", "hermes-audit"},
+	} {
+		token := &gopherpolicy.Token{}
+		token.Context.Auth = scopedAuth(c.project)
+		berr := p.ensureDataplaneBucket(t.Context(), token, c.project, c.bucket)
+		if berr == nil || berr.Status != http.StatusBadRequest {
+			t.Errorf("project %q bucket %q: got %v, want 400", c.project, c.bucket, berr)
+		}
+	}
+	assertNoCalls(t, rgw)
+}
