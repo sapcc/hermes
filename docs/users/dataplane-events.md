@@ -81,14 +81,14 @@ curl -si -X PUT \
 
 Enabling needs a token scoped to the project in the path. A token scoped elsewhere, including a cloud administrator's, is rejected with 409, because the bucket has to be created by the project itself.
 
-On enable, Hermez uses your token to create the `hermes-audit` container (or the `target_bucket` you gave) in your project if it does not exist, and adds entries to its access lists so that your project can read it and Log Router can read and write it. Log Router needs read access as well, because each hour's digest is chained to the previous one. Running it again is safe. It keeps any other entries already in the access lists, and does not change them at all when the entries are already there. Then it writes a tiny object `.hermes-enable-probe` to check that the project has quota left, and deletes it again. Nothing is saved unless all of this works:
+On enable, Hermez uses your token to create the `hermes-audit` container (or the `target_bucket` you gave) in your project if it does not exist, and adds entries to its access lists so that your project can read it and Log Router can read and write it. Log Router needs read access as well, because each hour's digest is chained to the previous one. Running it again is safe. It keeps any other entries already in the access lists, and does not change them at all when the entries are already there. Then it writes a tiny object `.hermes-enable-probe` to check that the project has quota left, and deletes it again. If the bucket was already migrated by the operator but is not yet handed over to your project, the enable succeeds and the config is saved; the bucket stays as it is until the handover. Otherwise nothing is saved unless all of this works:
 
 | Status | Message | What to do |
 |---|---|---|
 | 403 | your token needs the objectstore_admin role in this project | Get the `objectstore_admin` role in the project and use a new token. |
 | 403 | object storage denied the request | The object store refused the request for another reason. Check the bucket's access lists. |
 | 409 | enable dataplane with a token scoped to the project | Use a token scoped to the project in the path, not a domain-scoped token or one for another project. |
-| 409 | container `<name>` exists but is owned by another project | Ask the operator to migrate the bucket, or choose another `target_bucket`. |
+| 409 | container `<name>` exists but is owned by another project | The bucket was not migrated. Ask the operator to migrate it, or choose another `target_bucket`. |
 | 409 | this project cannot create more containers | Delete an unused container, or ask for a higher container limit. |
 | 409 | container name is not available | Choose another `target_bucket`. |
 | 409 | project has no free object storage quota | Free up space or raise the project's object storage quota. |

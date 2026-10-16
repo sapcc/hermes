@@ -343,6 +343,27 @@ func TestEnableDataplane_SkipsPOSTWhenACLsComplete(t *testing.T) {
 	assertStored(t, store, true)
 }
 
+// TestEnableDataplane_AcceptsMigratedBucketNotHandedOver proves a container the
+// operator migrated (ACLs complete) but that is still owned by the operator
+// account is accepted when the probe is denied: no POST, config saved.
+func TestEnableDataplane_AcceptsMigratedBucketNotHandedOver(t *testing.T) {
+	rgw := newFakeRGW(t)
+	rgw.Exists = true
+	rgw.Read = testProjectID + ":*," + testWriterGrant
+	rgw.Write = testWriterGrant
+	rgw.Fail["PUT object"] = http.StatusForbidden
+	handler, store, _ := setupDataplaneTestWith(t, rgw, testWriterUserID, scopedAuth(testProjectID))
+
+	rec := putJSON(t, handler, map[string]any{"enabled": true})
+	assertResponse(t, rec, http.StatusOK, `"enabled": true`)
+
+	want := []string{"HEAD " + testContainer, "PUT " + testProbeObject}
+	if got := rgw.Methods(); !slices.Equal(got, want) {
+		t.Fatalf("object store calls = %q, want %q", got, want)
+	}
+	assertStored(t, store, true)
+}
+
 // TestEnableDataplane_ObjectStoreErrors proves RGW failures map to clear API
 // errors and nothing is saved.
 func TestEnableDataplane_ObjectStoreErrors(t *testing.T) {

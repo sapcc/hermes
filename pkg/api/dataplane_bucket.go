@@ -157,7 +157,9 @@ func (p *v1Provider) ensureDataplaneBucket(ctx context.Context, token *gopherpol
 	// Only POST when something is missing. Any ACL POST makes the requester the
 	// owner, and on a container that still belongs to another project it fails,
 	// even when the grants are already in place.
+	posted := false
 	if !sameACL(wantRead, currentRead) || !sameACL(wantWrite, currentWrite) {
+		posted = true
 		acl := http.Header{}
 		acl.Set("X-Container-Read", wantRead)
 		acl.Set("X-Container-Write", wantWrite)
@@ -178,6 +180,15 @@ func (p *v1Provider) ensureDataplaneBucket(ctx context.Context, token *gopherpol
 	probe, berr := store.do(ctx, http.MethodPut, probeURL, probeHeader, []byte{'\n'})
 	if berr != nil {
 		return berr
+	}
+	if probe.StatusCode == http.StatusForbidden && existed && !posted {
+		// The container is in the project's own account, so its owner is the
+		// project or an admin. The grants were already complete (the operator
+		// migration added them) and the probe is denied: the bucket is still
+		// owned by the operator account, waiting for the ownership handover.
+		// Its quota is not the project's yet, so the probe says nothing.
+		logg.Info("dataplane-config PUT: container %s of project %s is migrated but not handed over yet (probe denied), accepting", bucket, projectID)
+		return nil
 	}
 	if !isSuccess(probe.StatusCode) {
 		return fail(opProbe, http.MethodPut, probeURL, probe)
