@@ -53,14 +53,16 @@ log-router reads `project_id`, `enabled` and `target_bucket`. It never reads `up
 
 | Result | log-router does |
 |---|---|
-| no row | Project is disabled. Not an error. Admin copy only; customer copy counted in `log_router_events_dropped_total{reason="tenant_not_enabled"}`. Result is not cached. |
+| no row | Project is disabled. Not an error. Event is dropped and counted in `log_router_events_dropped_total{reason="tenant_not_enabled"}`. Result is not cached. |
 | `enabled = false` | Same as no row, except the result is cached. |
-| `enabled = true` | Admin copy, plus customer copy to account `AUTH_<project_id>`, container `target_bucket`. |
+| `enabled = true` | Event is written to account `AUTH_<project_id>`, container `target_bucket`. There is no admin copy. |
 | `enabled = true`, `target_bucket = ''` | Same as above with container `hermes-audit`. No warning. |
 
 hermez writes `hermes-audit` itself when a PUT has `enabled=true` and no bucket (#371), so the empty case only occurs for rows written before that change. log-router does not validate `target_bucket`; hermez validates it on PUT (`^[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]$`, no `--`).
 
-The admin copy doesn't depend on this table: it is written before any config lookup (`internal/router/router.go:390-407`), and the admin ingest path has no config client.
+The container is created by the project, not by log-router: when `enabled=true` is saved, hermez creates `target_bucket` in `AUTH_<project_id>` with the caller's project-scoped token (so the project owns it and its quota applies) and makes sure `X-Container-Read` holds `<project_id>:*` and `*:<writer keystone user id>` and `X-Container-Write` holds `*:<writer keystone user id>`. The writer needs read access to chain digests. log-router writes as that non-admin writer user. It must not create the container itself and must not use an admin identity for it.
+
+If the customer removes the writer from the ACLs, deletes the container, or the project is out of quota, the object store answers 403, 404 or 413 and log-router drops the partition (tenant DLQ first, if configured) and counts it in `log_router_events_dropped_total{reason}`. It is not retried and not copied anywhere else. 401, 5xx, timeouts and network errors are retried and the events kept.
 
 ## Caching and propagation
 
@@ -85,8 +87,8 @@ So after a PUT or DELETE in hermez:
 | Postgres error, entry cached | Cached entry used until it expires. |
 | Postgres error, no cached entry, at ingest | Error returned, not treated as disabled. Counted in `log_router_ingest_errors_total{reason="config_lookup"}`. RabbitMQ message requeued; after `LOG_ROUTER_RABBITMQ_MAX_REDELIVERIES` (default 3) rejected to the DLX if configured. |
 | Postgres error, no cached entry, at flush | Customer partition skipped and kept in the buffer for the next flush. Counted in `log_router_config_lookup_errors_total`. |
-| Any Postgres error | Admin copy continues. Nothing is written to a project container unless a lookup confirmed `enabled = true`. |
-| `LOG_ROUTER_DB_URL` unset | Not a failure mode but worth knowing: log-router uses a static config with every project enabled and no bucket, and writes every project's customer copy into the admin container under `default/YYYY/...`. Metering off. |
+| Any Postgres error | Nothing is written to a project container unless a lookup confirmed `enabled = true`. |
+| `LOG_ROUTER_DB_URL` unset | Not a failure mode but worth knowing: log-router uses a static config with every project enabled and metering off. Do not run it that way where customers expect their own buckets. |
 
 ## Not implemented
 

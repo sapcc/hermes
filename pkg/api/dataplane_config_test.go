@@ -100,22 +100,11 @@ func setupDataplaneTest(t *testing.T) (http.Handler, *routing.Mock, *audittools.
 // to deny cluster_viewer and exercise the cross-project 403 path.
 func setupDataplaneTestForbidding(t *testing.T, forbiddenRules ...string) (http.Handler, *routing.Mock, *audittools.MockAuditor) {
 	t.Helper()
-
-	enforcer := mock.NewEnforcer()
-	for _, rule := range forbiddenRules {
-		enforcer.Forbid(rule)
-	}
-	validator := mock.NewValidator(enforcer, map[string]string{
+	rgw := newFakeRGW(t)
+	return setupDataplaneTestWith(t, rgw, testWriterUserID, map[string]string{
 		"project_id": testProjectID,
 		"user_id":    "user-abc",
-	})
-	routingStore := routing.NewMock()
-	mockAuditor := audittools.NewMockAuditor()
-
-	prometheus.DefaultRegisterer = prometheus.NewPedanticRegistry()
-
-	v1API := NewV1API(validator, storage.Mock{}, routingStore, mockAuditor, nil, nil)
-	return httpapi.Compose(v1API, NewVersionAPI(v1API.VersionData()), NewMetricsAPI()), routingStore, mockAuditor
+	}, forbiddenRules...)
 }
 
 // putJSON issues a PUT to dataplaneConfigPath with a JSON body and returns the recorder.
@@ -369,33 +358,44 @@ func TestDataplaneConfig_CrossProjectForbidden(t *testing.T) {
 }
 
 // TestDataplaneConfig_CrossProjectCloudAdmin proves that a cloud admin
-// (cluster_viewer satisfied) CAN manage a different project's config, writing
-// to the path project. This mirrors the cross-project override in events.go.
+// (cluster_viewer satisfied) CAN disable a different project's config, writing
+// to the path project, but cannot enable it: the bucket must be created by the
+// project's own token.
 func TestDataplaneConfig_CrossProjectCloudAdmin(t *testing.T) {
 	handler, store, _ := setupDataplaneTestForbidding(t) // cluster_viewer allowed by default; token project_id = testProjectID
 
 	differentProject := "other-project-99"
 	otherPath := "/v1/projects/" + differentProject + "/dataplane-config"
 
-	putBody, err := json.Marshal(map[string]any{"enabled": true, "target_bucket": "hermes-audit"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	putReq := httptest.NewRequest(http.MethodPut, otherPath, bytes.NewReader(putBody))
-	putReq.Header.Set("X-Auth-Token", "something")
-	putReq.Header.Set("Content-Type", "application/json")
-	putRec := httptest.NewRecorder()
-	handler.ServeHTTP(putRec, putReq)
-	if putRec.Code != http.StatusOK {
-		t.Fatalf("cloud-admin PUT to different project: expected 200, got %d: %s", putRec.Code, putRec.Body.String())
+	put := func(enabled bool) *httptest.ResponseRecorder {
+		body, err := json.Marshal(map[string]any{"enabled": enabled, "target_bucket": "hermes-audit"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		req := httptest.NewRequest(http.MethodPut, otherPath, bytes.NewReader(body))
+		req.Header.Set("X-Auth-Token", "something")
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+		return rec
 	}
 
+	if rec := put(true); rec.Code != http.StatusConflict {
+		t.Fatalf("cloud-admin enable for different project: expected 409, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if _, err := store.Get(t.Context(), differentProject); err == nil {
+		t.Fatal("rejected enable must not save a config")
+	}
+
+	if rec := put(false); rec.Code != http.StatusOK {
+		t.Fatalf("cloud-admin disable for different project: expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
 	// The config must be written under the PATH project, not the token's project.
-	cfg, err := store.Get(putReq.Context(), differentProject)
+	cfg, err := store.Get(t.Context(), differentProject)
 	if err != nil {
 		t.Fatalf("expected config for %s, got error: %s", differentProject, err)
 	}
-	if !cfg.Enabled || cfg.TargetBucket != "hermes-audit" {
+	if cfg.Enabled || cfg.TargetBucket != "hermes-audit" {
 		t.Errorf("unexpected saved config: %+v", cfg)
 	}
 }
