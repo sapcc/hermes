@@ -75,6 +75,7 @@ func setDefaultConfig() {
 	viper.SetDefault("hermes.keystone_driver", "keystone")
 	viper.SetDefault("hermes.storage_driver", "opensearch")
 	viper.SetDefault("hermes.routing_store_driver", "postgres")
+	viper.SetDefault("hermes.dataplane_swift_service_type", "object-store-ceph")
 	viper.SetDefault("API.ListenAddress", "0.0.0.0:8788")
 	viper.SetDefault("API.RateLimit.RequestsPerSecond", 0.0)
 	viper.SetDefault("API.RateLimit.Burst", 0)
@@ -92,6 +93,14 @@ func readConfig(configPath *string) {
 
 	// Bind OpenSearch environment variables
 	err := viper.BindEnv("opensearch.username", "HERMES_OS_USERNAME")
+	if err != nil {
+		logg.Fatal(err.Error())
+	}
+	err = viper.BindEnv("hermes.dataplane_writer_user_id", "HERMES_DATAPLANE_WRITER_USER_ID")
+	if err != nil {
+		logg.Fatal(err.Error())
+	}
+	err = viper.BindEnv("hermes.dataplane_swift_service_type", "HERMES_DATAPLANE_SWIFT_SERVICE_TYPE")
 	if err != nil {
 		logg.Fatal(err.Error())
 	}

@@ -35,8 +35,6 @@ RabbitMQ (dataplane.audit queue)
       ▼
 Log Router (validates, buffers, signs)
       │
-      ├─► ccadmin/master bucket (admin copy, always written)
-      │
       └─► Your object storage bucket (events/_Default/…)
 ```
 
@@ -55,12 +53,13 @@ The digest chain lets you detect any tampering or deletion after the fact. See [
 
 ### Prerequisites
 
-- You need the **`audit_admin`** role, scoped to the project you want to enable. This satisfies the `dataplane_config:manage` policy (which resolves to the `project_admin` rule, defined as `project_scope and role:audit_admin`). Cloud administrators can manage any project's configuration without this role. To grant it (requires cloud admin):
+- You need the **`audit_admin`** role, scoped to the project you want to enable. This satisfies the `dataplane_config:manage` policy (which resolves to the `project_admin` rule, defined as `project_scope and role:audit_admin`). Cloud administrators can manage any project's configuration without this role, except enabling it: that needs a token scoped to the project itself. To grant it (requires cloud admin):
 
   ```sh
   openstack role add --user <username> --project <project-id> audit_admin
   ```
-- A destination bucket to receive events. **Do not create this bucket yourself** — it is provisioned for you as `hermes-audit` when routing is enabled, with Object Lock and versioning so the audit trail is tamper-evident.
+- The **`objectstore_admin`** role in the same project, in addition to `audit_admin`. `audit_admin` does not include it. Enabling routing creates the destination bucket in your project with your own token, and the object store only accepts that from a token carrying this role. Without it, enabling fails with 403.
+- Free object storage quota in the project. The bucket belongs to your project, so the events count against your quota and billing, not ours. Enabling checks this by writing a tiny object (`.hermes-enable-probe`) into the bucket and deleting it again.
 
 ### Step 1 — Enable dataplane routing with hermescli
 
@@ -80,7 +79,26 @@ curl -si -X PUT \
 # Expected: HTTP/1.1 200 OK, returning the saved configuration
 ```
 
-The path `project_id` must match your token's project scope (unless you are a cloud administrator). Events are delivered to the `hermes-audit` bucket, which is provisioned for you.
+Enabling needs a token scoped to the project in the path. A token scoped elsewhere, including a cloud administrator's, is rejected with 409, because the bucket has to be created by the project itself.
+
+On enable, Hermez uses your token to create the `hermes-audit` container (or the `target_bucket` you gave) in your project if it does not exist, and adds entries to its access lists so that your project can read it and Log Router can read and write it. Log Router needs read access as well, because each hour's digest is chained to the previous one. Running it again is safe. It keeps any other entries already in the access lists, and does not change them at all when the entries are already there. Then it writes a tiny object `.hermes-enable-probe` to check that the project has quota left, and deletes it again. If the bucket was already migrated by the operator but is not yet handed over to your project, the enable succeeds and the config is saved; the bucket stays as it is until the handover. Otherwise nothing is saved unless all of this works:
+
+| Status | Message | What to do |
+|---|---|---|
+| 403 | your token needs the objectstore_admin role in this project | Get the `objectstore_admin` role in the project and use a new token. |
+| 403 | object storage denied the request | The object store refused the request for another reason. Check the bucket's access lists. |
+| 409 | enable dataplane with a token scoped to the project | Use a token scoped to the project in the path, not a domain-scoped token or one for another project. |
+| 409 | container `<name>` exists but is owned by another project | The bucket was not migrated. Ask the operator to migrate it, or choose another `target_bucket`. |
+| 409 | this project cannot create more containers | Delete an unused container, or ask for a higher container limit. |
+| 409 | container name is not available | Choose another `target_bucket`. |
+| 409 | project has no free object storage quota | Free up space or raise the project's object storage quota. |
+| 502 | | The object store failed or could not be reached. Try again. |
+| 503 | object storage for dataplane is not available in this region | The object store this feature uses does not exist in this region. |
+| 503 | dataplane bucket provisioning is not configured on this Hermes instance | Ask the operator. |
+
+You own the bucket. Do not remove the Log Router entries from its access lists or delete the bucket while routing is enabled.
+
+If you later change `target_bucket`, Hermez sets up the new bucket the same way but does not touch the old one. Remove the Log Router entries (`*:<writer user id>`) from the old bucket's read and write access lists yourself if you no longer want Log Router to have access to it.
 
 </details>
 
@@ -179,10 +197,21 @@ Events are stored in NDJSON format (one JSON object per line) in the `S0.json` d
 
 To stop routing events to your bucket, use hermescli to either disable the configuration (`dataplane-config set` with routing turned off) or delete it entirely (`dataplane-config delete`). See the [hermescli Dataplane Config documentation](https://github.com/sapcc/hermescli#dataplane-config) for the exact commands.
 
-Events that arrived before disabling are not deleted from your bucket. The config cache takes up to 5 minutes to propagate, after which new events stop being routed.
+Disabling or deleting the configuration does not touch the bucket. Events that arrived before disabling are not deleted from your bucket. The config cache takes up to 5 minutes to propagate, after which new events stop being routed.
+
+## When events are dropped
+
+Log Router writes to your bucket as a separate user that your bucket's write access list allows. If that stops working, it drops your events for the affected hour instead of retrying forever, and there is no other copy of them anywhere. This happens when you:
+
+- remove the Log Router entry from the container's read or write access list,
+- delete the bucket, or
+- run out of object storage quota.
+
+Re-enable routing (run the same enable command again) to recreate the bucket and restore the access lists. Events dropped in the meantime are not recovered. Failures on our side (timeouts, 5xx) are retried and the events are kept.
 
 ## Known limitations
 
 - **Config propagation delay**: Changes take effect within ~5 minutes due to the config cache TTL.
+- **No Object Lock or versioning**: the bucket is a plain container. Tamper evidence comes from the signed `manifest.json` and chained `digest.json` files, not from the storage.
 - **No backfill**: Events generated before you enabled dataplane routing are not retroactively delivered. Only events arriving after the cache expires are routed to your bucket.
 - **Late-arrival shards**: Events occasionally arrive after their hour's primary batch has been flushed. These are stored in addendum shards (`A1_0.json`, `A2_0.json`, …) with their own `manifest_A1.json` and `digest_A1.json` files alongside the primary shard.

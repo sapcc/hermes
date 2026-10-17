@@ -56,6 +56,7 @@ Environment variables the code reads:
 |---|---|
 | `HERMES_DEBUG` | Debug logging |
 | `HERMES_OS_USERNAME`, `HERMES_OS_PASSWORD` | OpenSearch basic auth |
+| `HERMES_DATAPLANE_WRITER_USER_ID`, `HERMES_DATAPLANE_SWIFT_SERVICE_TYPE` | Writer user ID for the bucket read and write ACLs and the catalog type of the object store. Used when a PUT enables dataplane and Hermes creates the bucket with the caller's token |
 | `HERMES_PG_HOSTNAME`, `HERMES_PG_PORT`, `HERMES_PG_USERNAME`, `HERMES_PG_PASSWORD`, `HERMES_PG_DBNAME`, `HERMES_PG_CONNECTION_OPTIONS` | Postgres for the routing store |
 | `HERMES_AUDIT_RABBITMQ_QUEUE_NAME` and the other `HERMES_AUDIT_RABBITMQ_*` settings | Where Hermes sends its own CADF events for dataplane-config changes. Unset means events are only logged at debug level |
 
@@ -79,7 +80,7 @@ Reference: [docs/users/hermez-v1-reference.md](docs/users/hermez-v1-reference.md
 - **JSON responses:** use `ReturnESJSON` (`pkg/api/response.go`), not `respondwith.JSON`. It turns Go's `&` escape back into a literal `&` and sets the `nosniff` and `no-store` headers.
 - **Errors:** use `respondwith.ObfuscatedErrorText` for backend/storage failures. The client gets an opaque ID and the details are logged, so OpenSearch or Postgres internals never reach callers. Only 4xx responses about the caller's own input say what went wrong; the handlers write those with `http.Error`.
 - **Tenant isolation:** it's per document, not per index. Every query filters on the `tenant_ids` field. `storage.AllTenants` (`"*"`) turns that filter off and is only for admin (`cluster_viewer`) queries. Storage rejects empty tenant IDs and the literal `"unavailable"`.
-- **Writes:** the dataplane-config endpoints are the only write path. Besides the policy rule, `authDataplaneConfig` requires the path `project_id` to match the token's project, unless the caller is a cloud admin (`cluster_viewer`). Copy this pattern for any new mutating endpoint.
+- **Writes:** the dataplane-config endpoints are the only write path. Besides the policy rule, `authDataplaneConfig` requires the path `project_id` to match the token's project, unless the caller is a cloud admin (`cluster_viewer`). Copy this pattern for any new mutating endpoint. Enabling dataplane is stricter: it creates the bucket with the caller's token, so even a cloud admin needs a token scoped to that project (`ensureDataplaneBucket` answers 409 otherwise).
 - **Parameter parsing:** sort, time range, limit and offset parsing in `pkg/api/events.go` is strict and validated. Extend it; don't bypass it.
 - **go-bits:** use its helpers: `logg`, `must.Succeed`/`must.Return` at startup, `errext.As` instead of manual type assertions, `osext` for env parsing.
 - **Imports:** stdlib, then third party, then `github.com/sapcc/hermes` (goimports enforces this).

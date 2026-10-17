@@ -180,6 +180,16 @@ func (p *v1Provider) PutDataplaneConfig(res http.ResponseWriter, req *http.Reque
 		UpdatedBy:    userID,
 	}
 
+	// Enabling creates the bucket in the caller's project. Nothing is saved
+	// unless that works. Disabling never touches the bucket.
+	if cfg.Enabled {
+		if berr := p.ensureDataplaneBucket(req.Context(), token, projectID, cfg.TargetBucket); berr != nil {
+			http.Error(res, berr.Message, berr.Status)
+			recordAttempt(berr.Status, &cfg)
+			return
+		}
+	}
+
 	if err := p.routingStore.Upsert(req.Context(), cfg); err != nil {
 		logg.Error("dataplane-config PUT: storage error for project %s: %s", projectID, err)
 		respondwith.ObfuscatedErrorText(res, err)
@@ -267,8 +277,10 @@ func (p *v1Provider) authDataplaneConfig(res http.ResponseWriter, req *http.Requ
 	// Cross-project access check: the path project_id must match the token
 	// scope, unless the caller is a cloud admin (cluster_viewer). This mirrors
 	// the cross-project override in events.go (getIndexID), letting operators
-	// manage dataplane config on a tenant's behalf. token.Check does not write
-	// a response, so we emit the 403 ourselves.
+	// manage dataplane config on a tenant's behalf. The exception is enabling:
+	// that creates the bucket in the project, so ensureDataplaneBucket requires
+	// a token scoped to the project itself. token.Check does not write a
+	// response, so we emit the 403 ourselves.
 	tokenProjectID := token.Context.Auth["project_id"]
 	if tokenProjectID != pathProjectID && !token.Check("cluster_viewer") {
 		http.Error(res, "project_id in path does not match token scope", http.StatusForbidden)

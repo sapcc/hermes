@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	"github.com/gorilla/mux"
+	"github.com/spf13/viper"
 
 	"github.com/sapcc/go-bits/audittools"
 	"github.com/sapcc/go-bits/gopherpolicy"
@@ -39,6 +40,11 @@ type v1Provider struct {
 	storage      storage.Storage
 	routingStore routing.Store
 	auditor      audittools.Auditor
+
+	// dataplaneBucket and bucketHTTPClient drive the bucket creation on
+	// enabling dataplane routing. A nil bucketHTTPClient selects the default.
+	dataplaneBucket  dataplaneBucketConfig
+	bucketHTTPClient *http.Client
 }
 
 // AuthHandler wraps endpoint handlers with consistent auth logic.
@@ -98,6 +104,10 @@ func NewV1API(validator gopherpolicy.Validator, storageInterface storage.Storage
 			storage:      storageInterface,
 			routingStore: routingStore,
 			auditor:      auditor,
+			dataplaneBucket: dataplaneBucketConfig{
+				WriterUserID: viper.GetString("hermes.dataplane_writer_user_id"),
+				ServiceType:  viper.GetString("hermes.dataplane_swift_service_type"),
+			},
 		},
 	}
 
