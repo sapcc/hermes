@@ -53,7 +53,8 @@ func main() {
 	ctx := httpext.ContextWithSIGINT(context.Background(), 10*time.Second)
 	auditor := configuredAuditor(ctx)
 
-	keystoneDriver := configuredKeystoneDriver()
+	keystoneDriver, serviceUserID := configuredKeystoneDriver()
+	configureDataplaneWriter(serviceUserID)
 	storageDriver := configuredStorageDriver()
 	routingStore := configuredRoutingStore(ctx)
 
@@ -124,19 +125,35 @@ func readConfig(configPath *string) {
 	}
 }
 
-func configuredKeystoneDriver() gopherpolicy.Validator {
+// configureDataplaneWriter fills hermes.dataplane_writer_user_id with the
+// service user's ID when the operator did not set it, and logs the result.
+func configureDataplaneWriter(serviceUserID string) {
+	id, source := identity.ResolveWriterUserID(viper.GetString("hermes.dataplane_writer_user_id"), serviceUserID)
+	if id == "" {
+		logg.Info("no dataplane writer user ID: enabling dataplane will fail with 503 until hermes.dataplane_writer_user_id is set")
+		return
+	}
+	viper.Set("hermes.dataplane_writer_user_id", id)
+	logg.Info("dataplane writer user ID is %s (from %s)", id, source)
+}
+
+// configuredKeystoneDriver returns the token validator and, for the keystone
+// driver, the user ID of Hermes' own service token ("" otherwise).
+func configuredKeystoneDriver() (validator gopherpolicy.Validator, serviceUserID string) {
 	driverName := viper.GetString("hermes.keystone_driver")
 	switch driverName {
 	case "keystone":
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		return must.Return(identity.NewTokenValidator(ctx))
+		tv, userID, err := identity.NewTokenValidator(ctx)
+		must.Succeed(err)
+		return tv, userID
 	case "mock":
 		logg.Error("SECURITY WARNING: hermes.keystone_driver is set to \"mock\" — all requests are authorized without real Keystone token validation. This must NEVER be used in production.")
-		return mock.NewValidator(mock.NewEnforcer(), nil)
+		return mock.NewValidator(mock.NewEnforcer(), nil), ""
 	default:
 		logg.Fatal("unknown keystone_driver %q", driverName)
-		return nil // unreachable
+		return nil, "" // unreachable
 	}
 }
 
