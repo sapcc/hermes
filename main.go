@@ -133,10 +133,19 @@ func configureDataplaneWriter(serviceUser identity.ServiceUser) {
 	id, source := identity.ResolveWriterUserID(viper.GetString("hermes.dataplane_writer_user_id"), serviceUser.ID)
 	viper.Set("hermes.dataplane_writer_user_id", id)
 	if id == "" {
-		logg.Error("no dataplane writer user ID: enabling dataplane will fail with 503 until hermes.dataplane_writer_user_id is set")
+		msg := "no dataplane writer user ID: enabling dataplane will fail with 503 until hermes.dataplane_writer_user_id is set"
+		if viper.GetString("hermes.keystone_driver") == "keystone" {
+			logg.Error(msg)
+		} else {
+			logg.Info(msg)
+		}
 		return
 	}
-	logg.Info("dataplane writer user ID is %s (from %s); Hermes' own service user is %s (ID %q); log-router must authenticate as the writer user", id, source, serviceUser, serviceUser.ID)
+	if serviceUser.ID == "" {
+		logg.Info("dataplane writer user ID is %s (from %s); Hermes' own service user could not be read; log-router must authenticate as the writer user", id, source)
+		return
+	}
+	logg.Info("dataplane writer user ID is %s (from %s); Hermes' own service user is %s (ID %s); log-router must authenticate as the writer user", id, source, serviceUser, serviceUser.ID)
 }
 
 // configuredKeystoneDriver returns the token validator and, for the keystone

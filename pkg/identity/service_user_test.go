@@ -27,6 +27,7 @@ func TestReadServiceUser(t *testing.T) {
 	withUser := map[string]any{"token": map[string]any{"user": map[string]any{"id": "user-123", "name": "hermes", "domain": map[string]any{"id": "default", "name": "Default"}}}}
 	noUser := map[string]any{"token": map[string]any{}}
 	emptyID := map[string]any{"token": map[string]any{"user": map[string]any{"name": "hermes"}}}
+	domainIDOnly := map[string]any{"token": map[string]any{"user": map[string]any{"id": "user-123", "name": "hermes", "domain": map[string]any{"id": "default"}}}}
 
 	tests := []struct {
 		name    string
@@ -35,6 +36,7 @@ func TestReadServiceUser(t *testing.T) {
 		wantErr bool
 	}{
 		{"user in token", clientWithAuthResult(t, withUser), ServiceUser{ID: "user-123", Name: "hermes", Domain: "Default"}, false},
+		{"domain id when the name is missing", clientWithAuthResult(t, domainIDOnly), ServiceUser{ID: "user-123", Name: "hermes", Domain: "default"}, false},
 		{"token without user", clientWithAuthResult(t, noUser), ServiceUser{}, true},
 		{"user without id", clientWithAuthResult(t, emptyID), ServiceUser{}, true},
 		{"no auth result", &gophercloud.ProviderClient{}, ServiceUser{}, true},
