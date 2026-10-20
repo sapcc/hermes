@@ -17,13 +17,13 @@ import (
 
 // NewTokenValidator connects to Keystone using the provided OpenStack
 // credentials and constructs a gopherpolicy.TokenValidator instance. It also
-// returns the user ID of the service token, or "" with a logged warning when
-// the ID cannot be read.
-func NewTokenValidator(ctx context.Context) (*gopherpolicy.TokenValidator, string, error) {
+// returns the user of the service token, or the zero value with a logged
+// error when it cannot be read.
+func NewTokenValidator(ctx context.Context) (*gopherpolicy.TokenValidator, ServiceUser, error) {
 	opts := authOptions()
 	providerClient, err := openstack.AuthenticatedClient(ctx, opts)
 	if err != nil {
-		return nil, "", fmt.Errorf("cannot initialize OpenStack client: %w", err)
+		return nil, ServiceUser{}, fmt.Errorf("cannot initialize OpenStack client: %w", err)
 	}
 
 	//TODO: crashes with RegionName != ""
@@ -31,12 +31,12 @@ func NewTokenValidator(ctx context.Context) (*gopherpolicy.TokenValidator, strin
 		gophercloud.EndpointOpts{Region: "", Availability: gophercloud.AvailabilityPublic},
 	)
 	if err != nil {
-		return nil, "", fmt.Errorf("cannot initialize Keystone client: %w", err)
+		return nil, ServiceUser{}, fmt.Errorf("cannot initialize Keystone client: %w", err)
 	}
 
-	serviceUserID, err := ServiceUserID(providerClient)
+	serviceUser, err := ReadServiceUser(providerClient)
 	if err != nil {
-		logg.Error("cannot determine the service user ID: %s", err)
+		logg.Error("cannot determine the service user: %s", err)
 	}
 
 	tv := gopherpolicy.TokenValidator{
@@ -45,10 +45,10 @@ func NewTokenValidator(ctx context.Context) (*gopherpolicy.TokenValidator, strin
 	}
 	err = tv.LoadPolicyFile(viper.GetString("hermes.PolicyFilePath"), nil)
 	if err != nil {
-		return nil, "", err
+		return nil, ServiceUser{}, err
 	}
 
-	return &tv, serviceUserID, nil
+	return &tv, serviceUser, nil
 }
 
 func authOptions() gophercloud.AuthOptions {

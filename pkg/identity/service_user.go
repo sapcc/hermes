@@ -6,6 +6,7 @@ package identity
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/tokens"
@@ -17,35 +18,58 @@ const (
 	WriterSourceServiceToken = "service token"
 )
 
-// ServiceUserID returns the Keystone user ID that the provider client's token
+// ServiceUser identifies the Keystone user of Hermes' own service token.
+type ServiceUser struct {
+	ID     string
+	Name   string
+	Domain string
+}
+
+// String formats the user for log lines, e.g. "hermes@Default".
+func (u ServiceUser) String() string {
+	if u.Name == "" {
+		return "unknown name"
+	}
+	if u.Domain == "" {
+		return u.Name
+	}
+	return u.Name + "@" + u.Domain
+}
+
+// ReadServiceUser returns the Keystone user that the provider client's token
 // was issued for.
-func ServiceUserID(client *gophercloud.ProviderClient) (string, error) {
+func ReadServiceUser(client *gophercloud.ProviderClient) (ServiceUser, error) {
 	if client == nil {
-		return "", errors.New("no provider client")
+		return ServiceUser{}, errors.New("no provider client")
 	}
 	// Both tokens.CreateResult and tokens.GetResult implement this.
 	result, ok := client.GetAuthResult().(interface {
 		ExtractUser() (*tokens.User, error)
 	})
 	if !ok {
-		return "", fmt.Errorf("unexpected auth result of type %T, cannot read the token's user", client.GetAuthResult())
+		return ServiceUser{}, fmt.Errorf("unexpected auth result of type %T, cannot read the token's user", client.GetAuthResult())
 	}
 	user, err := result.ExtractUser()
 	if err != nil {
-		return "", fmt.Errorf("cannot read the user from the service token: %w", err)
+		return ServiceUser{}, fmt.Errorf("cannot read the user from the service token: %w", err)
 	}
 	if user == nil || user.ID == "" {
-		return "", errors.New("the service token has no user ID")
+		return ServiceUser{}, errors.New("the service token has no user ID")
 	}
-	return user.ID, nil
+	domain := user.Domain.Name
+	if domain == "" {
+		domain = user.Domain.ID
+	}
+	return ServiceUser{ID: user.ID, Name: user.Name, Domain: domain}, nil
 }
 
 // ResolveWriterUserID picks the dataplane writer user ID: the configured value
-// if there is one, else the service user's ID. It also returns where the ID
-// came from. The ID is empty when neither is available.
+// if it is not blank, else the service user's ID. A configured value is
+// trimmed. It also returns where the ID came from. The ID is empty when
+// neither is available.
 func ResolveWriterUserID(configured, serviceUserID string) (id, source string) {
-	if configured != "" {
-		return configured, WriterSourceConfig
+	if c := strings.TrimSpace(configured); c != "" {
+		return c, WriterSourceConfig
 	}
 	return serviceUserID, WriterSourceServiceToken
 }
