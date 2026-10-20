@@ -53,7 +53,8 @@ func main() {
 	ctx := httpext.ContextWithSIGINT(context.Background(), 10*time.Second)
 	auditor := configuredAuditor(ctx)
 
-	keystoneDriver := configuredKeystoneDriver()
+	keystoneDriver, serviceUser := configuredKeystoneDriver()
+	configureDataplaneWriter(serviceUser)
 	storageDriver := configuredStorageDriver()
 	routingStore := configuredRoutingStore(ctx)
 
@@ -124,19 +125,46 @@ func readConfig(configPath *string) {
 	}
 }
 
-func configuredKeystoneDriver() gopherpolicy.Validator {
+// configureDataplaneWriter fills hermes.dataplane_writer_user_id with the
+// service user's ID when the operator did not set it, and logs the result. The
+// writer must be the user log-router authenticates as, so the log names the
+// service user for comparison.
+func configureDataplaneWriter(serviceUser identity.ServiceUser) {
+	id, source := identity.ResolveWriterUserID(viper.GetString("hermes.dataplane_writer_user_id"), serviceUser.ID)
+	viper.Set("hermes.dataplane_writer_user_id", id)
+	if id == "" {
+		msg := "no dataplane writer user ID: enabling dataplane will fail with 503 until hermes.dataplane_writer_user_id is set"
+		if viper.GetString("hermes.keystone_driver") == "keystone" {
+			logg.Error(msg)
+		} else {
+			logg.Info(msg)
+		}
+		return
+	}
+	if serviceUser.ID == "" {
+		logg.Info("dataplane writer user ID is %s (from %s); Hermes' own service user could not be read; log-router must authenticate as the writer user", id, source)
+		return
+	}
+	logg.Info("dataplane writer user ID is %s (from %s); Hermes' own service user is %s (ID %s); log-router must authenticate as the writer user", id, source, serviceUser, serviceUser.ID)
+}
+
+// configuredKeystoneDriver returns the token validator and, for the keystone
+// driver, the user of Hermes' own service token (zero value otherwise).
+func configuredKeystoneDriver() (validator gopherpolicy.Validator, serviceUser identity.ServiceUser) {
 	driverName := viper.GetString("hermes.keystone_driver")
 	switch driverName {
 	case "keystone":
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		return must.Return(identity.NewTokenValidator(ctx))
+		tv, user, err := identity.NewTokenValidator(ctx)
+		must.Succeed(err)
+		return tv, user
 	case "mock":
 		logg.Error("SECURITY WARNING: hermes.keystone_driver is set to \"mock\" — all requests are authorized without real Keystone token validation. This must NEVER be used in production.")
-		return mock.NewValidator(mock.NewEnforcer(), nil)
+		return mock.NewValidator(mock.NewEnforcer(), nil), identity.ServiceUser{}
 	default:
 		logg.Fatal("unknown keystone_driver %q", driverName)
-		return nil // unreachable
+		return nil, identity.ServiceUser{} // unreachable
 	}
 }
 

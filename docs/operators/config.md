@@ -32,7 +32,7 @@ Section and key names are not case-sensitive.
 | `storage_driver` | `opensearch` | `opensearch` reads events from OpenSearch. `mock` serves a few static events; development only. |
 | `routing_store_driver` | `postgres` | Store for the per-project dataplane-config. `postgres` needs the `HERMES_PG_*` variables below. `mock` keeps it in memory and loses it on restart. |
 | `dataplane_swift_service_type` | `object-store-ceph` | Service catalog type of the Ceph RGW Swift endpoint. When a project enables dataplane, Hermes creates its bucket there using the caller's own token. The `HERMES_DATAPLANE_SWIFT_SERVICE_TYPE` environment variable takes precedence. |
-| `dataplane_writer_user_id` | (empty) | Keystone user ID of the log-router writer user. It is put into the bucket's write ACL as `*:<id>`. Required: while it is empty, enabling dataplane fails with 503. The `HERMES_DATAPLANE_WRITER_USER_ID` environment variable takes precedence. |
+| `dataplane_writer_user_id` | (the `[keystone]` service user) | Keystone user ID of the log-router writer user. It is put into the bucket's ACLs as `*:<id>`. When empty (or only whitespace), Hermes uses the user ID of its own `[keystone]` service user. That user must be the one log-router authenticates as. In the helm chart both are the hermes user, so keep them the same or set this explicitly. At startup Hermes logs the resolved ID and the service user name and domain so you can compare them with log-router's user. If neither is available, enabling dataplane fails with 503. The `HERMES_DATAPLANE_WRITER_USER_ID` environment variable takes precedence. |
 | `PolicyFilePath` | (none) | Path of the [OpenStack policy file](https://docs.openstack.org/security-guide/identity/policies.html). Required when `keystone_driver` is `keystone`; Hermes exits at startup if it is empty. See [`etc/policy.json`](../../etc/policy.json) or the identical [`docs/example-policy.json`](../example-policy.json). |
 
 The policy file must define the rules Hermes checks: `event:list`, `event:show`,
@@ -99,7 +99,7 @@ lifetime, and no memcached support.
 | `HERMES_DEBUG` | `false` | `true` turns on debug logging. |
 | `HERMES_OS_USERNAME` | | OpenSearch user; overrides `opensearch.username`. |
 | `HERMES_OS_PASSWORD` | | OpenSearch password; overrides `opensearch.password`. |
-| `HERMES_DATAPLANE_WRITER_USER_ID` | (empty) | Overrides `hermes.dataplane_writer_user_id`. |
+| `HERMES_DATAPLANE_WRITER_USER_ID` | (the `[keystone]` service user) | Overrides `hermes.dataplane_writer_user_id`. |
 | `HERMES_DATAPLANE_SWIFT_SERVICE_TYPE` | `object-store-ceph` | Overrides `hermes.dataplane_swift_service_type`. |
 | `HERMES_PG_HOSTNAME` | `localhost` | Postgres host for the dataplane-config store. |
 | `HERMES_PG_PORT` | `5432` | Postgres port. |

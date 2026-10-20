@@ -77,7 +77,7 @@ func (p *v1Provider) ensureDataplaneBucket(ctx context.Context, token *gopherpol
 		return &bucketError{http.StatusBadRequest, "invalid project_id or target_bucket"}
 	}
 	if p.dataplaneBucket.WriterUserID == "" {
-		logg.Error("dataplane-config PUT: hermes.dataplane_writer_user_id (HERMES_DATAPLANE_WRITER_USER_ID) is not set, cannot enable dataplane for project %s", projectID)
+		logg.Error("dataplane-config PUT: no writer user ID: hermes.dataplane_writer_user_id (HERMES_DATAPLANE_WRITER_USER_ID) is not set and the service token has none, cannot enable dataplane for project %s", projectID)
 		return &bucketError{http.StatusServiceUnavailable, "dataplane bucket provisioning is not configured on this Hermes instance"}
 	}
 	if token.ProviderClient == nil || token.ProviderClient.EndpointLocator == nil {
