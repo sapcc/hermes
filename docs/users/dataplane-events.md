@@ -98,7 +98,7 @@ On enable, Hermez uses your token to create the `hermes-audit` container (or the
 
 You own the bucket. Do not remove the Log Router entries from its access lists or delete the bucket while routing is enabled.
 
-If you later change `target_bucket`, Hermez sets up the new bucket the same way but does not touch the old one. Remove the Log Router entries (`*:<writer user id>`) from the old bucket's read and write access lists yourself if you no longer want Log Router to have access to it.
+If you later change `target_bucket`, Hermez sets up the new bucket the same way but does not touch the old one. Remove the Log Router entries (`*:<writer user id>`) from the old bucket's read and write access lists yourself if you no longer want Log Router to have access to it. The writer user is the Hermez service user that Log Router also runs as, unless the operator configured another one.
 
 </details>
 
