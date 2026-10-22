@@ -60,8 +60,8 @@ github.com/sagikazarmark/locafero v0.12.0 h1:/NQhBAkUb4+fH1jivKHWusDYFjMOOKU88ee
 github.com/sagikazarmark/locafero v0.12.0/go.mod h1:sZh36u/YSZ918v0Io+U9ogLYQJ9tLLBmM4eneO6WwsI=
 github.com/sapcc/go-api-declarations v1.25.1 h1:Lrbf8TZY/ARg0J9IrlrObqnXjrzSzmYKQd/L/a71Lsg=
 github.com/sapcc/go-api-declarations v1.25.1/go.mod h1:bJkK8wphzlmUmN5lxBv8BbfxUXMOkW+UiC10xBHXsFs=
-github.com/sapcc/go-bits v0.0.0-20261013222358-416f3ade2c19 h1:JKZe05UIn70AalARFEN5IKSh7yhb6wPCEUNn/41VNM8=
-github.com/sapcc/go-bits v0.0.0-20261013222358-416f3ade2c19/go.mod h1:Z2uDp3zty2oJAXAVZZaUazo3uGZ6G2zBfauNtEl+EHw=
+github.com/sapcc/go-bits v0.0.0-20261022170030-e86fd39c4acb h1:gKUNr2yRhvl899EW4/Y+ZT+fMN7pqtJWTfTJaAuGrNI=
+github.com/sapcc/go-bits v0.0.0-20261022170030-e86fd39c4acb/go.mod h1:Z2uDp3zty2oJAXAVZZaUazo3uGZ6G2zBfauNtEl+EHw=
 github.com/spf13/afero v1.15.0 h1:b/YBCLWAJdFWJTN9cLhiXXcD7mzKn9Dm86dNnfyQw1I=
 github.com/spf13/afero v1.15.0/go.mod h1:NC2ByUVxtQs4b3sIUphxK0NioZnmxgyCrfzeuq8lxMg=
 github.com/spf13/cast v1.10.0 h1:h2x0u2shc1QuLHfxi+cTJvs30+ZAHOGRic8uyGTDWxY=
